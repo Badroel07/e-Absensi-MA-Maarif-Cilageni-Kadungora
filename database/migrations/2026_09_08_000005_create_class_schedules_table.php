@@ -1,0 +1,27 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('class_schedules', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->foreignUuid('classroom_id')->constrained('classrooms')->cascadeOnDelete();
+            $table->foreignUuid('subject_id')->constrained('subjects')->cascadeOnDelete();
+            $table->foreignUuid('teacher_id')->constrained('users')->cascadeOnDelete();
+            $table->string('day_of_week'); // Senin, Selasa, dsb.
+            $table->time('start_time');
+            $table->time('end_time');
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('class_schedules');
+    }
+};

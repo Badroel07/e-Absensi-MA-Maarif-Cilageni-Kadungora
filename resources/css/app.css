@@ -1,0 +1,40 @@
+@import 'tailwindcss';
+
+@source '../views/**/*.blade.php';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-heading: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --color-maarif-50: #f0fdf4;
+    --color-maarif-100: #dcfce7;
+    --color-maarif-200: #bbf7d0;
+    --color-maarif-300: #86efac;
+    --color-maarif-500: #22c55e;
+    --color-maarif-600: #16a34a;
+    --color-maarif-700: #15803D;
+    --color-maarif-800: #166534;
+    --color-maarif-900: #14532d;
+    --color-maarif-950: #052e16;
+    --color-maarif-gold: #EAB308;
+}
+
+@layer base {
+    /* Prevent ugly glitch outline on mouse click while preserving accessible keyboard navigation */
+    button:focus:not(:focus-visible),
+    a:focus:not(:focus-visible),
+    [role="button"]:focus:not(:focus-visible),
+    input[type="button"]:focus:not(:focus-visible),
+    input[type="submit"]:focus:not(:focus-visible),
+    input[type="reset"]:focus:not(:focus-visible) {
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    button, a, input, select, textarea, [role="button"] {
+        -webkit-tap-highlight-color: transparent;
+    }
+}
