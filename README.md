@@ -48,15 +48,15 @@ Sistem Absensi Kehadiran Siswa & Dewan Guru MA Ma'arif Cilageni Kadungora berbas
 
 ## 🔑 Kredensial Default Login untuk Uji Coba
 
-| Peran | Identitas Login (NISN / NIP / Email) | Kata Sandi Default | Akses Dashboard |
-| :--- | :--- | :--- | :--- |
-| **Admin** | `admin@maarif.sch.id` (atau `198501012010011001`) | `password` | `/admin` |
-| **Guru 1** | `197505122000031002` | `12051975` (DDMMYYYY) | `/guru` |
-| **Guru 2** | `198208152005012003` | `15081982` (DDMMYYYY) | `/guru` |
-| **Siswa 1 (7A)** | `0091234501` | `10052011` (DDMMYYYY) | `/siswa` |
-| **Siswa 2 (7A)** | `0091234502` | `15032011` (DDMMYYYY) | `/siswa` |
-| **Siswa 3 (8A)** | `0081234501` | `12042010` (DDMMYYYY) | `/siswa` |
-| **Terminal Kiosk** | Layar Publik / Tablet Ruang Guru | *Tanpa Login* | `/kiosk` |
+| Peran              | Identitas Login (NISN / NIP / Email)              | Kata Sandi Default    | Akses Dashboard |
+| :----------------- | :------------------------------------------------ | :-------------------- | :-------------- |
+| **Admin**          | `admin@maarif.sch.id` (atau `198501012010011001`) | `password`            | `/admin`        |
+| **Guru 1**         | `197505122000031002`                              | `12051975` (DDMMYYYY) | `/guru`         |
+| **Guru 2**         | `198208152005012003`                              | `15081982` (DDMMYYYY) | `/guru`         |
+| **Siswa 1 (7A)**   | `0091234501`                                      | `10052011` (DDMMYYYY) | `/siswa`        |
+| **Siswa 2 (7A)**   | `0091234502`                                      | `15032011` (DDMMYYYY) | `/siswa`        |
+| **Siswa 3 (8A)**   | `0081234501`                                      | `12042010` (DDMMYYYY) | `/siswa`        |
+| **Terminal Kiosk** | Layar Publik / Tablet Ruang Guru                  | *Tanpa Login*         | `/kiosk`        |
 
 ---
 
