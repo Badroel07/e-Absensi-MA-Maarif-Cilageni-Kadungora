@@ -1,0 +1,102 @@
+name: 🚀 Deploy to VPS CloudPanel
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Build & Deploy to Production
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies & build frontend assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: 🚀 Deploy application to VPS via SSH
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            set -e
+            cd ${{ secrets.VPS_DEPLOY_PATH }}
+
+            # Masuk mode maintenance
+            php artisan down --render="errors.503" 2>/dev/null || true
+
+            # Inisialisasi git repository jika belum ada di folder target
+            if [ ! -d ".git" ]; then
+              git init
+              git remote add origin https://github.com/Badroel07/e-Absensi-MA-Maarif-Cilageni-Kadungora.git
+            fi
+
+            # Sinkronisasi source code dari branch main
+            git fetch origin main
+            git reset --hard origin/main
+
+            # Install dependency PHP Composer untuk production
+            composer install --no-dev --optimize-autoloader --no-interaction
+
+            # Jalankan migrasi database
+            php artisan migrate --force
+
+            # Storage symlink
+            php artisan storage:link --force 2>/dev/null || true
+
+            # Atur kepemilikan dan permission storage & bootstrap cache
+            chown -R maarif:www-data ${{ secrets.VPS_DEPLOY_PATH }}
+            chmod -R 775 storage bootstrap/cache
+
+            # Optimasi cache Laravel
+            php artisan optimize:clear
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+      - name: 📤 Rsync build assets to server
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: -avz --delete
+          path: public/build/
+          remote_path: ${{ secrets.VPS_DEPLOY_PATH }}/public/build/
+          remote_host: ${{ secrets.VPS_HOST }}
+          remote_user: ${{ secrets.VPS_USERNAME }}
+          remote_key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: 🌩️ Purge Cloudflare Cache (Optional)
+        if: env.CF_ZONE_ID != '' && env.CF_API_TOKEN != ''
+        env:
+          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        run: |
+          curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${{ secrets.CF_ZONE_ID }}/purge_cache" \
+            -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}'
+
+      - name: 🟢 Bring application back online
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            cd ${{ secrets.VPS_DEPLOY_PATH }}
+            php artisan up
+            echo "🚀 Deployment e-Absensi MA Ma'arif Cilageni Kadungora berhasil!"
