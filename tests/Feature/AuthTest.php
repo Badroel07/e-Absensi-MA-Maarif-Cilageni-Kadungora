@@ -18,8 +18,9 @@ beforeEach(function () {
     $this->siswa = User::create([
         'identity_number' => '1010101010',
         'name' => 'Ahmad Fauzi',
+        'email' => 'fauzi@siswa.maarif.sch.id',
         'birth_date' => '2012-05-15',
-        'password' => Hash::make('15052012'),
+        'password' => Hash::make('akunsiswa@maarif'),
         'role' => 'siswa',
         'classroom_id' => $this->classroom->id,
         'is_active' => true,
@@ -30,7 +31,7 @@ beforeEach(function () {
         'name' => 'Ust. H. Ahmad Dahlan',
         'email' => 'ahmad@maarif.sch.id',
         'birth_date' => '1980-12-01',
-        'password' => Hash::make('01121980'),
+        'password' => Hash::make('akunguru@maarif'),
         'role' => 'guru',
         'is_active' => true,
     ]);
@@ -40,16 +41,16 @@ beforeEach(function () {
         'name' => 'Staf Tata Usaha',
         'email' => 'tu@maarif.sch.id',
         'birth_date' => '1985-01-01',
-        'password' => Hash::make('Admin123!'),
+        'password' => Hash::make('p@55w0rd'),
         'role' => 'admin',
         'is_active' => true,
     ]);
 });
 
-test('TC-COM-AUTH-001: Login — Siswa sukses dengan NISN dan password DDMMYYYY', function () {
+test('TC-COM-AUTH-001: Login — Siswa sukses dengan email dan password bawaan akunsiswa@maarif', function () {
     $response = $this->post('/login', [
-        'login' => '1010101010',
-        'password' => '15052012',
+        'login' => 'fauzi@siswa.maarif.sch.id',
+        'password' => 'akunsiswa@maarif',
         'remember' => '1',
     ]);
 
@@ -57,20 +58,20 @@ test('TC-COM-AUTH-001: Login — Siswa sukses dengan NISN dan password DDMMYYYY'
     $this->assertAuthenticatedAs($this->siswa);
 });
 
-test('TC-COM-AUTH-002: Login — Guru sukses dengan NIP dan password DDMMYYYY', function () {
+test('TC-COM-AUTH-002: Login — Guru sukses dengan email dan password bawaan akunguru@maarif', function () {
     $response = $this->post('/login', [
-        'login' => '198012012010011001',
-        'password' => '01121980',
+        'login' => 'ahmad@maarif.sch.id',
+        'password' => 'akunguru@maarif',
     ]);
 
     $response->assertRedirect(route('guru.dashboard'));
     $this->assertAuthenticatedAs($this->guru);
 });
 
-test('TC-COM-AUTH-003: Login — Admin sukses dengan email dan password', function () {
+test('TC-COM-AUTH-003: Login — Admin sukses dengan email dan password bawaan p@55w0rd', function () {
     $response = $this->post('/login', [
         'login' => 'tu@maarif.sch.id',
-        'password' => 'Admin123!',
+        'password' => 'p@55w0rd',
     ]);
 
     $response->assertRedirect(route('admin.dashboard'));
@@ -79,7 +80,7 @@ test('TC-COM-AUTH-003: Login — Admin sukses dengan email dan password', functi
 
 test('TC-COM-AUTH-004: Login — Ditolak jika password salah', function () {
     $response = $this->post('/login', [
-        'login' => '1010101010',
+        'login' => 'fauzi@siswa.maarif.sch.id',
         'password' => 'salah123',
     ]);
 
@@ -91,8 +92,8 @@ test('TC-COM-AUTH-005: Login — Ditolak jika akun nonaktif (is_active=0)', func
     $this->siswa->update(['is_active' => false]);
 
     $response = $this->post('/login', [
-        'login' => '1010101010',
-        'password' => '15052012',
+        'login' => 'fauzi@siswa.maarif.sch.id',
+        'password' => 'akunsiswa@maarif',
     ]);
 
     $response->assertSessionHasErrors('login');
@@ -153,8 +154,8 @@ test('TC-COM-AUTH-009: Logout via POST dan GET me-regenerate sesi dan redirect k
 
 test('TC-COM-AUTH-010: Remember Me persistent login setting', function () {
     $response = $this->post('/login', [
-        'login' => '1010101010',
-        'password' => '15052012',
+        'login' => 'fauzi@siswa.maarif.sch.id',
+        'password' => 'akunsiswa@maarif',
         'remember' => '1',
     ]);
 
@@ -167,7 +168,7 @@ test('TC-COM-AUTH-011: Ganti password sukses dengan current password benar dan k
     $this->actingAs($this->siswa);
 
     $response = $this->post('/profile/password', [
-        'current_password' => '15052012',
+        'current_password' => 'akunsiswa@maarif',
         'password' => 'Baru1234',
         'password_confirmation' => 'Baru1234',
     ]);
@@ -186,14 +187,14 @@ test('TC-COM-AUTH-012: Ganti password gagal jika current password salah', functi
     ]);
 
     $response->assertSessionHasErrors('current_password');
-    expect(Hash::check('15052012', $this->siswa->fresh()->password))->toBeTrue();
+    expect(Hash::check('akunsiswa@maarif', $this->siswa->fresh()->password))->toBeTrue();
 });
 
 test('TC-COM-AUTH-013: Ganti password gagal jika konfirmasi password tidak cocok', function () {
     $this->actingAs($this->siswa);
 
     $response = $this->post('/profile/password', [
-        'current_password' => '15052012',
+        'current_password' => 'akunsiswa@maarif',
         'password' => 'Baru1234',
         'password_confirmation' => 'mismatchPass',
     ]);

@@ -1,14 +1,14 @@
 <aside id="main-sidebar" class="hidden md:flex w-64 lg:w-72 bg-white text-slate-800 flex-col shrink-0 sticky top-0 h-screen z-40 select-none">
     <!-- Top Brand Section (Overlapping above topbar header) -->
     <div class="h-[72px] px-5 bg-emerald-800 border-b border-r border-emerald-900/20 flex items-center shrink-0" style="height: 72px; min-height: 72px;">
-        <a href="{{ Auth::check() ? (Auth::user()->role === 'admin' ? route('admin.dashboard') : (Auth::user()->role === 'guru' ? route('guru.dashboard') : route('siswa.dashboard'))) : url('/') }}" class="flex items-center space-x-3 group min-w-0 w-full">
-            <img src="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" alt="Logo MA Ma'arif Cilageni" class="w-10 h-10 object-contain shrink-0 group-hover:scale-105 transition-transform drop-shadow-md">
+        <a href="{{ Auth::check() ? (Auth::user()->role === 'admin' ? route('admin.dashboard') : (Auth::user()->role === 'guru' ? route('guru.dashboard') : route('siswa.dashboard'))) : url('/') }}" class="flex items-center space-x-3.5 group min-w-0 w-full">
+            <img src="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" alt="Logo MA Ma'arif Cilageni" class="w-12 h-12 object-contain shrink-0 group-hover:scale-105 transition-transform drop-shadow-md">
             <div class="min-w-0 flex-1">
-                <h1 class="text-sm font-black text-white heading-font tracking-tight truncate">MA Ma'arif Cilageni</h1>
+                <h1 class="text-sm font-black text-white heading-font tracking-tight truncate leading-snug">MA Ma'arif Cilageni</h1>
                 @if(Auth::check() && Auth::user()->role === 'admin')
-                    <p class="text-[10px] text-emerald-100 font-bold uppercase tracking-wider truncate">Panel Admin</p>
+                    <p class="text-[11px] text-emerald-200/90 font-bold uppercase tracking-wider truncate leading-tight">Panel Admin</p>
                 @else
-                    <p class="text-[10px] text-emerald-100 font-bold uppercase tracking-wider truncate">Sistem Presensi</p>
+                    <p class="text-[11px] text-emerald-200/90 font-bold uppercase tracking-wider truncate leading-tight">Sistem Presensi</p>
                 @endif
             </div>
         </a>

@@ -34,6 +34,7 @@ class UserManagementService
 
     /**
      * Create a new student account with automatic DDMMYYYY default password
+     * Create a new student account with default password 'akunsiswa@maarif'
      *
      * @param  array<string, mixed>  $data
      * @return array{user: User, default_password: string}
@@ -41,6 +42,8 @@ class UserManagementService
     public function createStudent(array $data): array
     {
         $defaultPassword = Carbon::parse($data['birth_date'])->format('dmY');
+        $defaultPassword = 'akunsiswa@maarif';
+        $email = ! empty($data['email']) ? $data['email'] : $data['identity_number'].'@siswa.maarif.sch.id';
 
         $photoPath = null;
         if (isset($data['photo']) && $data['photo'] instanceof UploadedFile) {
@@ -50,6 +53,7 @@ class UserManagementService
         $user = User::create([
             'identity_number' => $data['identity_number'],
             'name' => $data['name'],
+            'email' => $email,
             'birth_date' => $data['birth_date'],
             'password' => Hash::make($defaultPassword),
             'role' => 'siswa',
@@ -80,6 +84,10 @@ class UserManagementService
             'phone_number' => $data['phone_number'] ?? null,
             'is_active' => (bool) ($data['is_active'] ?? true),
         ];
+
+        if (isset($data['email'])) {
+            $updateData['email'] = $data['email'];
+        }
 
         if (! empty($data['remove_photo'])) {
             $this->deletePhysicalPhoto($user->profile_photo_path);
@@ -112,6 +120,7 @@ class UserManagementService
 
     /**
      * Create a new teacher account with automatic DDMMYYYY default password
+     * Create a new teacher account with default password 'akunguru@maarif'
      *
      * @param  array<string, mixed>  $data
      * @return array{user: User, default_password: string}
@@ -119,6 +128,7 @@ class UserManagementService
     public function createTeacher(array $data): array
     {
         $defaultPassword = Carbon::parse($data['birth_date'])->format('dmY');
+        $defaultPassword = 'akunguru@maarif';
 
         $photoPath = null;
         if (isset($data['photo']) && $data['photo'] instanceof UploadedFile) {
@@ -191,7 +201,7 @@ class UserManagementService
     }
 
     /**
-     * Reset user password to default format (DDMMYYYY)
+     * Reset user password to role-based default.
      */
     public function resetPasswordToDefault(User $user): string
     {

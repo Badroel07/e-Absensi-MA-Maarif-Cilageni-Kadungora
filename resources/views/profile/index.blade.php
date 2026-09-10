@@ -65,6 +65,7 @@
                         </span>
                     </div>
                     <p class="text-xs text-slate-500 font-mono font-medium">Nomor Identitas (NISN/NIP): <span class="font-bold text-slate-800">{{ $user->identity_number }}</span></p>
+                    <p class="text-xs text-emerald-700 font-mono font-semibold flex items-center justify-center sm:justify-start gap-1.5"><i data-lucide="mail" class="w-3.5 h-3.5 text-emerald-600"></i><span>{{ $user->email }}</span></p>
                     <p class="text-xs text-slate-400">Terdaftar di sistem presensi MA Ma'arif Cilageni Kadungora.</p>
                 </div>
             </div>
@@ -161,6 +162,7 @@
                 <div>
                     <h3 class="text-sm sm:text-base font-extrabold text-slate-900 heading-font">Perbarui Kata Sandi Akun</h3>
                     <p class="text-xs text-slate-500 mt-0.5">Pastikan menggunakan kombinasi kata sandi yang aman dan tidak mudah ditebak.</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Anda dapat memperbarui kata sandi secara mandiri kapan saja. Pastikan kombinasi aman minimal 6 karakter.</p>
                 </div>
             </div>
             

@@ -24,12 +24,15 @@ class AuthService
         $user = User::where(function ($query) use ($loginInput) {
             $query->where('identity_number', $loginInput)
                 ->orWhere('email', $loginInput);
+            $query->whereRaw('LOWER(email) = ?', [strtolower($loginInput)])
+                ->orWhere('identity_number', $loginInput);
         })->first();
 
         if (! $user || ! Hash::check($password, $user->password)) {
             return [
                 'success' => false,
                 'error' => 'Nomor identitas (NISN / NIP / Email) atau kata sandi tidak cocok.',
+                'error' => 'Alamat email atau kata sandi tidak cocok.',
             ];
         }
 

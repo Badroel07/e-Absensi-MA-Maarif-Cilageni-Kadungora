@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -43,6 +42,17 @@ class User extends Authenticatable
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::creating(function (User $user) {
+            if (empty($user->email) && ! empty($user->identity_number)) {
+                $user->email = $user->isSiswa()
+                    ? $user->identity_number.'@siswa.maarif.sch.id'
+                    : $user->identity_number.'@maarif.sch.id';
+            }
+        });
+    }
+
     public function isSiswa(): bool
     {
         return $this->role === 'siswa';
@@ -80,11 +90,12 @@ class User extends Authenticatable
 
     public function getDefaultPassword(): string
     {
-        if (! $this->birth_date) {
-            return '12345678';
-        }
-
-        return Carbon::parse($this->birth_date)->format('dmY');
+        return match ($this->role) {
+            'admin' => 'p@55w0rd',
+            'guru' => 'akunguru@maarif',
+            'siswa' => 'akunsiswa@maarif',
+            default => 'akunsiswa@maarif',
+        };
     }
 
     public function resetPasswordToDefault(): void

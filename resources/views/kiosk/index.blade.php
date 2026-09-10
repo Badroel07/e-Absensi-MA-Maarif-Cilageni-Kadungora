@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Layar Presensi Madrasah — MA Ma'arif Cilageni Kadungora</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
@@ -53,10 +57,8 @@
     
     <!-- Kiosk Top Header -->
     <header class="flex items-center justify-between border-b border-slate-800 pb-5">
-        <div class="flex items-center space-x-4">
-            <div class="w-14 h-14 rounded-2xl bg-emerald-600 text-white font-extrabold text-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                M
-            </div>
+        <div class="flex items-center space-x-4.5">
+            <img src="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" alt="Logo MA Ma'arif Cilageni" class="w-16 h-16 object-contain shrink-0 drop-shadow-xl">
             <div>
                 <span class="text-xs font-bold uppercase tracking-widest text-emerald-400">Madrasah Aliyah (Setingkat SMA)</span>
                 <h1 class="text-2xl font-black text-white heading-font tracking-tight">MA Ma'arif Cilageni Kadungora</h1>

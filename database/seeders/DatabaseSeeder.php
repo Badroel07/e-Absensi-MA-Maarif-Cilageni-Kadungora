@@ -80,6 +80,7 @@ class DatabaseSeeder extends Seeder
                 'email' => 'admin@maarif.sch.id',
                 'birth_date' => '1985-01-01',
                 'password' => Hash::make('password'),
+                'password' => Hash::make('p@55w0rd'),
                 'role' => 'admin',
                 'phone_number' => '081234567890',
                 'is_active' => true,
@@ -94,6 +95,7 @@ class DatabaseSeeder extends Seeder
                 'email' => 'ahmad.dahlan@maarif.sch.id',
                 'birth_date' => '1975-05-12',
                 'password' => Hash::make('12051975'),
+                'password' => Hash::make('akunguru@maarif'),
                 'role' => 'guru',
                 'phone_number' => '081223344551',
                 'is_active' => true,
@@ -107,6 +109,7 @@ class DatabaseSeeder extends Seeder
                 'email' => 'siti.maryam@maarif.sch.id',
                 'birth_date' => '1982-08-15',
                 'password' => Hash::make('15081982'),
+                'password' => Hash::make('akunguru@maarif'),
                 'role' => 'guru',
                 'phone_number' => '081223344552',
                 'is_active' => true,
@@ -120,6 +123,7 @@ class DatabaseSeeder extends Seeder
                 'email' => 'ridwan@maarif.sch.id',
                 'birth_date' => '1988-10-20',
                 'password' => Hash::make('20101988'),
+                'password' => Hash::make('akunguru@maarif'),
                 'role' => 'guru',
                 'phone_number' => '081223344553',
                 'is_active' => true,
@@ -127,6 +131,7 @@ class DatabaseSeeder extends Seeder
         );
 
         // 6. Pengguna: Siswa Kelas 7A & 8A
+        // 6. Pengguna: Siswa Kelas 10A & 11A
         $students10A = [
             ['nisn' => '0091234501', 'name' => 'Muhammad Al-Fatih', 'birth_date' => '2011-05-10', 'phone' => '085100000001'],
             ['nisn' => '0091234502', 'name' => 'Aisyah Nur Rohmah', 'birth_date' => '2011-03-15', 'phone' => '085100000002'],
@@ -141,8 +146,10 @@ class DatabaseSeeder extends Seeder
                 ['identity_number' => $st['nisn']],
                 [
                     'name' => $st['name'],
+                    'email' => $st['nisn'].'@siswa.maarif.sch.id',
                     'birth_date' => $st['birth_date'],
                     'password' => Hash::make($dob->format('dmY')),
+                    'password' => Hash::make('akunsiswa@maarif'),
                     'role' => 'siswa',
                     'classroom_id' => $classModels['10A']->id,
                     'phone_number' => $st['phone'],
@@ -165,8 +172,10 @@ class DatabaseSeeder extends Seeder
                 ['identity_number' => $st['nisn']],
                 [
                     'name' => $st['name'],
+                    'email' => $st['nisn'].'@siswa.maarif.sch.id',
                     'birth_date' => $st['birth_date'],
                     'password' => Hash::make($dob->format('dmY')),
+                    'password' => Hash::make('akunsiswa@maarif'),
                     'role' => 'siswa',
                     'classroom_id' => $classModels['11A']->id,
                     'phone_number' => $st['phone'],

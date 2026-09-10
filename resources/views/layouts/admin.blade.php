@@ -7,6 +7,10 @@
 
     <title>@yield('title', 'Panel Admin — Sistem Presensi MA Ma\'arif Cilageni')</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}">
+
     <script>
         window.__serverTimeMs = {{ \Carbon\Carbon::now()->getTimestampMs() }};
         window.__clientInitMs = Date.now();
@@ -138,8 +142,8 @@
 
             <!-- 2. MOBILE TOP BAR (Visible only on screens < 768px) -->
             <header class="md:hidden sticky top-0 z-40 h-16 px-4 bg-gradient-to-r from-emerald-800 via-maarif-700 to-emerald-800 border-b border-emerald-900/80 flex items-center justify-between text-white">
-                <div class="flex items-center space-x-2.5">
-                    <img src="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" alt="Logo MA Ma'arif Cilageni" class="w-9 h-9 object-contain shrink-0 drop-shadow-md">
+                <div class="flex items-center space-x-3">
+                    <img src="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" alt="Logo MA Ma'arif Cilageni" class="w-11 h-11 object-contain shrink-0 drop-shadow-md">
                     <div>
                         <h1 class="text-[10px] font-extrabold tracking-wider text-emerald-200 uppercase">MA Ma'arif Cilageni</h1>
                         <p class="text-sm font-extrabold text-white heading-font leading-tight">

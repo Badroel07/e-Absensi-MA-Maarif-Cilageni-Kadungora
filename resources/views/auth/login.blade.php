@@ -6,6 +6,10 @@
     <meta name="theme-color" content="#14532d">
     <title>Masuk - Presensi MA Ma'arif Cilageni</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
@@ -55,12 +59,12 @@
             <div class="relative z-10 lg:my-auto space-y-8">
                 <!-- Header Identitas Madrasah -->
                 <div>
-                    <div class="flex items-center space-x-3.5 mb-6">
-                        <img src="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" alt="Logo MA Ma'arif Cilageni" class="w-12 h-12 object-contain shrink-0 drop-shadow-md">
+                    <div class="flex items-center space-x-4 sm:space-x-5 mb-6 sm:mb-8">
+                        <img src="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" alt="Logo MA Ma'arif Cilageni" class="w-16 h-16 sm:w-20 sm:h-20 object-contain shrink-0 drop-shadow-xl">
                         <div>
-                            <span class="text-[10px] font-extrabold tracking-[0.18em] text-emerald-300 uppercase block">LP Ma'arif NU</span>
-                            <h1 class="text-base sm:text-lg font-black tracking-tight text-white leading-tight font-display">MA Ma'arif Cilageni</h1>
-                            <p class="text-[11px] text-slate-300">Kadungora - Garut, Jawa Barat</p>
+                            <span class="text-[11px] font-extrabold tracking-[0.2em] text-emerald-300 uppercase block mb-0.5">LP Ma'arif NU</span>
+                            <h1 class="text-lg sm:text-xl lg:text-2xl font-black tracking-tight text-white leading-tight font-display">MA Ma'arif Cilageni</h1>
+                            <p class="text-xs text-slate-300 mt-0.5">Kadungora - Garut, Jawa Barat</p>
                         </div>
                     </div>
 
@@ -118,7 +122,7 @@
                         Masuk ke Akun Anda
                     </h2>
                     <p class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">
-                        Gunakan NISN, NIP, atau alamat email yang telah terdaftar.
+                        Gunakan alamat email pribadi Anda yang telah terdaftar.
                     </p>
                 </div>
 
@@ -147,17 +151,17 @@
 
                     <div>
                         <label for="login" class="block text-xs font-bold text-slate-700 mb-1.5">
-                            NISN / NIP / Email
+                            Alamat Email
                         </label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
                             </div>
-                            <input type="text" id="login" name="login" value="{{ old('login') }}" required autofocus autocomplete="username"
+                            <input type="email" id="login" name="login" value="{{ old('login') ?? old('email') }}" required autofocus autocomplete="email"
                                 class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/70 text-slate-900 placeholder-slate-400 text-sm font-medium transition focus:bg-white focus:border-maarif-600 focus:ring-2 focus:ring-maarif-600/20"
-                                placeholder="NISN Siswa, NIP Guru, atau Email">
+                                placeholder="nama@email.com">
                         </div>
                     </div>
 
@@ -199,6 +203,12 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>
                     </button>
+
+                    <div class="text-center pt-2">
+                        <p class="text-xs text-slate-500">
+                            Lupa kata sandi? <span class="font-semibold text-slate-700">Hubungi pihak sekolah</span>
+                        </p>
+                    </div>
                 </form>
             </div>
 

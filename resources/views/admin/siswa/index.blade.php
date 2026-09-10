@@ -80,6 +80,10 @@
                                         </div>
                                     @endif
                                     <span class="font-bold text-slate-900 text-sm truncate">{{ $st->name }}</span>
+                                    <div class="min-w-0">
+                                        <span class="font-bold text-slate-900 text-sm truncate block">{{ $st->name }}</span>
+                                        <span class="text-[11px] text-slate-400 font-mono truncate block">{{ $st->email }}</span>
+                                    </div>
                                 </div>
                             </td>
                             <td class="py-3.5 px-5">
@@ -109,6 +113,7 @@
                                         'id' => $st->id,
                                         'identity_number' => $st->identity_number,
                                         'name' => $st->name,
+                                        'email' => $st->email,
                                         'classroom_id' => $st->classroom_id,
                                         'birth_date' => $st->birth_date ? $st->birth_date->format('Y-m-d') : '',
                                         'phone_number' => $st->phone_number ?? '',
@@ -122,12 +127,14 @@
                                     <!-- 1-Klik Reset Password -->
                                     <form action="{{ route('admin.users.reset-password', $st) }}" method="POST" class="inline-flex m-0 p-0"
                                         data-confirm="Reset kata sandi akun siswa <strong>{{ $st->name }}</strong> ke format bawaan tanggal lahir (<code class='px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 font-mono font-bold text-xs'>{{ $st->getDefaultPassword() }}</code>)?"
+                                        data-confirm="Reset kata sandi akun siswa <strong>{{ $st->name }}</strong> ke kata sandi bawaan (<code class='px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 font-mono font-bold text-xs'>{{ $st->getDefaultPassword() }}</code>)?"
                                         data-confirm-title="Reset Kata Sandi Siswa"
                                         data-confirm-type="warning"
                                         data-confirm-btn="Ya, Reset Sandi"
                                         data-confirm-icon="key-round">
                                         @csrf
                                         <button type="submit" title="Reset Kata Sandi ke Format Tanggal Lahir" class="inline-flex items-center gap-1.5 py-1.5 px-3 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white rounded-xl text-xs font-bold transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 shadow-xs">
+                                        <button type="submit" title="Reset Kata Sandi ke Format Bawaan" class="inline-flex items-center gap-1.5 py-1.5 px-3 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white rounded-xl text-xs font-bold transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 shadow-xs">
                                             <i data-lucide="key-round" class="w-3.5 h-3.5 text-white/90 shrink-0"></i>
                                             <span>Reset</span>
                                         </button>
@@ -193,6 +200,15 @@
                     <label class="block font-bold text-slate-700 mb-1">Nama Lengkap Siswa</label>
                     <input type="text" name="name" required placeholder="Contoh: Muhammad Al-Fatih"
                         class="w-full px-4 py-2.5 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium text-xs bg-slate-50/50 focus:bg-white transition">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Alamat Email Siswa <span class="text-rose-500">*</span></label>
+                    <input type="email" name="email" placeholder="Contoh: 0091234501@siswa.maarif.sch.id"
+                    <input type="email" name="email" required placeholder="Contoh: siswa@gmail.com"
+                        class="w-full px-4 py-2.5 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium text-xs bg-slate-50/50 focus:bg-white transition">
+                    <p class="text-[10px] text-slate-400 mt-1">Kosongkan untuk membuat otomatis: <code>NISN@siswa.maarif.sch.id</code></p>
+                    <p class="text-[10px] text-slate-400 mt-1">Gunakan alamat email pribadi siswa yang aktif untuk login.</p>
                 </div>
 
                 <div>
@@ -289,6 +305,12 @@
                 </div>
 
                 <div>
+                    <label class="block font-bold text-slate-700 mb-1">Alamat Email Siswa <span class="text-rose-500">*</span></label>
+                    <input type="email" id="editSiswaEmail" name="email" required
+                        class="w-full px-4 py-2.5 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium text-xs bg-slate-50/50 focus:bg-white transition">
+                </div>
+
+                <div>
                     <label class="block font-bold text-slate-700 mb-1">Kelas / Rombel</label>
                     <select id="editSiswaClassroomId" name="classroom_id" required class="w-full px-4 py-2.5 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-emerald-600 focus:outline-none bg-slate-50/50 focus:bg-white font-medium text-xs transition">
                         <option value="">Pilih Kelas</option>
@@ -346,6 +368,7 @@
         document.getElementById('formEditSiswa').action = '/admin/siswa/' + student.id;
         document.getElementById('editSiswaNisn').value = student.identity_number;
         document.getElementById('editSiswaName').value = student.name;
+        document.getElementById('editSiswaEmail').value = student.email || '';
         document.getElementById('editSiswaClassroomId').value = student.classroom_id;
         document.getElementById('editSiswaBirthDate').value = student.birth_date;
         document.getElementById('editSiswaPhone').value = student.phone_number || '';

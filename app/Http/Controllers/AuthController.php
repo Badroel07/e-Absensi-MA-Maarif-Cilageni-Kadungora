@@ -27,9 +27,15 @@ class AuthController extends Controller
 
     public function login(Request $request): RedirectResponse
     {
+        $loginValue = $request->input('email', $request->input('login'));
+        $request->merge(['login' => $loginValue]);
+
         $credentials = $request->validate([
             'login' => ['required', 'string'],
             'password' => ['required', 'string'],
+        ], [
+            'login.required' => 'Silakan masukkan alamat email Anda.',
+            'password.required' => 'Silakan masukkan kata sandi Anda.',
         ]);
 
         $remember = $request->boolean('remember', true);
@@ -39,6 +45,7 @@ class AuthController extends Controller
         if (! $result['success']) {
             return back()->withInput()->withErrors([
                 'login' => $result['error'],
+                'email' => $result['error'],
             ]);
         }
 

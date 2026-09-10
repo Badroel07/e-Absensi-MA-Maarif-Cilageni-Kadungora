@@ -73,8 +73,9 @@ beforeEach(function () {
     $this->siswa = User::create([
         'identity_number' => '1010101010',
         'name' => 'Ahmad Fauzi',
+        'email' => 'fauzi@siswa.maarif.sch.id',
         'birth_date' => '2012-05-15',
-        'password' => Hash::make('15052012'),
+        'password' => Hash::make('akunsiswa@maarif'),
         'role' => 'siswa',
         'classroom_id' => $this->classroom->id,
         'is_active' => true,
@@ -117,12 +118,13 @@ test('TC-ADM-SIS-001: Siswa index — pencarian dan filter kelas', function () {
     $response->assertSee('Ahmad Fauzi');
 });
 
-test('TC-ADM-SIS-002: Siswa store — sukses membuat siswa baru dengan password tanggal lahir bawaan', function () {
+test('TC-ADM-SIS-002: Siswa store — sukses membuat siswa baru dengan kata sandi bawaan akunsiswa@maarif', function () {
     $this->actingAs($this->admin);
 
     $response = $this->post('/admin/siswa', [
         'identity_number' => '2020202020',
         'name' => 'Ahmad Fauzi Baru',
+        'email' => 'fauzi.baru@siswa.maarif.sch.id',
         'birth_date' => '2013-06-10',
         'classroom_id' => $this->classroom->id,
         'phone_number' => '08123456789',
@@ -134,7 +136,8 @@ test('TC-ADM-SIS-002: Siswa store — sukses membuat siswa baru dengan password 
     $newStudent = User::where('identity_number', '2020202020')->first();
     expect($newStudent)->not->toBeNull();
     expect($newStudent->role)->toBe('siswa');
-    expect(Hash::check('10062013', $newStudent->password))->toBeTrue();
+    expect($newStudent->email)->toBe('fauzi.baru@siswa.maarif.sch.id');
+    expect(Hash::check('akunsiswa@maarif', $newStudent->password))->toBeTrue();
 });
 
 test('TC-ADM-SIS-003: Siswa store — validasi unique NISN', function () {
@@ -257,7 +260,7 @@ test('TC-ADM-GUR-001: Guru index — list dan pencarian', function () {
     $response->assertSee('Ust. H. Ahmad Dahlan');
 });
 
-test('TC-ADM-GUR-002: Guru store — sukses dengan password tanggal lahir bawaan', function () {
+test('TC-ADM-GUR-002: Guru store — sukses dengan kata sandi bawaan akunguru@maarif', function () {
     $this->actingAs($this->admin);
 
     $response = $this->post('/admin/guru', [
@@ -272,7 +275,7 @@ test('TC-ADM-GUR-002: Guru store — sukses dengan password tanggal lahir bawaan
 
     $newTeacher = User::where('identity_number', '198512022010011002')->first();
     expect($newTeacher)->not->toBeNull();
-    expect(Hash::check('02121985', $newTeacher->password))->toBeTrue();
+    expect(Hash::check('akunguru@maarif', $newTeacher->password))->toBeTrue();
 });
 
 test('TC-ADM-GUR-003: Guru store — validasi unique NIP dan email', function () {
@@ -547,7 +550,7 @@ test('TC-ADM-LOK-002: Lokasi — validasi radius out of range (min 30m, max 500m
     $resMax->assertSessionHasErrors('radius_meters');
 });
 
-test('TC-ADM-PWD-001: Reset password 1-klik mengembalikan password ke format tanggal lahir', function () {
+test('TC-ADM-PWD-001: Reset password 1-klik mengembalikan password ke kata sandi bawaan role', function () {
     // Student changed password to something custom
     $this->siswa->update(['password' => Hash::make('CustomNewPassword999')]);
 
@@ -555,5 +558,5 @@ test('TC-ADM-PWD-001: Reset password 1-klik mengembalikan password ke format tan
     $response = $this->post('/admin/users/'.$this->siswa->id.'/reset-password');
 
     $response->assertSessionHas('success');
-    expect(Hash::check('15052012', $this->siswa->fresh()->password))->toBeTrue();
+    expect(Hash::check('akunsiswa@maarif', $this->siswa->fresh()->password))->toBeTrue();
 });

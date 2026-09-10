@@ -45,6 +45,7 @@
                         <th class="py-3.5 px-5">NIP / NUPTK</th>
                         <th class="py-3.5 px-5">Nama Bapak/Ibu Guru</th>
                         <th class="py-3.5 px-5">Email Madrasah</th>
+                        <th class="py-3.5 px-5">Alamat Email</th>
                         <th class="py-3.5 px-5">Tanggal Lahir</th>
                         <th class="py-3.5 px-5">No. HP</th>
                         <th class="py-3.5 px-5 text-center">Status</th>
@@ -103,12 +104,14 @@
                                     <!-- 1-Klik Reset Password -->
                                     <form action="{{ route('admin.users.reset-password', $g) }}" method="POST" class="inline-flex m-0 p-0"
                                         data-confirm="Reset kata sandi akun guru <strong>{{ $g->name }}</strong> ke format bawaan tanggal lahir (<code class='px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 font-mono font-bold text-xs'>{{ $g->getDefaultPassword() }}</code>)?"
+                                        data-confirm="Reset kata sandi akun guru <strong>{{ $g->name }}</strong> ke kata sandi bawaan (<code class='px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 font-mono font-bold text-xs'>{{ $g->getDefaultPassword() }}</code>)?"
                                         data-confirm-title="Reset Kata Sandi Guru"
                                         data-confirm-type="warning"
                                         data-confirm-btn="Ya, Reset Sandi"
                                         data-confirm-icon="key-round">
                                         @csrf
                                         <button type="submit" title="Reset Kata Sandi ke Format Tanggal Lahir" class="inline-flex items-center gap-1.5 py-1.5 px-3 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white rounded-xl text-xs font-bold transition-all duration-150 active:scale-95 cursor-pointer shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500">
+                                        <button type="submit" title="Reset Kata Sandi ke Format Bawaan" class="inline-flex items-center gap-1.5 py-1.5 px-3 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white rounded-xl text-xs font-bold transition-all duration-150 active:scale-95 cursor-pointer shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500">
                                             <i data-lucide="key-round" class="w-3.5 h-3.5 text-white/90 shrink-0"></i>
                                             <span>Reset Sandi</span>
                                         </button>
@@ -177,6 +180,10 @@
                 <div>
                     <label class="block font-bold text-slate-700 mb-1.5">Email Madrasah (Opsional)</label>
                     <input type="email" name="email" placeholder="Contoh: ahmad@maarif.sch.id"
+                    <label class="block font-bold text-slate-700 mb-1.5">Email Madrasah <span class="text-rose-500">*</span></label>
+                    <input type="email" name="email" required placeholder="Contoh: ahmad@maarif.sch.id"
+                    <label class="block font-bold text-slate-700 mb-1.5">Alamat Email <span class="text-rose-500">*</span></label>
+                    <input type="email" name="email" required placeholder="Contoh: guru@email.com"
                         class="w-full px-4 py-2.5 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-emerald-600 focus:outline-none bg-slate-50/50 focus:bg-white transition-all">
                 </div>
 
@@ -266,6 +273,8 @@
                 <div>
                     <label class="block font-bold text-slate-700 mb-1.5">Alamat Email (Opsional)</label>
                     <input type="email" id="editGuruEmail" name="email"
+                    <label class="block font-bold text-slate-700 mb-1.5">Alamat Email <span class="text-rose-500">*</span></label>
+                    <input type="email" id="editGuruEmail" name="email" required
                         class="w-full px-4 py-2.5 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-emerald-600 focus:outline-none bg-slate-50/50 focus:bg-white transition-all">
                 </div>
 

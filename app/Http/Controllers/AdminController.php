@@ -58,11 +58,16 @@ class AdminController extends Controller
         $validated = $request->validate([
             'identity_number' => ['required', 'string', 'digits:10', 'unique:users,identity_number'],
             'name' => ['required', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255', 'unique:users,email'],
             'birth_date' => ['required', 'date'],
             'classroom_id' => ['required', 'exists:classrooms,id'],
             'phone_number' => ['nullable', 'string', 'max:20'],
             'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
         ]);
+
+        if (empty($validated['email'])) {
+            $validated['email'] = $validated['identity_number'].'@siswa.maarif.sch.id';
+        }
 
         if ($request->hasFile('photo')) {
             $validated['photo'] = $request->file('photo');
@@ -78,6 +83,7 @@ class AdminController extends Controller
         $validated = $request->validate([
             'identity_number' => ['required', 'string', 'digits:10', 'unique:users,identity_number,'.$user->id],
             'name' => ['required', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255', 'unique:users,email,'.$user->id],
             'birth_date' => ['required', 'date'],
             'classroom_id' => ['required', 'exists:classrooms,id'],
             'phone_number' => ['nullable', 'string', 'max:20'],
@@ -85,6 +91,10 @@ class AdminController extends Controller
             'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
             'remove_photo' => ['nullable', 'boolean'],
         ]);
+
+        if (empty($validated['email'])) {
+            $validated['email'] = $user->email ?? ($validated['identity_number'].'@siswa.maarif.sch.id');
+        }
 
         if ($request->hasFile('photo')) {
             $validated['photo'] = $request->file('photo');
@@ -103,11 +113,14 @@ class AdminController extends Controller
     }
 
     // --- 1-KLIK RESET PASSWORD KE DEFAULT (DDMMYYYY) ---
+    // --- 1-KLIK RESET PASSWORD KE DEFAULT ROLE ---
     public function resetPassword(User $user): RedirectResponse
     {
         $defaultPassword = $this->userService->resetPasswordToDefault($user);
 
         return back()->with('success', "Kata sandi untuk {$user->name} berhasil diatur ulang ke format tanggal lahir ({$defaultPassword}).");
+
+        return back()->with('success', "Kata sandi untuk {$user->name} berhasil diatur ulang ke kata sandi bawaan ({$defaultPassword}).");
     }
 
     // --- DATA POKOK GURU ---
@@ -124,6 +137,7 @@ class AdminController extends Controller
             'identity_number' => ['required', 'string', 'unique:users,identity_number'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'unique:users,email'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'birth_date' => ['required', 'date'],
             'phone_number' => ['nullable', 'string', 'max:20'],
             'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
@@ -144,12 +158,17 @@ class AdminController extends Controller
             'identity_number' => ['required', 'string', 'unique:users,identity_number,'.$user->id],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'unique:users,email,'.$user->id],
+            'email' => ['nullable', 'email', 'max:255', 'unique:users,email,'.$user->id],
             'birth_date' => ['required', 'date'],
             'phone_number' => ['nullable', 'string', 'max:20'],
             'is_active' => ['nullable', 'boolean'],
             'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
             'remove_photo' => ['nullable', 'boolean'],
         ]);
+
+        if (empty($validated['email'])) {
+            $validated['email'] = $user->email;
+        }
 
         if ($request->hasFile('photo')) {
             $validated['photo'] = $request->file('photo');
