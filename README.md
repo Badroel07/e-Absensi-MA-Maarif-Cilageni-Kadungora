@@ -86,3 +86,12 @@ php artisan migrate:fresh --seed
 ./vendor/bin/pest
 ```
 Seluruh 36 skenario pengujian Pest Feature & Unit menguji seluruh Core Engines langsung terhadap basis data MariaDB/MySQL dan lulus 100% (36 passed, 131 assertions).
+
+---
+
+## 🌐 Lingkungan Produksi & CI/CD Deployment
+
+- **Production Domain**: `https://maarif.chkl.my.id`
+- **Server Stack**: CloudPanel, Nginx, PHP 8.4, MariaDB
+- **Automated Pipeline**: GitHub Actions (`.github/workflows/deploy.yml`) otomatis melakukan build frontend dan deployment ke VPS setiap kali terdapat commit push ke branch `main`.
+
