@@ -39,6 +39,10 @@ class ClassroomSessionService
         }
         $start = Carbon::parse($schedule->start_time)->setDate($now->year, $now->month, $now->day);
         $end = Carbon::parse($schedule->end_time)->setDate($now->year, $now->month, $now->day);
+        // Handle overnight schedule (e.g. 23:00-01:00 next day)
+        if ($end->lte($start)) {
+            $end->addDay();
+        }
         if ($now->lt($start) || $now->gt($end)) {
             throw ValidationException::withMessages(['schedule' => "Sesi presensi hanya dapat dibuka sesuai jadwal pelajaran: pukul {$schedule->start_time}–{$schedule->end_time} WIB. Waktu saat ini: pukul {$now->format('H:i')} WIB."]);
         }

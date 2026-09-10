@@ -338,7 +338,16 @@ class TeacherAttendanceService
             ->get()
             ->keyBy('user_id');
 
-        $results = $teachers->map(function (User $teacher) use ($dailyAttendances, $carbonDate, $todayDay) {
+        // Batch-load schedules for all teachers to avoid N+1
+        $allSchedules = ClassSchedule::with(['classroom', 'subject', 'sessions' => function ($q) use ($carbonDate) {
+            $q->whereDate('created_at', $carbonDate);
+        }])
+            ->whereIn('teacher_id', $teachers->pluck('id'))
+            ->where('day_of_week', $todayDay)
+            ->get()
+            ->groupBy('teacher_id');
+
+        $results = $teachers->map(function (User $teacher) use ($dailyAttendances, $allSchedules) {
             $attendance = $dailyAttendances->get($teacher->id);
 
             // Compute status
@@ -350,13 +359,7 @@ class TeacherAttendanceService
                 $computedStatus = 'BELUM_HADIR';
             }
 
-            // Pending schedules on this date
-            $schedules = ClassSchedule::with(['classroom', 'subject', 'sessions' => function ($q) use ($carbonDate) {
-                $q->whereDate('created_at', $carbonDate);
-            }])
-                ->where('teacher_id', $teacher->id)
-                ->where('day_of_week', $todayDay)
-                ->get();
+            $schedules = $allSchedules->get($teacher->id, collect());
 
             $pendingCount = $schedules->filter(function ($sch) {
                 $ses = $sch->sessions->first();

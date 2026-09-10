@@ -66,18 +66,26 @@ class ReportService
         }
 
         $students = $studentsQuery->orderBy('name')->get();
+
+        if ($students->isEmpty()) {
+            return [];
+        }
+
+        $grouped = LessonAttendance::whereBetween('attendance_date', [$startDate, $endDate])
+            ->whereIn('student_id', $students->pluck('id'))
+            ->selectRaw('student_id, status, COUNT(*) as cnt')
+            ->groupBy('student_id', 'status')
+            ->get()
+            ->groupBy('student_id');
+
         $rows = [];
-
         foreach ($students as $student) {
-            $records = LessonAttendance::where('student_id', $student->id)
-                ->whereBetween('attendance_date', [$startDate, $endDate])
-                ->get();
-
-            $hadir = $records->where('status', 'HADIR')->count();
-            $izin = $records->where('status', 'IZIN')->count();
-            $sakit = $records->where('status', 'SAKIT')->count();
-            $alpa = $records->where('status', 'ALPA')->count();
-            $total = $records->count();
+            $byStatus = $grouped->get($student->id, collect())->keyBy('status');
+            $hadir = (int) ($byStatus->get('HADIR')->cnt ?? 0);
+            $izin = (int) ($byStatus->get('IZIN')->cnt ?? 0);
+            $sakit = (int) ($byStatus->get('SAKIT')->cnt ?? 0);
+            $alpa = (int) ($byStatus->get('ALPA')->cnt ?? 0);
+            $total = $hadir + $izin + $sakit + $alpa;
             $persen = $total > 0 ? round(($hadir / $total) * 100, 1) : 0.0;
 
             $rows[] = [

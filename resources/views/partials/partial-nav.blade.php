@@ -9,6 +9,48 @@
     let currentAbortController = null;
     let progressTimer = null;
 
+    // Lightweight HTML cache for rapid back-and-forth (30s TTL)
+    const pageCache = new Map(); // url -> {html, ts}
+    const CACHE_TTL_MS = 30000;
+    const prefetchInFlight = new Set();
+
+    function getCachedHtml(url) {
+        const entry = pageCache.get(url);
+        if (!entry) return null;
+        if (Date.now() - entry.ts > CACHE_TTL_MS) {
+            pageCache.delete(url);
+            return null;
+        }
+        return entry.html;
+    }
+
+    function setCachedHtml(url, html) {
+        // Simple LRU cap 20 entries
+        if (pageCache.size >= 20) {
+            const firstKey = pageCache.keys().next().value;
+            pageCache.delete(firstKey);
+        }
+        pageCache.set(url, { html, ts: Date.now() });
+    }
+
+    async function prefetchUrl(url) {
+        if (prefetchInFlight.has(url) || getCachedHtml(url)) return;
+        try {
+            prefetchInFlight.add(url);
+            const res = await fetch(url, {
+                headers: { 'X-Partial-Nav': 'true', 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            if (!res.ok) return;
+            const ct = res.headers.get('content-type') || '';
+            if (!ct.includes('text/html')) return;
+            // Only cache if it looks like a partial-nav compatible page
+            const html = await res.text();
+            if (html.includes('id="main-content"')) setCachedHtml(url, html);
+        } catch(e) {} finally {
+            prefetchInFlight.delete(url);
+        }
+    }
+
     // Track active page intervals to prevent orphan background polling
     const pageIntervals = new Set();
     const nativeSetInterval = window.setInterval;
@@ -137,15 +179,19 @@
     }
 
     async function navigateTo(targetUrl, pushState = true) {
+        const cachedHtml = getCachedHtml(targetUrl);
+
         if (currentAbortController) {
             currentAbortController.abort();
         }
         currentAbortController = new AbortController();
 
         const mainContent = document.getElementById('main-content');
-        if (mainContent) {
-            mainContent.style.transition = 'opacity 0.12s ease';
-            mainContent.style.opacity = '0.6';
+        // Only dim if we need to fetch (cached = instant, no dim)
+        const shouldDim = !cachedHtml;
+        if (shouldDim && mainContent) {
+            mainContent.style.transition = 'opacity 0.08s ease';
+            mainContent.style.opacity = '0.7';
         }
 
         startProgress();
@@ -156,32 +202,42 @@
         clearPageIntervals();
 
         try {
-            const response = await fetch(targetUrl, {
-                signal: currentAbortController.signal,
-                headers: {
-                    'X-Partial-Nav': 'true',
-                    'X-Requested-With': 'XMLHttpRequest'
+            let html;
+            let responseUrl = targetUrl;
+
+            if (cachedHtml) {
+                html = cachedHtml;
+            } else {
+                const response = await fetch(targetUrl, {
+                    signal: currentAbortController.signal,
+                    headers: {
+                        'X-Partial-Nav': 'true',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (response.redirected && response.url) {
+                    window.location.href = response.url;
+                    return;
                 }
-            });
 
-            // If redirect occurred (e.g. session expired, redirected to login)
-            if (response.redirected && response.url) {
-                window.location.href = response.url;
-                return;
+                if (!response.ok) {
+                    window.location.href = targetUrl;
+                    return;
+                }
+
+                const contentType = response.headers.get('content-type') || '';
+                if (!contentType.includes('text/html')) {
+                    window.location.href = targetUrl;
+                    return;
+                }
+
+                html = await response.text();
+                // Cache for rapid revisit
+                if (html.includes('id="main-content"')) setCachedHtml(targetUrl, html);
+                responseUrl = response.url || targetUrl;
             }
 
-            if (!response.ok) {
-                window.location.href = targetUrl;
-                return;
-            }
-
-            const contentType = response.headers.get('content-type') || '';
-            if (!contentType.includes('text/html')) {
-                window.location.href = targetUrl;
-                return;
-            }
-
-            const html = await response.text();
             const parser = new DOMParser();
             const newDoc = parser.parseFromString(html, 'text/html');
 
@@ -252,8 +308,10 @@
                 inlineScripts.forEach(script => executeScriptSafely(script));
             }
 
-            // 9. Reinitialize Lucide Icons
-            if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+            // 9. Reinitialize Lucide Icons (Vite bundle exposes window.reinitLucideIcons)
+            if (typeof window.reinitLucideIcons === 'function') {
+                try { window.reinitLucideIcons(); } catch(e) {}
+            } else if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
                 lucide.createIcons();
             }
 
@@ -273,7 +331,7 @@
             finishProgress();
         } catch (err) {
             if (err.name === 'AbortError') {
-                // Aborted because user navigated to another link quickly
+                // Swallow abort — new navigation already in progress which will handle UI
                 return;
             }
             console.warn('[PartialNav] Error fetching page, fallback to standard reload:', err);
@@ -285,6 +343,28 @@
             }
         }
     }
+
+    // Prefetch on hover/focus for instant feel (only eligible links)
+    let prefetchTimer = null;
+    function schedulePrefetch(anchor) {
+        if (!isEligibleLink(anchor)) return;
+        const href = anchor.href;
+        if (getCachedHtml(href) || prefetchInFlight.has(href)) return;
+        clearTimeout(prefetchTimer);
+        prefetchTimer = setTimeout(() => prefetchUrl(href), 70);
+    }
+    document.addEventListener('mouseenter', function(e) {
+        const a = e.target.closest('a');
+        if (a) schedulePrefetch(a);
+    }, true);
+    document.addEventListener('focusin', function(e) {
+        const a = e.target.closest('a');
+        if (a) schedulePrefetch(a);
+    }, true);
+    document.addEventListener('touchstart', function(e) {
+        const a = e.target.closest('a');
+        if (a) schedulePrefetch(a);
+    }, { passive: true, capture: true });
 
     // Intercept click on links
     document.addEventListener('click', function(e) {
