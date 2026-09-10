@@ -199,7 +199,7 @@
                             Petunjuk Alur
                         </span>
                     </div>
-                    <p class="text-[11px] sm:text-xs text-slate-500 font-normal truncate mt-0.5">
+                    <p class="text-[11px] sm:text-xs text-slate-500 font-normal mt-0.5 leading-relaxed">
                         Ketuk untuk melihat 4 langkah alur presensi mandiri & kelas
                     </p>
                 </div>

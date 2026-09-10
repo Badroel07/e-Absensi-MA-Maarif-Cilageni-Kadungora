@@ -10,29 +10,6 @@
         <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Identitas madrasah, foto profil resmi, dan pengaturan keamanan kata sandi</p>
     </div>
 
-    @if (session('success'))
-        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs sm:text-sm font-semibold flex items-center space-x-3 shadow-xs">
-            <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                <i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>
-            </div>
-            <span class="flex-1">{{ session('success') }}</span>
-        </div>
-    @endif
-
-    @if ($errors->any())
-        <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-xs sm:text-sm space-y-2 shadow-xs">
-            <div class="flex items-center space-x-2 font-black">
-                <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600 shrink-0"></i>
-                <span>Terjadi kendala pada pengisian data:</span>
-            </div>
-            <ul class="list-disc list-inside space-y-1 text-rose-800 text-xs ml-4">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     <!-- 1. Profile Hero & Identity Card -->
     <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs space-y-6">
         <!-- Avatar & Main Meta Row -->

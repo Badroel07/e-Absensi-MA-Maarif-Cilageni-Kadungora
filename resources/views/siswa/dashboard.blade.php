@@ -186,7 +186,7 @@
                             3 Langkah Alur
                         </span>
                     </div>
-                    <p class="text-xs text-slate-500 font-normal truncate mt-0.5">
+                    <p class="text-xs text-slate-500 font-normal mt-0.5 leading-relaxed">
                         Ketuk untuk melihat 3 langkah mudah presensi kehadiran di kelas
                     </p>
                 </div>

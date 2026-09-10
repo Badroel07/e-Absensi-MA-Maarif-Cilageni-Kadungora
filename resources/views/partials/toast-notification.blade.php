@@ -113,8 +113,12 @@
         info: (msg, duration = 2000) => window.showToast(msg, 'info', duration)
     };
 
-    // Auto-trigger for Laravel Session Flash messages
-    document.addEventListener('DOMContentLoaded', function() {
+    // Auto-trigger for Laravel Session Flash messages on initial real page load
+    let hasShownInitialFlash = false;
+    function triggerInitialFlash() {
+        if (hasShownInitialFlash) return;
+        hasShownInitialFlash = true;
+
         @if(session('success'))
             window.showToast(@json(session('success')), 'success', 2000);
         @endif
@@ -129,6 +133,12 @@
         @if(session('info'))
             window.showToast(@json(session('info')), 'info', 2000);
         @endif
-    });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', triggerInitialFlash, { once: true });
+    } else {
+        triggerInitialFlash();
+    }
 })();
 </script>
