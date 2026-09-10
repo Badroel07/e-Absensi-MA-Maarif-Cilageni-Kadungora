@@ -15,50 +15,8 @@
     <link rel="apple-touch-icon" href="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}">
 
     <link rel="manifest" href="/manifest.json">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        maarif: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            200: '#bbf7d0',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803D', // Primary Ma'arif Green
-                            800: '#166534', // Deep Forest
-                            900: '#14532d',
-                            gold: '#EAB308',
-                        }
-                    },
-                    spacing: {
-                        '13': '3.25rem', // 52px
-                    },
-                    boxShadow: {
-                        '2xs': '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
-                        'xs': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                        heading: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    fontSize: {
-                        '3xs': ['0.5625rem', { lineHeight: '0.75rem', letterSpacing: '0.05em' }], // 9px
-                        '2xs': ['0.625rem', { lineHeight: '0.875rem', letterSpacing: '0.025em' }], // 10px
-                        'xs+': ['0.6875rem', { lineHeight: '1rem', letterSpacing: '0.015em' }],     // 11px
-                    }
-                }
-            }
-        }
-    </script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script>
         window.__serverTimeMs = {{ \Carbon\Carbon::now()->getTimestampMs() }};
         window.__clientInitMs = Date.now();
@@ -67,10 +25,6 @@
         };
     </script>
     <style>
-        body {
-            -webkit-tap-highlight-color: transparent;
-            font-family: 'Inter', system-ui, sans-serif;
-        }
         .heading-font {
             font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
         }
@@ -84,24 +38,7 @@
             min-height: 48px;
             min-width: 48px;
         }
-
-        /* Prevent ugly glitch outline on mouse click while preserving accessible keyboard navigation */
-        button:focus:not(:focus-visible),
-        a:focus:not(:focus-visible),
-        [role="button"]:focus:not(:focus-visible),
-        input[type="button"]:focus:not(:focus-visible),
-        input[type="submit"]:focus:not(:focus-visible),
-        input[type="reset"]:focus:not(:focus-visible) {
-            outline: none !important;
-            box-shadow: none !important;
-        }
-
-        button, a, input, select, textarea, [role="button"] {
-            -webkit-tap-highlight-color: transparent;
-        }
     </style>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
 
     <div id="page-styles-container" class="contents">
         @stack('styles')
@@ -224,13 +161,6 @@
 
     <!-- Haptic feedback and service worker registration -->
     <script>
-        // Initialize Lucide Icons
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-
         window.triggerHaptic = function(pattern = [50]) {
             if (navigator.vibrate) {
                 try {
