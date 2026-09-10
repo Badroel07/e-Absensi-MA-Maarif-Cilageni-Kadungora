@@ -120,7 +120,9 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    @stack('styles')
+    <div id="page-styles-container" class="contents">
+        @stack('styles')
+    </div>
 </head>
 <body class="min-h-full bg-slate-50 text-slate-900 flex flex-col antialiased selection:bg-emerald-100 selection:text-emerald-800">
     <!-- Main Application Wrapper -->
@@ -134,7 +136,7 @@
 
             <!-- 1. DESKTOP TOP HEADER BAR (Synchronized h-[72px] with Sidebar Brand) -->
             <header class="hidden md:flex sticky top-0 z-20 h-[72px] px-6 sm:px-8 bg-emerald-800 border-b border-emerald-900/20 items-center justify-between text-white shrink-0" style="height: 72px; min-height: 72px;">
-                <div class="flex flex-col justify-center">
+                <div id="desktop-header-title" class="flex flex-col justify-center">
                     <span class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-200/90 leading-none mb-1">Panel Administrator</span>
                     <h2 class="text-base sm:text-lg font-black text-white heading-font tracking-tight leading-none">@yield('page-title', 'Dashboard')</h2>
                 </div>
@@ -144,7 +146,7 @@
             <header class="md:hidden sticky top-0 z-40 h-16 px-4 bg-gradient-to-r from-emerald-800 via-maarif-700 to-emerald-800 border-b border-emerald-900/80 flex items-center justify-between text-white">
                 <div class="flex items-center space-x-3">
                     <img src="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" alt="Logo MA Ma'arif Cilageni" class="w-11 h-11 object-contain shrink-0 drop-shadow-md">
-                    <div>
+                    <div id="mobile-header-title">
                         <h1 class="text-[10px] font-extrabold tracking-wider text-emerald-200 uppercase">MA Ma'arif Cilageni</h1>
                         <p class="text-sm font-extrabold text-white heading-font leading-tight">
                             @yield('page-title', 'Dashboard')
@@ -170,7 +172,7 @@
             </header>
 
             <!-- 3. MAIN CONTENT -->
-            <main class="flex-1 w-full px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 md:pt-8 pb-36 md:pb-12">
+            <main id="main-content" class="flex-1 w-full px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 md:pt-8 pb-36 md:pb-12">
                 @yield('content')
             </main>
         </div>
@@ -185,8 +187,11 @@
 
     @include('partials.confirm-dialog')
     @include('partials.toast-notification')
+    @include('partials.partial-nav')
 
-    @stack('scripts')
+    <div id="page-scripts-container" class="contents">
+        @stack('scripts')
+    </div>
     <script>
         // Initialize Lucide Icons
         document.addEventListener('DOMContentLoaded', () => {

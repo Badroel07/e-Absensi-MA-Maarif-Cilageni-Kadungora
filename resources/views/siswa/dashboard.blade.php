@@ -31,16 +31,18 @@
     <!-- Page Title Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
-            <h1 class="text-xl sm:text-2xl font-black text-slate-900 heading-font tracking-tight">Dashboard</h1>
-            <p class="text-xs sm:text-sm text-slate-500">Presensi kelas dan informasi kehadiran harian siswa</p>
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-900 heading-font tracking-tight">Dashboard Siswa</h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Terminal presensi ruang kelas dan pemantauan kehadiran harian madrasah</p>
         </div>
     </div>
 
     <!-- 1. HERO GREETING & PROFILE BANNER -->
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-maarif-900 via-maarif-800 to-emerald-950 text-white p-5 sm:p-7 shadow-xl border border-emerald-600/30 flex flex-col gap-4 sm:gap-5">
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-950 text-white p-5 sm:p-7 shadow-lg border border-emerald-700/50 flex flex-col gap-4 sm:gap-5">
         <!-- Background Ambient Glow -->
         <div class="absolute -right-12 -top-12 w-64 h-64 rounded-full bg-emerald-400/20 blur-3xl pointer-events-none"></div>
-        <div class="absolute right-1/3 -bottom-16 w-56 h-56 rounded-full bg-emerald-600/25 blur-2xl pointer-events-none"></div>        <!-- [MOBILE ONLY] Top Row: Date & Live Digital Clock Capsule (< md) -->
+        <div class="absolute right-1/3 -bottom-16 w-56 h-56 rounded-full bg-emerald-600/25 blur-2xl pointer-events-none"></div>
+
+        <!-- [MOBILE ONLY] Top Row: Date & Live Digital Clock Capsule (< md) -->
         <div class="md:hidden relative z-10 flex items-center justify-between gap-2 pb-3 border-b border-white/10">
             <!-- Date Indicator -->
             <div class="text-xs font-semibold text-emerald-100/90 whitespace-nowrap tracking-tight">
@@ -49,9 +51,7 @@
 
             <!-- Live Clock Pill Capsule -->
             <div class="px-2.5 py-1 rounded-full bg-black/25 backdrop-blur-md border border-white/20 text-white shrink-0 shadow-inner flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5 text-emerald-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <i data-lucide="clock" class="w-3.5 h-3.5 text-emerald-300 shrink-0"></i>
                 <div class="liveClockTicker text-xs font-black mono-font tracking-wider">
                     {{ now()->format('H:i:s') }} <span class="text-[10px] font-bold text-emerald-300">WIB</span>
                 </div>
@@ -71,7 +71,7 @@
                 </div>
                 <div class="min-w-0 flex-1">
                     <div class="flex items-center gap-2 flex-wrap mb-1">
-                        <span class="px-2 py-0.5 rounded-md bg-emerald-500/30 border border-emerald-400/40 text-[11px] font-bold text-emerald-200">
+                        <span class="px-2.5 py-0.5 rounded-md bg-emerald-500/30 border border-emerald-400/40 text-[11px] font-bold text-emerald-200">
                             Kelas {{ $student->classroom->name ?? '-' }}
                         </span>
                         <span class="text-[11px] text-emerald-200/80 font-medium">
@@ -103,9 +103,7 @@
         <div id="geofenceCard" class="relative z-10 rounded-2xl bg-black/20 sm:bg-white/10 p-3.5 sm:p-4 border border-white/15 backdrop-blur-md shadow-inner flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4 text-xs">
             <div class="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1">
                 <div id="geofenceIconBox" class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-white/15 border border-white/25 text-white flex items-center justify-center shrink-0 shadow-sm transition-all">
-                    <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="currentColor">
-                        <path fill-rule="evenodd" d="m11.54 22.351.07.04.028.016a.76.76 0 0 0 .723 0l.028-.015.071-.041a16.975 16.975 0 0 0 1.144-.742 19.58 19.58 0 0 0 2.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 0 0-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 0 0 2.682 2.282 16.975 16.975 0 0 0 1.145.742ZM12 13.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd" />
-                    </svg>
+                    <i data-lucide="map-pin" class="w-5 h-5 sm:w-6 sm:h-6 text-white"></i>
                 </div>
                 <div class="min-w-0 flex-1">
                     <div class="flex items-center gap-2 flex-wrap">
@@ -126,10 +124,8 @@
             </div>
 
             <div class="flex items-center justify-end shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-white/10">
-                <button type="button" onclick="initGeolocation(true)" class="w-full md:w-auto py-2 sm:py-2.5 px-4 rounded-xl bg-white/15 hover:bg-white/25 active:bg-white/30 text-white text-xs font-bold backdrop-blur-md transition-all duration-150 inline-flex items-center justify-center gap-2 border border-white/25 hover:border-white/40 shadow-sm active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white whitespace-nowrap">
-                    <svg id="gpsRefreshIcon" class="w-4 h-4 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
+                <button type="button" onclick="initGeolocation(true)" class="w-full md:w-auto py-2.5 px-4 rounded-xl bg-white/15 hover:bg-white/25 active:bg-white/30 text-white text-xs font-bold backdrop-blur-md transition-all duration-150 inline-flex items-center justify-center gap-2 border border-white/25 hover:border-white/40 shadow-xs active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white whitespace-nowrap">
+                    <i data-lucide="rotate-cw" id="gpsRefreshIcon" class="w-4 h-4 text-emerald-200"></i>
                     <span>Perbarui Lokasi GPS</span>
                 </button>
             </div>
@@ -138,25 +134,21 @@
 
     <!-- WARNING ALERTS (Di Luar Area & Status Rombel) -->
     <!-- Outside Geofence Warning Box -->
-    <div id="outsideWarning" class="hidden bg-red-50/95 border border-red-200 rounded-3xl p-6 text-center space-y-4 shadow-xs">
-        <div class="w-14 h-14 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mx-auto shadow-xs">
-            <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-            </svg>
+    <div id="outsideWarning" class="hidden bg-rose-50 border border-rose-200 rounded-3xl p-6 text-center space-y-4 shadow-xs">
+        <div class="w-14 h-14 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto shadow-xs">
+            <i data-lucide="map-pin-off" class="w-7 h-7"></i>
         </div>
         <div>
-            <h3 class="text-base font-bold text-red-950 heading-font">Di Luar Area Madrasah</h3>
-            <p id="outsideDistanceText" class="text-xs text-red-800 mt-1">
+            <h3 class="text-base font-bold text-rose-950 heading-font">Di Luar Area Madrasah</h3>
+            <p id="outsideDistanceText" class="text-xs text-rose-800 mt-1">
                 Sistem mendeteksi posisi kamu berada di luar area madrasah (maksimal {{ $location->radius_meters ?? 75 }} meter).
             </p>
-            <p class="text-xs text-red-700 mt-2 font-medium">
+            <p class="text-xs text-rose-700 mt-2 font-medium">
                 Presensi hanya dapat dilakukan jika kamu berada di dalam area lingkungan madrasah.
             </p>
         </div>
-        <button type="button" onclick="initGeolocation(true)" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-red-50 active:bg-red-100 border border-red-200 text-red-700 font-bold text-xs transition-all duration-150 active:scale-95 shadow-xs cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500">
-            <svg class="w-4 h-4 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
+        <button type="button" onclick="initGeolocation(true)" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-rose-100 active:bg-rose-200 border border-rose-300 text-rose-800 font-bold text-xs transition-all duration-150 active:scale-[0.98] shadow-xs cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500">
+            <i data-lucide="rotate-cw" class="w-4 h-4 text-rose-600 shrink-0"></i>
             <span>Coba Deteksi Ulang GPS</span>
         </button>
     </div>
@@ -164,9 +156,7 @@
     @if(!$student->classroom_id)
         <div class="bg-amber-50/90 border border-amber-200 rounded-3xl p-6 text-center space-y-4 shadow-xs">
             <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto shadow-xs">
-                <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
+                <i data-lucide="alert-triangle" class="w-7 h-7"></i>
             </div>
             <div>
                 <h3 class="text-base font-bold text-amber-950 heading-font">Belum Terdaftar di Kelas</h3>
@@ -181,55 +171,51 @@
     @endif
 
     <!-- PETUNJUK PRESENSI SISWA ACCORDION (Collapsible) -->
-    <details class="group bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden transition-all duration-200 open:border-emerald-200 open:shadow-sm">
-        <summary class="flex items-center justify-between p-4 sm:p-4.5 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden hover:bg-slate-50/80 transition-colors">
-            <div class="flex items-center gap-3 min-w-0">
-                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-100">
-                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+    <details class="group bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden transition-all duration-200 open:border-emerald-300 open:shadow-xs">
+        <summary class="flex items-center justify-between p-4 sm:p-5 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden hover:bg-slate-50/80 transition-colors">
+            <div class="flex items-center gap-3.5 min-w-0">
+                <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-100">
+                    <i data-lucide="help-circle" class="w-5 h-5"></i>
                 </div>
                 <div class="min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
-                        <h4 class="text-xs sm:text-sm font-bold text-slate-800 heading-font">
+                        <h4 class="text-sm font-bold text-slate-800 heading-font">
                             Petunjuk Presensi Siswa
                         </h4>
-                        <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
-                            Petunjuk Alur
+                        <span class="text-[10px] font-extrabold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/70">
+                            3 Langkah Alur
                         </span>
                     </div>
-                    <p class="text-[11px] sm:text-xs text-slate-500 font-normal truncate mt-0.5">
+                    <p class="text-xs text-slate-500 font-normal truncate mt-0.5">
                         Ketuk untuk melihat 3 langkah mudah presensi kehadiran di kelas
                     </p>
                 </div>
             </div>
-            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-slate-100 group-hover:bg-slate-200 text-slate-500 flex items-center justify-center shrink-0 ml-2 transition-transform duration-200 group-open:rotate-180">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
+            <div class="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-slate-200 text-slate-500 flex items-center justify-center shrink-0 ml-2 transition-transform duration-200 group-open:rotate-180">
+                <i data-lucide="chevron-down" class="w-4 h-4"></i>
             </div>
         </summary>
-        <div class="px-4 pb-5 pt-2 border-t border-slate-100 text-xs sm:text-sm bg-slate-50/50">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
-                <div class="p-3 bg-white rounded-xl border border-slate-100 shadow-2xs flex items-start gap-2.5">
-                    <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold flex items-center justify-center shrink-0 mt-0.5">1</span>
+        <div class="px-5 pb-5 pt-2 border-t border-slate-100 text-xs sm:text-sm bg-slate-50/50">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 pt-2">
+                <div class="p-4 bg-white rounded-2xl border border-slate-200/70 shadow-2xs flex items-start gap-3">
+                    <span class="w-6 h-6 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-black mono-font flex items-center justify-center shrink-0 mt-0.5">1</span>
                     <div class="text-slate-600 text-xs leading-relaxed">
-                        <strong class="text-slate-900 block mb-0.5">Berada di Madrasah</strong>
-                        Presensi hanya dapat dilakukan saat kamu sudah berada di dalam lingkungan madrasah.
+                        <strong class="text-slate-900 block font-bold mb-0.5">Berada di Madrasah</strong>
+                        Presensi hanya dapat diverifikasi saat GPS mendeteksi kamu berada di area madrasah.
                     </div>
                 </div>
-                <div class="p-3 bg-white rounded-xl border border-slate-100 shadow-2xs flex items-start gap-2.5">
-                    <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                <div class="p-4 bg-white rounded-2xl border border-slate-200/70 shadow-2xs flex items-start gap-3">
+                    <span class="w-6 h-6 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-black mono-font flex items-center justify-center shrink-0 mt-0.5">2</span>
                     <div class="text-slate-600 text-xs leading-relaxed">
-                        <strong class="text-slate-900 block mb-0.5">Masukkan PIN</strong>
-                        Ketik 4 angka PIN yang dibagikan oleh Bapak/Ibu Guru saat jam pelajaran dimulai.
+                        <strong class="text-slate-900 block font-bold mb-0.5">Masukkan PIN</strong>
+                        Ketik 4 angka PIN yang dibagikan oleh guru pengampu saat jam pelajaran dimulai.
                     </div>
                 </div>
-                <div class="p-3 bg-white rounded-xl border border-slate-100 shadow-2xs flex items-start gap-2.5">
-                    <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                <div class="p-4 bg-white rounded-2xl border border-slate-200/70 shadow-2xs flex items-start gap-3">
+                    <span class="w-6 h-6 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-black mono-font flex items-center justify-center shrink-0 mt-0.5">3</span>
                     <div class="text-slate-600 text-xs leading-relaxed">
-                        <strong class="text-slate-900 block mb-0.5">Kehadiran Otomatis</strong>
-                        Presensi pada jam pertama otomatis mencatat kehadiran masuk madrasah hari ini.
+                        <strong class="text-slate-900 block font-bold mb-0.5">Kehadiran Otomatis</strong>
+                        Presensi pada jam pertama otomatis mencatat kehadiran masuk harian madrasah.
                     </div>
                 </div>
             </div>
@@ -237,68 +223,68 @@
     </details>
 
     <!-- 2. QUICK METRIC & ATTENDANCE SUMMARY CARDS -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <!-- Metric 1: Total Mapel Hari Ini -->
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs hover:border-slate-300 transition">
+        <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-slate-300 transition">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Jadwal Hari Ini</span>
-                <div class="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
+                <span class="text-[11px] sm:text-xs font-extrabold text-slate-500 uppercase tracking-wider">Jadwal Hari Ini</span>
+                <div class="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
                 </div>
             </div>
-            <div class="mt-2 flex items-baseline space-x-1.5">
-                <span class="text-2xl font-black text-slate-900 mono-font">{{ $todaySchedules->count() }}</span>
-                <span class="text-xs font-semibold text-slate-500">Mata Pelajaran</span>
+            <div class="mt-3">
+                <span class="text-2xl sm:text-3xl font-black text-slate-900 mono-font leading-none block">
+                    {{ $todaySchedules->count() }}
+                </span>
+                <p class="text-[11px] text-slate-500 font-medium mt-1">Mata Pelajaran</p>
             </div>
         </div>
 
         <!-- Metric 2: Hadir Hari Ini -->
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs hover:border-emerald-200 transition">
+        <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-emerald-300 transition">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Hadir</span>
-                <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                    </svg>
+                <span class="text-[11px] sm:text-xs font-extrabold text-emerald-700 uppercase tracking-wider">Hadir</span>
+                <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/60 flex items-center justify-center shrink-0">
+                    <i data-lucide="check-circle-2" class="w-4 h-4"></i>
                 </div>
             </div>
-            <div class="mt-2 flex items-baseline space-x-1.5">
-                <span class="text-2xl font-black text-emerald-700 mono-font">{{ $hadirCount }}</span>
-                <span class="text-xs font-semibold text-slate-500">Mata Pelajaran</span>
+            <div class="mt-3">
+                <span class="text-2xl sm:text-3xl font-black text-emerald-700 mono-font leading-none block">
+                    {{ $hadirCount }}
+                </span>
+                <p class="text-[11px] text-slate-500 font-medium mt-1">Sesi Terverifikasi</p>
             </div>
         </div>
 
         <!-- Metric 3: Izin / Sakit -->
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs hover:border-amber-200 transition">
+        <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-amber-300 transition">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-amber-700 uppercase tracking-wider">Izin / Sakit</span>
-                <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                <span class="text-[11px] sm:text-xs font-extrabold text-amber-700 uppercase tracking-wider">Izin / Sakit</span>
+                <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 border border-amber-200/60 flex items-center justify-center shrink-0">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
                 </div>
             </div>
-            <div class="mt-2 flex items-baseline space-x-1.5">
-                <span class="text-2xl font-black text-amber-700 mono-font">{{ $izinCount + $sakitCount }}</span>
-                <span class="text-xs font-semibold text-slate-500">Keterangan Izin</span>
+            <div class="mt-3">
+                <span class="text-2xl sm:text-3xl font-black text-amber-700 mono-font leading-none block">
+                    {{ $izinCount + $sakitCount }}
+                </span>
+                <p class="text-[11px] text-slate-500 font-medium mt-1">Dispensasi</p>
             </div>
         </div>
 
         <!-- Metric 4: Alpa -->
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs hover:border-rose-200 transition">
+        <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-rose-300 transition">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-rose-700 uppercase tracking-wider">Alpa</span>
-                <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                <span class="text-[11px] sm:text-xs font-extrabold text-rose-700 uppercase tracking-wider">Alpa</span>
+                <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-700 border border-rose-200/60 flex items-center justify-center shrink-0">
+                    <i data-lucide="x-circle" class="w-4 h-4"></i>
                 </div>
             </div>
-            <div class="mt-2 flex items-baseline space-x-1.5">
-                <span class="text-2xl font-black text-rose-700 mono-font">{{ $alpaCount }}</span>
-                <span class="text-xs font-semibold text-slate-500">Tanpa Keterangan</span>
+            <div class="mt-3">
+                <span class="text-2xl sm:text-3xl font-black text-rose-700 mono-font leading-none block">
+                    {{ $alpaCount }}
+                </span>
+                <p class="text-[11px] text-slate-500 font-medium mt-1">Tanpa Keterangan</p>
             </div>
         </div>
     </div>
@@ -393,31 +379,31 @@
         </div>
 
         <!-- Today's Class Schedule (Jadwal Pelajaran Hari Ini) -->
-        <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs space-y-4">
+        <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-xs space-y-4">
             <div class="flex items-center justify-between pb-3.5 border-b border-slate-100">
-                <div class="flex items-center space-x-2.5">
-                    <svg class="w-5 h-5 text-maarif-700 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-100">
+                        <i data-lucide="calendar" class="w-5 h-5"></i>
+                    </div>
                     <div>
-                        <h3 class="text-sm font-bold text-slate-900 heading-font uppercase tracking-wide">
+                        <h3 class="text-sm sm:text-base font-black text-slate-900 heading-font uppercase tracking-wide">
                             Jadwal Pelajaran Hari Ini ({{ $todayDay }})
                         </h3>
                         <p class="text-xs text-slate-500">Kelas {{ $student->classroom->name ?? '-' }} &bull; MA Ma'arif Cilageni</p>
                     </div>
                 </div>
-                <a href="{{ route('siswa.schedule') }}" class="inline-flex items-center gap-1 text-xs font-bold text-maarif-700 hover:text-maarif-800 active:text-maarif-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg transition-all duration-150 active:scale-95 shadow-2xs shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
+                <a href="{{ route('siswa.schedule') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-emerald-800 bg-slate-100 hover:bg-slate-200/80 px-3 py-1.5 rounded-xl transition-all duration-150 active:scale-95 shadow-2xs shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
                     <span>Lihat Mingguan</span>
-                    <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                 </a>
             </div>
 
             @if($todaySchedules->isEmpty())
-                <div class="py-8 text-center text-slate-400 space-y-2">
-                    <svg class="w-10 h-10 mx-auto text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <p class="text-xs font-medium">Tidak ada jadwal pelajaran terjadwal untuk hari {{ $todayDay }}.</p>
+                <div class="py-10 text-center text-slate-400 space-y-2">
+                    <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+                        <i data-lucide="calendar-x-2" class="w-6 h-6"></i>
+                    </div>
+                    <p class="text-xs font-medium text-slate-500">Tidak ada jadwal pelajaran terjadwal untuk hari {{ $todayDay }}.</p>
                 </div>
             @else
                 <div class="space-y-3">
@@ -425,24 +411,22 @@
                         @php
                             $matchedAttendance = $todayAttendances->firstWhere('schedule_id', $sch->id);
                         @endphp
-                        <div class="p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 {{ $matchedAttendance ? ($matchedAttendance->status === 'HADIR' ? 'bg-emerald-50/50 border-emerald-200/80' : 'bg-amber-50/50 border-amber-200/80') : 'bg-slate-50/80 border-slate-200/80 hover:bg-slate-100/70' }}">
-                            <div class="flex items-center space-x-3.5">
-                                <span class="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200/90 text-slate-800 font-extrabold mono-font text-xs shrink-0 shadow-2xs">
-                                    {{ substr($sch->start_time, 0, 5) }} - {{ substr($sch->end_time, 0, 5) }}
+                        <div class="p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 {{ $matchedAttendance ? ($matchedAttendance->status === 'HADIR' ? 'bg-emerald-50/40 border-emerald-200/80' : 'bg-amber-50/40 border-amber-200/80') : 'bg-slate-50/70 border-slate-200/70 hover:bg-slate-100/80' }}">
+                            <div class="flex items-center space-x-3.5 min-w-0">
+                                <span class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-800 font-extrabold mono-font text-xs shrink-0 shadow-2xs">
+                                    {{ substr($sch->start_time, 0, 5) }} – {{ substr($sch->end_time, 0, 5) }}
                                 </span>
-                                <div>
-                                    <h4 class="text-sm font-bold text-slate-900 leading-snug">{{ $sch->subject->name }}</h4>
-                                    <p class="text-xs text-slate-500 mt-0.5">{{ $sch->teacher->name }}</p>
+                                <div class="min-w-0 flex-1">
+                                    <h4 class="text-sm font-bold text-slate-900 leading-snug break-words">{{ $sch->subject->name }}</h4>
+                                    <p class="text-xs text-slate-500 mt-0.5 break-words">{{ $sch->teacher->name }}</p>
                                 </div>
                             </div>
 
                             <div class="self-end sm:self-center shrink-0">
                                 @if($matchedAttendance)
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold {{ $matchedAttendance->status === 'HADIR' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($matchedAttendance->status === 'IZIN' ? 'bg-amber-100 text-amber-800 border border-amber-200' : ($matchedAttendance->status === 'SAKIT' ? 'bg-sky-100 text-sky-800 border border-sky-200' : 'bg-rose-100 text-rose-800 border border-rose-200')) }}">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold {{ $matchedAttendance->status === 'HADIR' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($matchedAttendance->status === 'IZIN' ? 'bg-amber-100 text-amber-800 border border-amber-200' : ($matchedAttendance->status === 'SAKIT' ? 'bg-sky-100 text-sky-800 border border-sky-200' : 'bg-rose-100 text-rose-800 border border-rose-200')) }}">
                                         @if($matchedAttendance->status === 'HADIR')
-                                            <svg class="w-3.5 h-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                                            </svg>
+                                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i>
                                         @endif
                                         {{ $matchedAttendance->status }}
                                     </span>
@@ -459,42 +443,46 @@
         </div>
 
         <!-- Today's Attendance Feed (Riwayat Kehadiran Hari Ini) -->
-        <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs space-y-4">
+        <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-xs space-y-4">
             <div class="flex items-center justify-between pb-3.5 border-b border-slate-100">
-                <div class="flex items-center space-x-2.5">
-                    <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-100">
+                        <i data-lucide="check-square" class="w-5 h-5"></i>
+                    </div>
                     <div>
-                        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide heading-font">
+                        <h3 class="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide heading-font">
                             Riwayat Kehadiran Hari Ini
                         </h3>
                         <p class="text-xs text-slate-500">Catatan kehadiran pada jam pelajaran hari ini</p>
                     </div>
                 </div>
-                <span class="text-xs font-semibold text-slate-500 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 shrink-0">
+                <span class="text-xs font-bold text-slate-700 px-3 py-1 rounded-xl bg-slate-100 border border-slate-200/80 mono-font shrink-0">
                     {{ $todayAttendances->count() }} Tercatat
                 </span>
             </div>
 
             @if($todayAttendances->isEmpty())
-                <div class="text-center py-8 text-slate-400">
-                    <svg class="w-10 h-10 mx-auto text-slate-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                    <p class="text-xs font-medium">Belum ada rekaman kehadiran pelajaran hari ini.</p>
+                <div class="text-center py-10 text-slate-400 space-y-2">
+                    <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+                        <i data-lucide="clipboard-list" class="w-6 h-6"></i>
+                    </div>
+                    <p class="text-xs font-medium text-slate-500">Belum ada rekaman kehadiran pelajaran hari ini.</p>
                 </div>
             @else
                 <div class="space-y-3">
                     @foreach($todayAttendances as $att)
-                        <div class="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 flex items-center justify-between text-xs hover:bg-slate-100/70 transition">
-                            <div>
-                                <p class="font-bold text-slate-900 text-sm leading-snug">{{ $att->schedule->subject->name ?? 'Mata Pelajaran' }}</p>
-                                <p class="text-[11px] text-slate-500 mt-0.5">
-                                    {{ $att->schedule->teacher->name ?? 'Guru' }} &bull; {{ $att->verified_at ? $att->verified_at->format('H:i') . ' WIB' : 'Pukul ' . substr($att->schedule->start_time ?? '', 0, 5) }}
+                        <div class="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/70 flex items-center justify-between text-xs hover:bg-slate-100/80 transition">
+                            <div class="min-w-0 flex-1 pr-3">
+                                <p class="font-bold text-slate-900 text-sm leading-snug break-words">{{ $att->schedule->subject->name ?? 'Mata Pelajaran' }}</p>
+                                <p class="text-xs text-slate-500 mt-0.5 break-words">
+                                    {{ $att->schedule->teacher->name ?? 'Dewan Guru' }} &bull; 
+                                    <span class="mono-font text-slate-600 font-semibold">{{ $att->verified_at ? $att->verified_at->format('H:i') . ' WIB' : 'Pukul ' . substr($att->schedule->start_time ?? '', 0, 5) . ' WIB' }}</span>
                                 </p>
                             </div>
-                            <span class="px-3 py-1 rounded-full text-xs font-bold shrink-0 ml-2 {{ $att->status === 'HADIR' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($att->status === 'IZIN' ? 'bg-amber-100 text-amber-800 border border-amber-200' : ($att->status === 'SAKIT' ? 'bg-sky-100 text-sky-800 border border-sky-200' : 'bg-rose-100 text-rose-800 border border-rose-200')) }}">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold shrink-0 {{ $att->status === 'HADIR' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($att->status === 'IZIN' ? 'bg-amber-100 text-amber-800 border border-amber-200' : ($att->status === 'SAKIT' ? 'bg-sky-100 text-sky-800 border border-sky-200' : 'bg-rose-100 text-rose-800 border border-rose-200')) }}">
+                                @if($att->status === 'HADIR')
+                                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i>
+                                @endif
                                 {{ $att->status }}
                             </span>
                         </div>

@@ -6,24 +6,26 @@
 <div class="space-y-6">
     <!-- Header -->
     <div>
-        <h1 class="text-xl sm:text-2xl font-black text-slate-900 heading-font tracking-tight">Profil Pengguna</h1>
-        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Informasi identitas akun, foto profil madrasah, dan manajemen keamanan kata sandi</p>
+        <h1 class="text-xl sm:text-2xl font-black text-slate-900 heading-font tracking-tight">Profil Akun</h1>
+        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Identitas madrasah, foto profil resmi, dan pengaturan keamanan kata sandi</p>
     </div>
 
     @if (session('success'))
-        <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center space-x-3">
-            <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600 shrink-0"></i>
-            <span class="font-medium">{{ session('success') }}</span>
+        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs sm:text-sm font-semibold flex items-center space-x-3 shadow-xs">
+            <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>
+            </div>
+            <span class="flex-1">{{ session('success') }}</span>
         </div>
     @endif
 
     @if ($errors->any())
-        <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs space-y-1">
-            <div class="flex items-center space-x-2 font-bold">
-                <i data-lucide="alert-circle" class="w-4 h-4 text-rose-600 shrink-0"></i>
+        <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-xs sm:text-sm space-y-2 shadow-xs">
+            <div class="flex items-center space-x-2 font-black">
+                <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600 shrink-0"></i>
                 <span>Terjadi kendala pada pengisian data:</span>
             </div>
-            <ul class="list-disc list-inside space-y-0.5 text-rose-700 text-[11px] ml-6">
+            <ul class="list-disc list-inside space-y-1 text-rose-800 text-xs ml-4">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -31,62 +33,68 @@
         </div>
     @endif
 
-    <div class="space-y-6">
-        <!-- 1. Profile Photo & Identity Card -->
-        <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs space-y-6">
-            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 pb-6 border-b border-slate-100 text-center sm:text-left">
-                <!-- Photo Display & Instant Preview Area -->
-                <div class="relative group shrink-0">
-                    <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl overflow-hidden ring-4 ring-slate-100 shadow-md bg-slate-100 flex items-center justify-center relative">
-                        <img id="preview-avatar-img" 
-                             src="{{ $user->profile_photo_url ?? '' }}" 
-                             alt="{{ $user->name }}" 
-                             class="w-full h-full object-cover {{ $user->profile_photo_url ? '' : 'hidden' }}">
-                        
-                        <div id="fallback-avatar" 
-                             class="w-full h-full bg-linear-to-br from-maarif-700 to-maarif-900 text-white font-black text-3xl sm:text-4xl flex items-center justify-center {{ $user->profile_photo_url ? 'hidden' : '' }}">
-                            {{ substr($user->name, 0, 1) }}
-                        </div>
+    <!-- 1. Profile Hero & Identity Card -->
+    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs space-y-6">
+        <!-- Avatar & Main Meta Row -->
+        <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 pb-6 border-b border-slate-100 text-center sm:text-left">
+            <!-- Avatar with Photo Input Trigger -->
+            <div class="relative group shrink-0">
+                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl overflow-hidden ring-4 ring-slate-100 shadow-md bg-slate-100 flex items-center justify-center relative">
+                    <img id="preview-avatar-img" 
+                         src="{{ $user->profile_photo_url ?? '' }}" 
+                         alt="{{ $user->name }}" 
+                         class="w-full h-full object-cover {{ $user->profile_photo_url ? '' : 'hidden' }}">
+                    
+                    <div id="fallback-avatar" 
+                         class="w-full h-full bg-linear-to-br from-emerald-700 to-slate-900 text-white font-black text-3xl sm:text-4xl flex items-center justify-center {{ $user->profile_photo_url ? 'hidden' : '' }}">
+                        {{ substr($user->name, 0, 1) }}
                     </div>
-
-                    <!-- Trigger Button overlay -->
-                    <label for="photo-input" 
-                           title="Pilih foto profil"
-                           class="absolute -bottom-2 -right-2 p-2 bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white rounded-2xl shadow-md shadow-emerald-900/25 cursor-pointer transition-all duration-150 active:scale-95 flex items-center justify-center border-2 border-white focus-within:ring-2 focus-within:ring-emerald-600">
-                        <i data-lucide="camera" class="w-4 h-4"></i>
-                    </label>
                 </div>
 
+                <label for="photo-input" 
+                       title="Pilih foto profil"
+                       class="absolute -bottom-1 -right-1 p-2.5 bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white rounded-2xl shadow-md shadow-emerald-900/25 cursor-pointer transition-all duration-150 active:scale-95 flex items-center justify-center border-2 border-white focus-within:ring-2 focus-within:ring-emerald-600">
+                    <i data-lucide="camera" class="w-4 h-4"></i>
+                </label>
+            </div>
+
+                <!-- Name & Roles -->
                 <div class="flex-1 min-w-0 space-y-1.5">
                     <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                        <h3 class="text-base sm:text-lg font-extrabold text-slate-900 heading-font break-words">{{ $user->name }}</h3>
-                        <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold tracking-wide {{ $user->role === 'guru' ? 'bg-amber-50 text-amber-800 border border-amber-300' : ($user->role === 'admin' ? 'bg-purple-50 text-purple-800 border border-purple-200' : 'bg-emerald-50 text-emerald-800 border border-emerald-200/80') }}">
-                            {{ $user->role === 'guru' ? 'Bapak/Ibu Guru' : ($user->role === 'admin' ? 'Admin' : 'Siswa Madrasah') }}
+                        <h2 class="text-lg sm:text-xl font-black text-slate-900 heading-font break-words">{{ $user->name }}</h2>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-black tracking-wide {{ $user->role === 'guru' ? 'bg-amber-100 text-amber-900 border border-amber-300' : ($user->role === 'admin' ? 'bg-purple-100 text-purple-900 border border-purple-300' : 'bg-emerald-100 text-emerald-900 border border-emerald-300') }}">
+                            {{ $user->role === 'guru' ? 'Bapak/Ibu Guru' : ($user->role === 'admin' ? 'Administrator' : 'Siswa Madrasah') }}
                         </span>
                     </div>
-                    <p class="text-xs text-slate-500 font-mono font-medium">Nomor Identitas (NISN/NIP): <span class="font-bold text-slate-800">{{ $user->identity_number }}</span></p>
-                    <p class="text-xs text-emerald-700 font-mono font-semibold flex items-center justify-center sm:justify-start gap-1.5"><i data-lucide="mail" class="w-3.5 h-3.5 text-emerald-600"></i><span>{{ $user->email }}</span></p>
-                    <p class="text-xs text-slate-400">Terdaftar di sistem presensi MA Ma'arif Cilageni Kadungora.</p>
+                    <p class="text-xs text-slate-500 font-mono font-medium">
+                        Nomor Identitas: <span class="font-bold text-slate-900">{{ $user->identity_number }}</span>
+                    </p>
+                    <p class="text-xs text-emerald-700 font-semibold flex items-center justify-center sm:justify-start gap-1.5">
+                        <i data-lucide="mail" class="w-3.5 h-3.5 text-emerald-600"></i>
+                        <span class="font-mono">{{ $user->email }}</span>
+                    </p>
                 </div>
             </div>
 
-            <!-- Upload Form & Actions -->
+            <!-- Upload Form & Actions Controls (Appears on file select) -->
             <form id="photo-upload-form" action="{{ route('profile.photo.update') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="file" id="photo-input" name="photo" accept="image/jpeg,image/png,image/jpg,image/webp" class="hidden">
 
-                <!-- Actions when a photo is newly selected -->
-                <div id="photo-upload-controls" class="hidden p-4 bg-emerald-50/80 border border-emerald-200 rounded-2xl space-y-3">
-                    <div class="flex items-center space-x-2 text-xs text-emerald-900">
-                        <i data-lucide="image" class="w-4 h-4 text-emerald-600 shrink-0"></i>
-                        <span class="truncate font-bold" id="selected-file-name">Foto dipilih</span>
+                <div id="photo-upload-controls" class="hidden p-4 bg-emerald-50/90 border border-emerald-200 rounded-2xl space-y-3">
+                    <div class="flex items-center justify-between text-xs text-emerald-900">
+                        <div class="flex items-center space-x-2 min-w-0">
+                            <i data-lucide="image" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+                            <span class="truncate font-bold" id="selected-file-name">Foto dipilih</span>
+                        </div>
+                        <span class="text-[11px] font-mono text-emerald-700 font-semibold shrink-0">Pratinjau Siap</span>
                     </div>
                     <div class="flex items-center gap-2.5">
-                        <button type="submit" class="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white font-extrabold rounded-xl text-xs inline-flex items-center justify-center gap-1.5 shadow-md shadow-emerald-900/20 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
+                        <button type="submit" class="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white font-black rounded-xl text-xs inline-flex items-center justify-center gap-1.5 shadow-md shadow-emerald-900/20 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
                             <i data-lucide="upload" class="w-3.5 h-3.5"></i>
-                            <span>Simpan Foto Baru</span>
+                            <span>Simpan Foto Profil</span>
                         </button>
-                        <button type="button" id="cancel-photo-btn" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-bold border border-slate-200/80 rounded-xl text-xs inline-flex items-center justify-center gap-1 transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+                        <button type="button" id="cancel-photo-btn" class="px-4 py-2.5 bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-700 font-bold border border-slate-200 rounded-xl text-xs inline-flex items-center justify-center gap-1 transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
                             <i data-lucide="x" class="w-3.5 h-3.5"></i>
                             <span>Batal</span>
                         </button>
@@ -94,144 +102,205 @@
                 </div>
             </form>
 
-            <!-- Photo Management Buttons -->
-            <div class="flex flex-wrap items-center gap-2.5">
-                <label for="photo-input" class="cursor-pointer px-4 py-2.5 bg-slate-800 hover:bg-slate-900 active:bg-slate-950 text-white font-extrabold rounded-2xl text-xs inline-flex items-center justify-center gap-2 transition-all duration-150 active:scale-95 shadow-xs focus-within:ring-2 focus-within:ring-slate-700">
-                    <i data-lucide="camera" class="w-4 h-4 text-white/90"></i>
-                    <span>{{ $user->profile_photo_path ? 'Ganti Foto Profil' : 'Unggah Foto Profil' }}</span>
+            <!-- Photo Management Bar -->
+            <div class="flex flex-wrap items-center gap-3">
+                <label for="photo-input" class="cursor-pointer px-4 py-2.5 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-black rounded-xl text-xs inline-flex items-center justify-center gap-2 transition-all duration-150 active:scale-95 shadow-xs focus-within:ring-2 focus-within:ring-slate-700">
+                    <i data-lucide="camera" class="w-4 h-4 text-white"></i>
+                    <span>{{ $user->profile_photo_path ? 'Ganti Foto' : 'Unggah Foto' }}</span>
                 </label>
 
                 @if($user->profile_photo_path)
                     <form action="{{ route('profile.photo.destroy') }}" method="POST"
-                        data-confirm="Apakah Anda yakin ingin menghapus foto profil Anda? Tampilan avatar akan dikembalikan ke inisial default nama Anda."
+                        data-confirm="Apakah Anda yakin ingin menghapus foto profil Anda? Tampilan avatar akan dikembalikan ke inisial nama Anda."
                         data-confirm-title="Hapus Foto Profil"
                         data-confirm-type="danger"
                         data-confirm-btn="Ya, Hapus Foto"
                         data-confirm-icon="trash-2">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-extrabold rounded-2xl text-xs inline-flex items-center justify-center gap-1.5 transition-all duration-150 shadow-xs active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500" title="Hapus Foto Profil">
-                            <i data-lucide="trash-2" class="w-4 h-4 text-white/90"></i>
+                        <button type="submit" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-black rounded-xl text-xs inline-flex items-center justify-center gap-1.5 transition-all duration-150 shadow-xs active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500" title="Hapus Foto Profil">
+                            <i data-lucide="trash-2" class="w-4 h-4 text-white"></i>
                             <span>Hapus Foto</span>
                         </button>
                     </form>
                 @endif
-                <span class="text-[11px] text-slate-400">Maks. <strong>2 MB</strong> (JPG, PNG, JPEG, WEBP)</span>
+                <span class="text-[11px] text-slate-400 font-medium">Format JPG, PNG, WEBP &bull; Maks. 2 MB</span>
             </div>
 
-            <!-- Detailed Identity Attributes -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 text-xs pt-2">
-                <div class="p-4 bg-slate-50/80 rounded-2xl border border-slate-200/80 flex flex-col justify-center">
-                    <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Tanggal Lahir</p>
-                    <p class="font-bold text-slate-800 mt-1">{{ $user->birth_date ? $user->birth_date->format('d F Y') : '-' }}</p>
-                </div>
-                @if($user->classroom)
-                    <div class="p-4 bg-slate-50/80 rounded-2xl border border-slate-200/80 flex flex-col justify-center">
-                        <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Rombel / Kelas</p>
-                        <p class="font-bold text-emerald-800 mt-1">Kelas {{ $user->classroom->name }}</p>
+            <!-- Detailed Identity Section -->
+            <div class="pt-2">
+                <div class="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 sm:p-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-xs sm:text-sm">
+                        <!-- Kolom Kiri: Data Utama & Akademik -->
+                        <div class="space-y-3.5">
+                            @if($user->classroom)
+                                <div class="flex items-start justify-between gap-3 pb-3 border-b border-slate-200/60">
+                                    <span class="text-xs font-bold text-slate-500 flex items-center gap-1.5 shrink-0">
+                                        <i data-lucide="graduation-cap" class="w-4 h-4 text-emerald-600"></i>
+                                        <span>Rombel / Kelas</span>
+                                    </span>
+                                    <span class="font-extrabold text-emerald-900 text-right">
+                                        Kelas {{ $user->classroom->name }}
+                                    </span>
+                                </div>
+                            @endif
+
+                            <div class="flex items-start justify-between gap-3 pb-3 border-b border-slate-200/60">
+                                <span class="text-xs font-bold text-slate-500 flex items-center gap-1.5 shrink-0">
+                                    <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
+                                    <span>Tanggal Lahir</span>
+                                </span>
+                                <span class="font-bold text-slate-900 text-right whitespace-nowrap">
+                                    {{ $user->birth_date ? $user->birth_date->format('d F Y') : '-' }}
+                                </span>
+                            </div>
+
+                            <div class="flex items-start justify-between gap-3">
+                                <span class="text-xs font-bold text-slate-500 flex items-center gap-1.5 shrink-0">
+                                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+                                    <span>Status Akun</span>
+                                </span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 text-xs font-black">
+                                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-700 shrink-0"></i>
+                                    <span>Aktif Terverifikasi</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Kolom Kanan: Kontak & Komunikasi -->
+                        <div class="space-y-3.5">
+                            @if($user->email)
+                                <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-1 sm:gap-3 pb-3 border-b border-slate-200/60">
+                                    <span class="text-xs font-bold text-slate-500 flex items-center gap-1.5 shrink-0">
+                                        <i data-lucide="mail" class="w-4 h-4 text-slate-400"></i>
+                                        <span>Alamat Email</span>
+                                    </span>
+                                    <span class="font-semibold text-slate-900 font-mono text-xs sm:text-right break-all select-all">
+                                        {{ $user->email }}
+                                    </span>
+                                </div>
+                            @endif
+
+                            @if($user->phone_number)
+                                <div class="flex items-start justify-between gap-3 pb-3 border-b border-slate-200/60">
+                                    <span class="text-xs font-bold text-slate-500 flex items-center gap-1.5 shrink-0">
+                                        <i data-lucide="phone" class="w-4 h-4 text-slate-400"></i>
+                                        <span>No. Handphone</span>
+                                    </span>
+                                    <span class="font-bold text-slate-900 font-mono text-right">
+                                        {{ $user->phone_number }}
+                                    </span>
+                                </div>
+                            @else
+                                <div class="flex items-start justify-between gap-3 pb-3 border-b border-slate-200/60">
+                                    <span class="text-xs font-bold text-slate-500 flex items-center gap-1.5 shrink-0">
+                                        <i data-lucide="phone" class="w-4 h-4 text-slate-400"></i>
+                                        <span>No. Handphone</span>
+                                    </span>
+                                    <span class="font-medium text-slate-400 text-right">-</span>
+                                </div>
+                            @endif
+
+                            <div class="flex items-start justify-between gap-3">
+                                <span class="text-xs font-bold text-slate-500 flex items-center gap-1.5 shrink-0">
+                                    <i data-lucide="info" class="w-4 h-4 text-slate-400"></i>
+                                    <span>Tipe Pengguna</span>
+                                </span>
+                                <span class="font-bold text-slate-700 text-right">
+                                    {{ $user->role === 'guru' ? 'Tenaga Pengajar (Guru)' : ($user->role === 'admin' ? 'Pengelola Sistem (Admin)' : 'Peserta Didik (Siswa)') }}
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                @endif
-                @if($user->email)
-                    <div class="p-4 bg-slate-50/80 rounded-2xl border border-slate-200/80 flex flex-col justify-center min-w-0">
-                        <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Alamat Email</p>
-                        <p class="font-bold text-slate-800 mt-1 break-all select-all leading-snug">{{ $user->email }}</p>
-                    </div>
-                @endif
-                @if($user->phone_number)
-                    <div class="p-4 bg-slate-50/80 rounded-2xl border border-slate-200/80 flex flex-col justify-center">
-                        <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">No. Handphone</p>
-                        <p class="font-bold text-slate-800 mt-1 font-mono">{{ $user->phone_number }}</p>
-                    </div>
-                @endif
-                <div class="p-4 bg-slate-50/80 rounded-2xl border border-slate-200/80 flex flex-col justify-center">
-                    <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Status Akun</p>
-                    <p class="font-bold text-emerald-700 mt-1 inline-flex items-center gap-1.5">
-                        <i data-lucide="badge-check" class="w-4 h-4 shrink-0 text-emerald-600"></i>
-                        <span class="whitespace-nowrap">Aktif Terverifikasi</span>
-                    </p>
                 </div>
             </div>
         </div>
 
-        <!-- 2. Password Change Form Card -->
-        <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs space-y-6">
-            <div class="pb-4 border-b border-slate-100 flex items-center space-x-3.5">
-                <div class="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-800 flex items-center justify-center border border-emerald-200/80 shrink-0">
-                    <i data-lucide="shield-check" class="w-5 h-5 text-emerald-700"></i>
-                </div>
-                <div>
-                    <h3 class="text-sm sm:text-base font-extrabold text-slate-900 heading-font">Perbarui Kata Sandi Akun</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Pastikan menggunakan kombinasi kata sandi yang aman dan tidak mudah ditebak.</p>
-                    <p class="text-xs text-slate-500 mt-0.5">Anda dapat memperbarui kata sandi secara mandiri kapan saja. Pastikan kombinasi aman minimal 6 karakter.</p>
-                </div>
+    <!-- 2. Security & Password Update Section -->
+    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs space-y-6">
+        <div class="pb-4 border-b border-slate-100 flex items-center space-x-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-800 flex items-center justify-center border border-emerald-200/80 shrink-0">
+                <i data-lucide="key-round" class="w-5 h-5 text-emerald-700"></i>
             </div>
-            
-            <form action="{{ route('profile.password') }}" method="POST" class="space-y-4">
-                @csrf
+            <div>
+                <h3 class="text-base font-black text-slate-900 heading-font">Perbarui Kata Sandi</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Amankan akun Anda dengan mengganti kata sandi secara berkala (minimal 6 karakter)</p>
+            </div>
+        </div>
+        
+        <form action="{{ route('profile.password') }}" method="POST" class="space-y-4">
+            @csrf
 
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Kata Sandi Saat Ini <span class="text-rose-500">*</span></label>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Kata Sandi Saat Ini <span class="text-rose-500">*</span></label>
+                <div class="relative">
                     <input type="password" name="current_password" required placeholder="Masukkan kata sandi saat ini"
-                        class="w-full px-4 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-2xl focus:ring-2 focus:ring-emerald-600 focus:outline-none bg-slate-50/50 focus:bg-white transition-all">
-                    @error('current_password')
-                        <p class="text-rose-600 text-[11px] font-bold mt-1">{{ $message }}</p>
+                        class="w-full px-4 py-2.5 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:outline-none bg-slate-50/70 focus:bg-white transition-all font-mono">
+                </div>
+                @error('current_password')
+                    <p class="text-rose-600 text-[11px] font-bold mt-1.5 flex items-center gap-1">
+                        <i data-lucide="alert-circle" class="w-3.5 h-3.5 shrink-0"></i>
+                        <span>{{ $message }}</span>
+                    </p>
+                @enderror
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Kata Sandi Baru <span class="text-rose-500">*</span></label>
+                    <input type="password" name="password" required minlength="6"
+                        placeholder="Minimal 6 karakter"
+                        class="w-full px-4 py-2.5 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:outline-none bg-slate-50/70 focus:bg-white transition-all font-mono">
+                    @error('password')
+                        <p class="text-rose-600 text-[11px] font-bold mt-1.5 flex items-center gap-1">
+                            <i data-lucide="alert-circle" class="w-3.5 h-3.5 shrink-0"></i>
+                            <span>{{ $message }}</span>
+                        </p>
                     @enderror
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Kata Sandi Baru <span class="text-rose-500">*</span></label>
-                        <input type="password" name="password" required minlength="6"
-                            placeholder="Minimal 6 karakter"
-                            class="w-full px-4 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-2xl focus:ring-2 focus:ring-emerald-600 focus:outline-none bg-slate-50/50 focus:bg-white transition-all">
-                        @error('password')
-                            <p class="text-rose-600 text-[11px] font-bold mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Konfirmasi Kata Sandi Baru <span class="text-rose-500">*</span></label>
-                        <input type="password" name="password_confirmation" required minlength="6"
-                            placeholder="Ulangi kata sandi baru"
-                            class="w-full px-4 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-2xl focus:ring-2 focus:ring-emerald-600 focus:outline-none bg-slate-50/50 focus:bg-white transition-all">
-                    </div>
-                </div>
-
-                <div class="pt-2">
-                    <button type="submit" class="w-full sm:w-auto px-6 py-3 bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-md shadow-emerald-900/20 transition-all duration-150 active:scale-[0.98] inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
-                        <i data-lucide="check" class="w-4 h-4"></i>
-                        <span>Simpan Perubahan Kata Sandi</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- 3. Account Session & Logout Card -->
-        <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div class="flex items-center space-x-3.5">
-                <div class="w-11 h-11 rounded-2xl bg-rose-50 text-rose-700 flex items-center justify-center border border-rose-200/80 shrink-0">
-                    <i data-lucide="log-out" class="w-5 h-5"></i>
-                </div>
                 <div>
-                    <h3 class="text-sm sm:text-base font-extrabold text-slate-900 heading-font">Keluar dari Sesi Aplikasi</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Akhiri sesi aktif Anda di perangkat ini dengan aman.</p>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Konfirmasi Kata Sandi Baru <span class="text-rose-500">*</span></label>
+                    <input type="password" name="password_confirmation" required minlength="6"
+                        placeholder="Ulangi kata sandi baru"
+                        class="w-full px-4 py-2.5 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:outline-none bg-slate-50/70 focus:bg-white transition-all font-mono">
                 </div>
             </div>
 
-            <form action="{{ route('logout') }}" method="POST"
-                data-confirm="Apakah Anda yakin ingin mengakhiri sesi dan keluar dari sistem absensi?"
-                data-confirm-title="Konfirmasi Keluar"
-                data-confirm-type="warning"
-                data-confirm-btn="Ya, Keluar"
-                data-confirm-icon="log-out"
-                class="m-0">
-                @csrf
-                <button type="submit" class="w-full sm:w-auto bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-extrabold py-2.5 px-5 rounded-2xl text-xs inline-flex items-center justify-center gap-2 transition-all duration-150 shadow-xs active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500">
-                    <i data-lucide="log-out" class="w-4 h-4 text-white/90"></i>
-                    <span>Keluar dari Akun</span>
+            <div class="pt-2">
+                <button type="submit" class="w-full sm:w-auto px-6 py-3 bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md shadow-emerald-900/20 transition-all duration-150 active:scale-[0.98] inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    <span>Simpan Perubahan Kata Sandi</span>
                 </button>
-            </form>
+            </div>
+        </form>
+    </div>
+
+    <!-- 3. Account Session & Sign Out Card -->
+    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center space-x-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-rose-50 text-rose-700 flex items-center justify-center border border-rose-200/80 shrink-0">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <h3 class="text-base font-black text-slate-900 heading-font">Keluar dari Sesi Aplikasi</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Akhiri sesi aktif akun Anda pada perangkat ini dengan aman.</p>
+            </div>
         </div>
+
+        <form action="{{ route('logout') }}" method="POST"
+            data-confirm="Apakah Anda yakin ingin mengakhiri sesi dan keluar dari sistem absensi?"
+            data-confirm-title="Konfirmasi Keluar"
+            data-confirm-type="warning"
+            data-confirm-btn="Ya, Keluar"
+            data-confirm-icon="log-out"
+            class="m-0">
+            @csrf
+            <button type="submit" class="w-full sm:w-auto bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold py-2.5 px-5 rounded-xl text-xs inline-flex items-center justify-center gap-2 transition-all duration-150 shadow-xs active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500">
+                <i data-lucide="log-out" class="w-4 h-4 text-white"></i>
+                <span>Keluar dari Akun</span>
+            </button>
+        </form>
     </div>
 </div>
 

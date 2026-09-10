@@ -17,7 +17,7 @@
     <!-- Sidebar Lower Body -->
     <div class="flex-1 flex flex-col min-h-0 bg-white border-r border-slate-200">
         <!-- Navigation Links by Role -->
-        <nav class="flex-1 px-4 py-5 space-y-5 overflow-y-auto custom-sidebar-scroll text-xs">
+        <nav id="sidebar-nav" class="flex-1 px-4 py-5 space-y-5 overflow-y-auto custom-sidebar-scroll text-xs">
         @auth
             @if(Auth::user()->role === 'admin')
                 <!-- 1. ADMIN NAVIGATION -->

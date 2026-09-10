@@ -1,7 +1,7 @@
 <!-- 4. MOBILE BOTTOM NAVIGATION BAR (Strictly hidden on md: and above) -->
 @auth
-    <nav class="md:hidden fixed bottom-0 inset-x-0 z-50 flex justify-center pointer-events-none">
-        <div class="w-full bg-gradient-to-r from-emerald-800 via-maarif-700 to-emerald-800 border-t border-emerald-900/80 shadow-[0_-4px_24px_rgba(0,0,0,0.25)] px-3 pt-2 safe-bottom pointer-events-auto">
+    <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 inset-x-0 z-50 flex justify-center pointer-events-none">
+        <div id="mobile-bottom-nav-inner" class="w-full bg-gradient-to-r from-emerald-800 via-maarif-700 to-emerald-800 border-t border-emerald-900/80 shadow-[0_-4px_24px_rgba(0,0,0,0.25)] px-3 pt-2 safe-bottom pointer-events-auto">
             @if(Auth::user()->role === 'siswa')
                 <div class="grid grid-cols-4 items-center max-w-md mx-auto">
                     <!-- 1. Dashboard -->

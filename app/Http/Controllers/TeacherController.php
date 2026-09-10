@@ -195,15 +195,63 @@ class TeacherController extends Controller
             ->with('success', 'Data konfirmasi kehadiran siswa berhasil disimpan dan ditutup permanen.');
     }
 
-    public function history(): View
+    public function history(Request $request): View
     {
         $teacher = Auth::user();
-        $sessions = ClassSession::with(['schedule.classroom', 'schedule.subject'])
-            ->where('teacher_id', $teacher->id)
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
 
-        return view('guru.history', compact('sessions'));
+        // Lifetime stats — unfiltered, all sessions by this teacher
+        $baseQuery = ClassSession::where('teacher_id', $teacher->id);
+        $totalSessions = (clone $baseQuery)->count();
+        $totalLocked = (clone $baseQuery)->where('status', 'LOCKED')->count();
+        $totalActive = (clone $baseQuery)->where('status', 'ACTIVE')->count();
+        $totalDuration = (clone $baseQuery)->sum('duration_minutes');
+        $persenSelesai = $totalSessions > 0 ? round(($totalLocked / $totalSessions) * 100, 1) : 0.0;
+
+        // Filtered query
+        $query = ClassSession::with(['schedule.classroom', 'schedule.subject'])
+            ->where('teacher_id', $teacher->id);
+
+        $selectedStatus = $request->query('status', '');
+        if ($selectedStatus && in_array(strtoupper($selectedStatus), ['LOCKED', 'ACTIVE'])) {
+            $query->where('status', strtoupper($selectedStatus));
+        }
+
+        $search = trim((string) $request->query('search', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('schedule.subject', function ($sq) use ($search) {
+                    $sq->where('name', 'like', "%{$search}%");
+                })->orWhereHas('schedule.classroom', function ($cq) use ($search) {
+                    $cq->where('name', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        $startDate = $request->query('start_date', '');
+        $endDate = $request->query('end_date', '');
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        $sessions = $query->orderBy('created_at', 'desc')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('guru.history', compact(
+            'sessions',
+            'totalSessions',
+            'totalLocked',
+            'totalActive',
+            'totalDuration',
+            'persenSelesai',
+            'selectedStatus',
+            'search',
+            'startDate',
+            'endDate',
+        ));
     }
 
     public function schedule(): View

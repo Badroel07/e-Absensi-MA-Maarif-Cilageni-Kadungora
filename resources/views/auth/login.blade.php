@@ -107,10 +107,6 @@
                 </div>
             </div>
 
-            <!-- Footer Kiri -->
-            <div class="hidden lg:block relative z-10 pt-6 border-t border-white/10">
-                <p class="text-[11px] text-emerald-300/80">&copy; {{ date('Y') }} MA Ma'arif Cilageni</p>
-            </div>
         </div>
 
         <!-- Sisi Kanan: Form Login (Fullscreen, Bersih, & Rata Tengah) -->
