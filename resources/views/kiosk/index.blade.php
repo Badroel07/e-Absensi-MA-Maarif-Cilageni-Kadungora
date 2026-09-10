@@ -10,6 +10,13 @@
     <link rel="apple-touch-icon" href="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @php
+        $fontsManifest = @json_decode(@file_get_contents(public_path('build/manifest.json')), true);
+        $fontsFile = $fontsManifest['_fonts-CrJqFIz4.css']['file'] ?? null;
+    @endphp
+    @if($fontsFile)
+        <link rel="stylesheet" href="{{ asset('build/' . $fontsFile) }}">
+    @endif
     <style>
         .mono-font { font-family: 'JetBrains Mono', monospace; }
         .heading-font { font-family: 'Plus Jakarta Sans', sans-serif; }
