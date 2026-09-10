@@ -46,62 +46,65 @@
     <div class="min-h-screen flex-1 flex flex-col lg:flex-row">
         
         <!-- Sisi Kiri: Branding Madrasah (Desktop: Kolom Kiri Fullscreen, Mobile: Banner Header di Atas) -->
-        <div class="w-full lg:w-[45%] xl:w-[40%] bg-gradient-to-br from-maarif-900 via-maarif-800 to-slate-950 text-white p-6 sm:p-10 lg:p-12 flex flex-col justify-between relative overflow-hidden shrink-0">
+        <div class="w-full lg:w-[45%] xl:w-[42%] bg-gradient-to-br from-maarif-900 via-maarif-800 to-slate-950 text-white p-6 sm:p-10 lg:p-12 xl:p-16 flex flex-col justify-between relative overflow-hidden shrink-0">
             <!-- Ambient Lighting Lembut -->
             <div class="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-maarif-600/20 blur-3xl pointer-events-none" aria-hidden="true"></div>
             <div class="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-emerald-500/15 blur-3xl pointer-events-none" aria-hidden="true"></div>
 
-            <!-- Header Identitas Madrasah -->
-            <div class="relative z-10">
-                <div class="flex items-center space-x-3.5 mb-6">
-                    <img src="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" alt="Logo MA Ma'arif Cilageni" class="w-12 h-12 object-contain shrink-0 drop-shadow-md">
-                    <div>
-                        <span class="text-[10px] font-extrabold tracking-[0.18em] text-emerald-300 uppercase block">LP Ma'arif NU</span>
-                        <h1 class="text-base sm:text-lg font-black tracking-tight text-white leading-tight font-display">MA Ma'arif Cilageni</h1>
-                        <p class="text-[11px] text-slate-300">Kadungora - Garut, Jawa Barat</p>
+            <!-- Konten Utama Panel Kiri (Terpusat Rapi Secara Vertikal di Desktop) -->
+            <div class="relative z-10 lg:my-auto space-y-8">
+                <!-- Header Identitas Madrasah -->
+                <div>
+                    <div class="flex items-center space-x-3.5 mb-6">
+                        <img src="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" alt="Logo MA Ma'arif Cilageni" class="w-12 h-12 object-contain shrink-0 drop-shadow-md">
+                        <div>
+                            <span class="text-[10px] font-extrabold tracking-[0.18em] text-emerald-300 uppercase block">LP Ma'arif NU</span>
+                            <h1 class="text-base sm:text-lg font-black tracking-tight text-white leading-tight font-display">MA Ma'arif Cilageni</h1>
+                            <p class="text-[11px] text-slate-300">Kadungora - Garut, Jawa Barat</p>
+                        </div>
+                    </div>
+
+                    <div class="pt-1">
+                        <h2 class="text-2xl sm:text-3xl lg:text-3xl font-black text-white leading-tight font-display">
+                            Presensi Harian Guru &amp; Siswa
+                        </h2>
+                        <p class="text-xs sm:text-sm text-emerald-100/80 leading-relaxed mt-3 max-w-md">
+                            Catat kehadiran mengajar dan belajar di madrasah dengan verifikasi radius lokasi serta PIN sesi kelas.
+                        </p>
                     </div>
                 </div>
 
-                <div class="pt-2">
-                    <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-white leading-snug font-display">
-                        Presensi Harian Guru &amp; Siswa
-                    </h2>
-                    <p class="text-xs sm:text-sm text-emerald-100/80 leading-relaxed mt-2.5 max-w-md">
-                        Catat kehadiran mengajar dan belajar di madrasah dengan verifikasi radius lokasi serta PIN sesi kelas.
-                    </p>
-                </div>
-            </div>
+                <!-- Kartu Informasi Fitur (Hanya Tampil di Desktop, rapat dan menyatu) -->
+                <div class="hidden lg:flex flex-col space-y-3 pt-2">
+                    <div class="flex items-center space-x-3.5 bg-white/8 backdrop-blur-sm rounded-2xl p-4 border border-white/10 shadow-sm">
+                        <div class="w-9 h-9 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-white">Kode QR Kiosk</p>
+                            <p class="text-[11px] text-slate-300">Pindai kode QR dinamis di layar madrasah saat tiba.</p>
+                        </div>
+                    </div>
 
-            <!-- Fitur Utama (Hanya Tampil di Desktop untuk Menghemat Ruang Mobile) -->
-            <div class="hidden lg:flex flex-col space-y-3.5 my-8 relative z-10">
-                <div class="flex items-center space-x-3.5 bg-white/8 backdrop-blur-sm rounded-2xl p-4 border border-white/10 shadow-sm">
-                    <div class="w-9 h-9 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center shrink-0">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-xs font-bold text-white">Kode QR Kiosk</p>
-                        <p class="text-[11px] text-slate-300">Pindai kode QR dinamis di layar madrasah saat tiba.</p>
-                    </div>
-                </div>
-
-                <div class="flex items-center space-x-3.5 bg-white/8 backdrop-blur-sm rounded-2xl p-4 border border-white/10 shadow-sm">
-                    <div class="w-9 h-9 rounded-xl bg-emerald-400/20 text-emerald-300 flex items-center justify-center shrink-0">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-xs font-bold text-white">Radius Lokasi Madrasah</p>
-                        <p class="text-[11px] text-slate-300">Presensi hanya aktif saat Anda berada di area madrasah.</p>
+                    <div class="flex items-center space-x-3.5 bg-white/8 backdrop-blur-sm rounded-2xl p-4 border border-white/10 shadow-sm">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-400/20 text-emerald-300 flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-white">Radius Lokasi Madrasah</p>
+                            <p class="text-[11px] text-slate-300">Presensi hanya aktif saat Anda berada di area madrasah.</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Footer Kiri -->
-            <div class="hidden lg:block relative z-10 pt-4 border-t border-white/10">
+            <div class="hidden lg:block relative z-10 pt-6 border-t border-white/10">
                 <p class="text-[11px] text-emerald-300/80">&copy; {{ date('Y') }} MA Ma'arif Cilageni</p>
             </div>
         </div>
