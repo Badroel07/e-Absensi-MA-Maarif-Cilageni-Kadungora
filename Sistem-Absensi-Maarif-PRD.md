@@ -2,16 +2,16 @@
 
 ## 1. Document Control & Metadata
 
-| Properti | Rincian |
-| :--- | :--- |
-| **Nama Dokumen** | PRD — Sistem Absensi Kehadiran Siswa & Guru MA Ma'arif Cilageni Kadungora |
-| **Versi Dokumen** | v2.1.0 (Restrukturisasi Standar PM 9-Bab) |
-| **Status** | Approved / Ready for Implementation |
-| **Product Owner / Penulis** | Tim Pengembang Sistem Madrasah MA Ma'arif |
-| **Lead Architect / Reviewer** | Lead Software Architect & Technical Reviewer |
-| **Tanggal Pembaruan Terakhir** | 2026-09-09 |
-| **Target Rilis / Milestones** | Rilis MVP (Tahun Ajaran Aktif Madrasah) |
-| **Catatan Revisi v2.1** | Sinkronisasi dengan implementasi riil — foto profil, toleransi geofence +25m, late threshold 07:15, token tolerance 40s, time gating strict, overlap kelas+guru, radius 30-500, CSV (bukan XLSX), audit koreksi & riwayat, role Admin generalisasi, MA saja (tanpa MTs). |
+| Properti                       | Rincian                                                                                                                                                                                                                                                                  |
+| :----------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Nama Dokumen**               | PRD — Sistem Absensi Kehadiran Siswa & Guru MA Ma'arif Cilageni Kadungora                                                                                                                                                                                                |
+| **Versi Dokumen**              | v2.1.0 (Restrukturisasi Standar PM 9-Bab)                                                                                                                                                                                                                                |
+| **Status**                     | Approved / Ready for Implementation                                                                                                                                                                                                                                      |
+| **Product Owner / Penulis**    | Tim Pengembang Sistem Madrasah MA Ma'arif                                                                                                                                                                                                                                |
+| **Lead Architect / Reviewer**  | Lead Software Architect & Technical Reviewer                                                                                                                                                                                                                             |
+| **Tanggal Pembaruan Terakhir** | 2026-09-09                                                                                                                                                                                                                                                               |
+| **Target Rilis / Milestones**  | Rilis MVP (Tahun Ajaran Aktif Madrasah)                                                                                                                                                                                                                                  |
+| **Catatan Revisi v2.1**        | Sinkronisasi dengan implementasi riil — foto profil, toleransi geofence +25m, late threshold 07:15, token tolerance 40s, time gating strict, overlap kelas+guru, radius 30-500, CSV (bukan XLSX), audit koreksi & riwayat, role Admin generalisasi, MA saja (tanpa MTs). |
 
 ---
 
@@ -34,14 +34,14 @@ Sistem Absensi MA Ma'arif dirancang dengan arsitektur modern nir-antrean (*Zero-
 ### 2.3 Metrik Keberhasilan & KPI Terukur
 Keberhasilan implementasi produk dievaluasi menggunakan tolok ukur kuantitatif berikut:
 
-| Metrik / KPI | Baseline (Metode Manual Kertas) | Target (Pasca-Implementasi Sistem) | Metode Pengukuran |
-| :--- | :--- | :--- | :--- |
-| **Waktu Rekapitulasi Presensi Harian** | 90–120 menit per hari | < 5 menit per hari | Waktu unduh & kompilasi laporan di Blade Custom Admin Panel |
-| **Waktu Antrean Presensi Siswa** | 15–20 menit antrean gerbang | 0 menit (Zero-Queue, <10 detik dari bangku kelas) | Durasi pembukaan sesi hingga seluruh siswa terverifikasi |
-| **Tingkat Kecurangan / Titip Absen** | Diperkirakan 5–10% insiden per bulan | 0% insiden titip absen | Audit log Geofence Haversine + validasi PIN dinamis ber-TTL |
-| **Kecepatan Rekonsiliasi Izin/Sakit/Alpa** | Tertunda 1–2 hari kerja | < 2 menit pasca-sesi mapel berakhir | Selang waktu sesi berakhir hingga guru mengunci rekonsiliasi |
-| **Tingkat Kepatuhan Jadwal Mengajar Guru** | Verifikasi manual tidak konsisten | 100% tuntas sebelum absen pulang | Validasi log mekanisme Teaching Completion Lock |
-| **Kecepatan Akses Aplikasi Siswa (TTI)** | Tidak ada (manual) | < 1,5 detik pada koneksi 3G/4G | Audit performa Lighthouse / Network DevTools |
+| Metrik / KPI                               | Baseline (Metode Manual Kertas)      | Target (Pasca-Implementasi Sistem)                | Metode Pengukuran                                            |
+| :----------------------------------------- | :----------------------------------- | :------------------------------------------------ | :----------------------------------------------------------- |
+| **Waktu Rekapitulasi Presensi Harian**     | 90–120 menit per hari                | < 5 menit per hari                                | Waktu unduh & kompilasi laporan di Blade Custom Admin Panel  |
+| **Waktu Antrean Presensi Siswa**           | 15–20 menit antrean gerbang          | 0 menit (Zero-Queue, <10 detik dari bangku kelas) | Durasi pembukaan sesi hingga seluruh siswa terverifikasi     |
+| **Tingkat Kecurangan / Titip Absen**       | Diperkirakan 5–10% insiden per bulan | 0% insiden titip absen                            | Audit log Geofence Haversine + validasi PIN dinamis ber-TTL  |
+| **Kecepatan Rekonsiliasi Izin/Sakit/Alpa** | Tertunda 1–2 hari kerja              | < 2 menit pasca-sesi mapel berakhir               | Selang waktu sesi berakhir hingga guru mengunci rekonsiliasi |
+| **Tingkat Kepatuhan Jadwal Mengajar Guru** | Verifikasi manual tidak konsisten    | 100% tuntas sebelum absen pulang                  | Validasi log mekanisme Teaching Completion Lock              |
+| **Kecepatan Akses Aplikasi Siswa (TTI)**   | Tidak ada (manual)                   | < 1,5 detik pada koneksi 3G/4G                    | Audit performa Lighthouse / Network DevTools                 |
 
 ---
 
@@ -79,30 +79,30 @@ Untuk memastikan delivery tepat waktu dan keandalan sistem, hal-hal berikut seca
 ## 4. Persona Pengguna & Matriks Hak Akses (RBAC)
 
 ### 4.1 Persona Pengguna
-| Peran Pengguna | Konteks & Karakteristik | Kebutuhan Utama & Tujuan |
-| :--- | :--- | :--- |
-| **Siswa Madrasah** | Mengakses sistem via smartphone pribadi di ruang kelas; rentang usia 12–16 tahun; membutuhkan antarmuka simpel. | Mengisi presensi kehadiran kelas dengan cepat (<10 detik) via PIN tanpa antrean, melihat status kehadiran hari ini dan riwayat mapel. |
-| **Dewan Guru / Pendidik** | Mengakses via smartphone dan tablet Kiosk Ruang Guru; bertanggung jawab atas ketertiban kelas dan jam mengajar. | Presensi datang/pulang di Ruang Guru, membuka sesi presensi mapel di kelas dengan PIN acak, dan merekonsiliasi siswa yang tidak hadir secara akurat. |
-| **Admin** | Mengakses via komputer/laptop desktop kantor Admin; mengelola administrasi madrasah dan pelaporan pimpinan. | Memantau kehadiran madrasah secara live, mengelola master data siswa/guru/jadwal, mengoperasikan Kiosk, serta mencetak dokumen laporan resmi untuk Kepala Madrasah. |
-| *(Stakeholder Eksternal)* **Kepala Madrasah** | Tidak login ke sistem; menerima dokumen fisik/digital laporan rekapitulasi kehadiran madrasah berkala. | Mengetahui persentase kedisiplinan siswa dan guru melalui lembar laporan PDF resmi bertanda tangan dan arsip Excel madrasah. |
+| Peran Pengguna                                | Konteks & Karakteristik                                                                                         | Kebutuhan Utama & Tujuan                                                                                                                                            |
+| :-------------------------------------------- | :-------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Siswa Madrasah**                            | Mengakses sistem via smartphone pribadi di ruang kelas; rentang usia 12–16 tahun; membutuhkan antarmuka simpel. | Mengisi presensi kehadiran kelas dengan cepat (<10 detik) via PIN tanpa antrean, melihat status kehadiran hari ini dan riwayat mapel.                               |
+| **Dewan Guru / Pendidik**                     | Mengakses via smartphone dan tablet Kiosk Ruang Guru; bertanggung jawab atas ketertiban kelas dan jam mengajar. | Presensi datang/pulang di Ruang Guru, membuka sesi presensi mapel di kelas dengan PIN acak, dan merekonsiliasi siswa yang tidak hadir secara akurat.                |
+| **Admin**                                     | Mengakses via komputer/laptop desktop kantor Admin; mengelola administrasi madrasah dan pelaporan pimpinan.     | Memantau kehadiran madrasah secara live, mengelola master data siswa/guru/jadwal, mengoperasikan Kiosk, serta mencetak dokumen laporan resmi untuk Kepala Madrasah. |
+| *(Stakeholder Eksternal)* **Kepala Madrasah** | Tidak login ke sistem; menerima dokumen fisik/digital laporan rekapitulasi kehadiran madrasah berkala.          | Mengetahui persentase kedisiplinan siswa dan guru melalui lembar laporan PDF resmi bertanda tangan dan arsip Excel madrasah.                                        |
 
 ### 4.2 Matriks Hak Akses Peran (Role-Based Access Control)
 Sistem menerapkan kontrol akses ketat berdasarkan peran autentikasi:
 
-| Fitur / Modul Fungsional | Siswa | Guru | Admin |
-| :--- | :---: | :---: | :---: |
-| **Login Sistem (NISN / NIP / Email)** | ✅ Akses Mandiri | ✅ Akses Mandiri | ✅ Akses Administrator |
-| **Pembaruan Profil & Password Mandiri** | ✅ Akses | ✅ Akses | ✅ Akses |
-| **Pindai Dynamic QR Kiosk (Check-in / Check-out)** | ❌ Tidak Ada Akses | ✅ Eksekusi Kamera | ❌ Tidak Ada Akses |
-| **Buka Sesi Presensi Mapel & Generate PIN** | ❌ Tidak Ada Akses | ✅ Eksekusi (Tergate) | ❌ Tidak Ada Akses |
-| **Lihat Kartu Sesi Geofence & Input PIN 4-Digit** | ✅ Eksekusi (Radius Valid) | ❌ Tidak Ada Akses | ❌ Tidak Ada Akses |
-| **Rekonsiliasi Status Siswa (Izin / Sakit / Alpa)** | ❌ Tidak Ada Akses | ✅ Eksekusi Kelas Aktif | ✅ Override Administratif |
-| **Kunci Sesi Presensi Kelas** | ❌ Tidak Ada Akses | ✅ Eksekusi | ✅ Akses Penuh |
-| **Tampilan Kiosk Ruang Guru (Display Board)** | ❌ Tidak Ada Akses | ❌ Layar Publik Kiosk | ✅ Kelola & Aktifkan |
-| **Dashboard Monitoring Live Madrasah** | ❌ Tidak Ada Akses | ❌ Tidak Ada Akses | ✅ Akses Penuh |
-| **Manajemen Master Data (Siswa/Guru/Jadwal/Geofence)**| ❌ Tidak Ada Akses | ❌ Hanya Lihat Jadwal Sendiri | ✅ Full CRUD (Blade Custom Admin Panel) |
-| **1-Klik Reset Password Pengguna ke Default** | ❌ Tidak Ada Akses | ❌ Tidak Ada Akses | ✅ Eksekusi Admin |
-| **Cetak & Ekspor Laporan Resmi (PDF & Excel)** | ❌ Hanya Riwayat Sendiri | ❌ Rekap Kelas Sendiri | ✅ Generator Laporan Lengkap |
+| Fitur / Modul Fungsional                               |           Siswa           |             Guru             |                 Admin                  |
+| :----------------------------------------------------- | :-----------------------: | :--------------------------: | :------------------------------------: |
+| **Login Sistem (NISN / NIP / Email)**                  |      ✅ Akses Mandiri      |       ✅ Akses Mandiri        |         ✅ Akses Administrator          |
+| **Pembaruan Profil & Password Mandiri**                |          ✅ Akses          |           ✅ Akses            |                ✅ Akses                 |
+| **Pindai Dynamic QR Kiosk (Check-in / Check-out)**     |     ❌ Tidak Ada Akses     |      ✅ Eksekusi Kamera       |           ❌ Tidak Ada Akses            |
+| **Buka Sesi Presensi Mapel & Generate PIN**            |     ❌ Tidak Ada Akses     |     ✅ Eksekusi (Tergate)     |           ❌ Tidak Ada Akses            |
+| **Lihat Kartu Sesi Geofence & Input PIN 4-Digit**      | ✅ Eksekusi (Radius Valid) |      ❌ Tidak Ada Akses       |           ❌ Tidak Ada Akses            |
+| **Rekonsiliasi Status Siswa (Izin / Sakit / Alpa)**    |     ❌ Tidak Ada Akses     |    ✅ Eksekusi Kelas Aktif    |        ✅ Override Administratif        |
+| **Kunci Sesi Presensi Kelas**                          |     ❌ Tidak Ada Akses     |          ✅ Eksekusi          |             ✅ Akses Penuh              |
+| **Tampilan Kiosk Ruang Guru (Display Board)**          |     ❌ Tidak Ada Akses     |     ❌ Layar Publik Kiosk     |          ✅ Kelola & Aktifkan           |
+| **Dashboard Monitoring Live Madrasah**                 |     ❌ Tidak Ada Akses     |      ❌ Tidak Ada Akses       |             ✅ Akses Penuh              |
+| **Manajemen Master Data (Siswa/Guru/Jadwal/Geofence)** |     ❌ Tidak Ada Akses     | ❌ Hanya Lihat Jadwal Sendiri | ✅ Full CRUD (Blade Custom Admin Panel) |
+| **1-Klik Reset Password Pengguna ke Default**          |     ❌ Tidak Ada Akses     |      ❌ Tidak Ada Akses       |            ✅ Eksekusi Admin            |
+| **Cetak & Ekspor Laporan Resmi (PDF & Excel)**         |  ❌ Hanya Riwayat Sendiri  |    ❌ Rekap Kelas Sendiri     |      ✅ Generator Laporan Lengkap       |
 
 ---
 
@@ -194,17 +194,17 @@ Sistem menerapkan kontrol akses ketat berdasarkan peran autentikasi:
 
 ## 6. Kasus Ekstrem & Penanganan Pengecualian (Edge Cases)
 
-| Kasus Ekstrem / Kegagalan | Kondisi Pemicu | Perilaku Sistem & Penanganan Cadangan | Umpan Balik Pengguna & Pemulihan |
-| :--- | :--- | :--- | :--- |
-| **Koneksi Seluler Terputus saat Input PIN** | Koneksi internet smartphone siswa mati/hilang saat mengirim PIN | Sistem di browser menyimpan payload submission sementara dan melakukan retry otomatis (maksimal 3 kali dalam 15 detik) | Muncul banner status: *"Koneksi terputus. Mencoba mengirim kembali..."* disertai tombol kirim manual |
-| **Deviasi Koordinat GPS (GPS Drift di Kelas)** | HP siswa di dalam kelas tetapi melaporkan akurasi rendah (>100m) karena atap gedung madrasah | Sistem menerapkan toleransi `radius+25m` server-side (efektif 100m untuk setting 75m); evaluasi `distance <= radius + 25m` tetap dianggap `is_within` | Notifikasi di HP siswa: *"Akurasi GPS rendah. Pastikan Anda berada dekat jendela atau buka ulang GPS perangkat"* — entri tetap HADIR selama dalam toleransi +25m |
-| **Guru Berupaya Buka Sesi Sebelum Check-in Kiosk** | Guru langsung ke kelas dan mencoba mengaktifkan sesi kelas tanpa scan Kiosk Ruang Guru | Sistem memblokir eksekusi pembukaan sesi kelas (*Check-in Gating*); tombol buka sesi dinonaktifkan di level backend API | Alert modal peringatan: *"Akses Ditolak: Anda belum melakukan presensi kedatangan di Kiosk Ruang Guru hari ini. Silakan scan Kiosk terlebih dahulu"* |
-| **Guru Berupaya Check-out Kiosk Sebelum Selesai Mengajar** | Guru memindai QR kepulangan di Kiosk tetapi masih ada jadwal mapel yang belum berstatus `LOCKED` | Sistem menolak pencatatan jam kepulangan (*Teaching Completion Lock*) dan menolak penulisan waktu check-out | Layar menampilkan pop-up daftar kelas yang pending: *"Presensi Pulang Terkunci: Masih ada jadwal kelas yang belum tuntas direkonsiliasi. Selesaikan sesi kelas terlebih dahulu"* |
-| **Waktu PIN Kedaluwarsa Tepat saat Siswa Menekan Kirim** | Siswa menekan tombol kirim di milidetik saat timer 00:00 tercapai di server | Validasi server-side memberikan grace period toleransi jaringan 5 detik pasca-timer berakhir | Jika melebihi 5 detik, sistem mengembalikan status `SESSION_EXPIRED` dan mengarahkan siswa menunggu rekonsiliasi manual guru |
-| **Siswa Mencoba Mengakses dari Luar Madrasah** | Siswa di rumah atau warung di luar radius 75m membuka aplikasi | Geolocation API mengevaluasi jarak > 75m; kartu sesi kelas dan form PIN disembunyikan sepenuhnya dari antarmuka | Layar menampilkan ilustrasi lokasi madrasah dengan pesan: *"Anda terdeteksi di luar lingkungan madrasah. Sesi presensi terkunci"* |
-| **Token QR Kiosk Kedaluwarsa saat Guru Memindai** | Guru menembakkan kamera tepat pada detik ke-20 saat QR sedang berganti | Sistem menerapkan toleransi 40s (current + previous window): token window saat ini dan 1 window sebelumnya (±20s) masih diterima; di luar itu berstatus `EXPIRED` | Tampilan kamera HP guru menampilkan toast: *"Token QR kedaluwarsa. Arahkan kamera kembali ke kode QR baru di layar Kiosk"* (jika >40s) |
-| **Perangkat Tablet Kiosk Freeze atau Terputus Listrik** | Perangkat tablet di pos Admin mati atau browser mengalami crash | Kiosk PWA memiliki service worker auto-reload dan mekanisme fallback tampilan PIN darurat Kiosk yang dapat di-generate Admin | Admin menerima notifikasi status Kiosk offline di dashboard Blade Custom Admin Panel dan dapat melakukan restart cepat |
-| **Siswa / Guru Lupa Kata Sandi Akun** | Pengguna telah mengubah password default lalu lupa kredensial login | Pengguna melapor kepada Admin di kantor madrasah | Admin mengklik tombol *"Reset Password"* pada baris pengguna di Blade Custom Admin Panel; kata sandi seketika kembali ke Tanggal Lahir (`DDMMYYYY`) |
+| Kasus Ekstrem / Kegagalan                                  | Kondisi Pemicu                                                                                   | Perilaku Sistem & Penanganan Cadangan                                                                                                                             | Umpan Balik Pengguna & Pemulihan                                                                                                                                                 |
+| :--------------------------------------------------------- | :----------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Koneksi Seluler Terputus saat Input PIN**                | Koneksi internet smartphone siswa mati/hilang saat mengirim PIN                                  | Sistem di browser menyimpan payload submission sementara dan melakukan retry otomatis (maksimal 3 kali dalam 15 detik)                                            | Muncul banner status: *"Koneksi terputus. Mencoba mengirim kembali..."* disertai tombol kirim manual                                                                             |
+| **Deviasi Koordinat GPS (GPS Drift di Kelas)**             | HP siswa di dalam kelas tetapi melaporkan akurasi rendah (>100m) karena atap gedung madrasah     | Sistem menerapkan toleransi `radius+25m` server-side (efektif 100m untuk setting 75m); evaluasi `distance <= radius + 25m` tetap dianggap `is_within`             | Notifikasi di HP siswa: *"Akurasi GPS rendah. Pastikan Anda berada dekat jendela atau buka ulang GPS perangkat"* — entri tetap HADIR selama dalam toleransi +25m                 |
+| **Guru Berupaya Buka Sesi Sebelum Check-in Kiosk**         | Guru langsung ke kelas dan mencoba mengaktifkan sesi kelas tanpa scan Kiosk Ruang Guru           | Sistem memblokir eksekusi pembukaan sesi kelas (*Check-in Gating*); tombol buka sesi dinonaktifkan di level backend API                                           | Alert modal peringatan: *"Akses Ditolak: Anda belum melakukan presensi kedatangan di Kiosk Ruang Guru hari ini. Silakan scan Kiosk terlebih dahulu"*                             |
+| **Guru Berupaya Check-out Kiosk Sebelum Selesai Mengajar** | Guru memindai QR kepulangan di Kiosk tetapi masih ada jadwal mapel yang belum berstatus `LOCKED` | Sistem menolak pencatatan jam kepulangan (*Teaching Completion Lock*) dan menolak penulisan waktu check-out                                                       | Layar menampilkan pop-up daftar kelas yang pending: *"Presensi Pulang Terkunci: Masih ada jadwal kelas yang belum tuntas direkonsiliasi. Selesaikan sesi kelas terlebih dahulu"* |
+| **Waktu PIN Kedaluwarsa Tepat saat Siswa Menekan Kirim**   | Siswa menekan tombol kirim di milidetik saat timer 00:00 tercapai di server                      | Validasi server-side memberikan grace period toleransi jaringan 5 detik pasca-timer berakhir                                                                      | Jika melebihi 5 detik, sistem mengembalikan status `SESSION_EXPIRED` dan mengarahkan siswa menunggu rekonsiliasi manual guru                                                     |
+| **Siswa Mencoba Mengakses dari Luar Madrasah**             | Siswa di rumah atau warung di luar radius 75m membuka aplikasi                                   | Geolocation API mengevaluasi jarak > 75m; kartu sesi kelas dan form PIN disembunyikan sepenuhnya dari antarmuka                                                   | Layar menampilkan ilustrasi lokasi madrasah dengan pesan: *"Anda terdeteksi di luar lingkungan madrasah. Sesi presensi terkunci"*                                                |
+| **Token QR Kiosk Kedaluwarsa saat Guru Memindai**          | Guru menembakkan kamera tepat pada detik ke-20 saat QR sedang berganti                           | Sistem menerapkan toleransi 40s (current + previous window): token window saat ini dan 1 window sebelumnya (±20s) masih diterima; di luar itu berstatus `EXPIRED` | Tampilan kamera HP guru menampilkan toast: *"Token QR kedaluwarsa. Arahkan kamera kembali ke kode QR baru di layar Kiosk"* (jika >40s)                                           |
+| **Perangkat Tablet Kiosk Freeze atau Terputus Listrik**    | Perangkat tablet di pos Admin mati atau browser mengalami crash                                  | Kiosk PWA memiliki service worker auto-reload dan mekanisme fallback tampilan PIN darurat Kiosk yang dapat di-generate Admin                                      | Admin menerima notifikasi status Kiosk offline di dashboard Blade Custom Admin Panel dan dapat melakukan restart cepat                                                           |
+| **Siswa / Guru Lupa Kata Sandi Akun**                      | Pengguna telah mengubah password default lalu lupa kredensial login                              | Pengguna melapor kepada Admin di kantor madrasah                                                                                                                  | Admin mengklik tombol *"Reset Password"* pada baris pengguna di Blade Custom Admin Panel; kata sandi seketika kembali ke Tanggal Lahir (`DDMMYYYY`)                              |
 
 ---
 
@@ -341,29 +341,29 @@ stateDiagram-v2
     state ClassSessionLifecycle {
         Scheduled --> LockedByCheckinGating : Guru Belum Absen Datang di Kiosk
         LockedByCheckinGating --> ReadyToOpen : Guru Sukses Check-in Kiosk
-        ReadyToOpen --> Active : Guru Membuka Sesi (Generate PIN & Timer)
-        
+        ReadyToOpen --> Active : Guru Membuka Sesi Generate PIN dan Timer
+
         state Active {
             [*] --> AwaitingSubmissions
-            AwaitingSubmissions --> StudentVerified : Siswa Input PIN Benar & GPS Valid
+            AwaitingSubmissions --> StudentVerified : Siswa Input PIN Benar dan GPS Valid
             StudentVerified --> AwaitingSubmissions : Counter Bertambah
         }
 
-        Active --> Expired : Timer Habis (00:00)
+        Active --> Expired : Timer Habis 00 00
         Active --> ClosedManually : Guru Klik Selesaikan Sesi
         Expired --> Reconciling : Sistem Ambil Siswa Belum Hadir
         ClosedManually --> Reconciling : Sistem Ambil Siswa Belum Hadir
-        
+
         state Reconciling {
             [*] --> ReviewingAbsentees
-            ReviewingAbsentees --> StatusAssigned : Guru Menandai Sakit / Izin / Alpa
+            ReviewingAbsentees --> StatusAssigned : Guru Menandai Sakit atau Izin atau Alpa
             StatusAssigned --> ReviewingAbsentees : Perbarui Siswa Lain
         }
 
-        Reconciling --> Locked : Guru Klik Simpan & Kunci Presensi
+        Reconciling --> Locked : Guru Klik Simpan dan Kunci Presensi
     }
 
-    Locked --> [*] : Sesi Selesai (Memenuhi Syarat Pulang Guru)
+    Locked --> [*] : Sesi Selesai Memenuhi Syarat Pulang Guru
 ```
 
 ---
@@ -374,28 +374,28 @@ stateDiagram-v2
 
 ```mermaid
 graph TD
-    ClientSiswa[Siswa Smartphone PWA] <-->|HTTPS / Geolocation API / PIN Post| AppServer[Laravel 11 Web & API Server]
-    ClientGuru[Guru Smartphone & Browser] <-->|HTTPS / Session Gating / QR Scanner| AppServer
-    KioskDisplay[Kiosk Tablet Ruang Guru] <-->|HTTPS / Dynamic QR HMAC Token 20s| AppServer
-    AdminDashboard[Admin Desktop] <-->|Blade Custom Admin Panel (layouts/admin) / HTTPS| AppServer
+    ClientSiswa["Siswa Smartphone PWA"] <-->|"HTTPS / Geolocation API / PIN Post"| AppServer["Laravel 11 Web dan API Server"]
+    ClientGuru["Guru Smartphone dan Browser"] <-->|"HTTPS / Session Gating / QR Scanner"| AppServer
+    KioskDisplay["Kiosk Tablet Ruang Guru"] <-->|"HTTPS / Dynamic QR HMAC Token 20s"| AppServer
+    AdminDashboard["Admin Desktop"] <-->|"Blade Custom Admin Panel / HTTPS"| AppServer
 
-    AppServer <-->|Eloquent ORM / Queries| MainDB[(MySQL 8.0+ Database)]
-    AppServer <-->|Cache Store / PIN Token TTL / Rate Limiter| CacheStore[(Redis / File Cache)]
+    AppServer <-->|"Eloquent ORM / Queries"| MainDB[("MySQL 8.0+ Database")]
+    AppServer <-->|"Cache Store / PIN Token TTL / Rate Limiter"| CacheStore[("Redis / File Cache")]
 
-    subgraph Classroom Attendance Core
-        ClientGuru -->|1. Buka Sesi Kelas & PIN Acak| AppServer
-        AppServer -->|2. Simpan PIN Sementara ber-TTL| CacheStore
-        AppServer -->|3. Kirim Kartu Sesi Hanya ke Siswa Valid GPS| ClientSiswa
-        ClientSiswa -->|4. Kirim PIN 4-Digit + Koordinat GPS| AppServer
-        AppServer -->|5. Validasi Jarak Haversine & PIN| CacheStore
-        AppServer -->|6. Catat Log Presensi Siswa Hadir| MainDB
-        ClientGuru -->|7. Kunci Rekonsiliasi Izin Sakit Alpa| AppServer
-        AppServer -->|8. Kunci Sesi & Simpan Rekapitulasi| MainDB
+    subgraph ClassroomAttendanceCore["Classroom Attendance Core"]
+        ClientGuru -->|"1. Buka Sesi Kelas dan Generate PIN"| AppServer
+        AppServer -->|"2. Simpan PIN Sementara ber-TTL"| CacheStore
+        AppServer -->|"3. Kirim Kartu Sesi ke Siswa Valid GPS"| ClientSiswa
+        ClientSiswa -->|"4. Kirim PIN 4-Digit dan Koordinat GPS"| AppServer
+        AppServer -->|"5. Validasi Jarak Haversine dan PIN"| CacheStore
+        AppServer -->|"6. Catat Log Presensi Siswa Hadir"| MainDB
+        ClientGuru -->|"7. Kunci Rekonsiliasi Izin Sakit Alpa"| AppServer
+        AppServer -->|"8. Kunci Sesi dan Simpan Rekapitulasi"| MainDB
     end
 
-    subgraph Reporting Engine
-        AdminDashboard -->|Unduh Laporan Format Excel| AppServer
-        AdminDashboard -->|Cetak PDF Resmi Kepala Madrasah| AppServer
+    subgraph ReportingEngine["Reporting Engine"]
+        AdminDashboard -->|"Unduh Laporan Format CSV"| AppServer
+        AdminDashboard -->|"Cetak PDF Resmi Kepala Madrasah"| AppServer
     end
 ```
 
@@ -422,7 +422,7 @@ erDiagram
         string password_hash
         string role
         string phone_number
-        string profile_photo_path nullable
+        string profile_photo_path "nullable"
         boolean is_active
         timestamp created_at
         timestamp updated_at
@@ -508,23 +508,23 @@ erDiagram
         timestamp verified_at
         float latitude
         float longitude
-        uuid session_id FK nullable
-        float distance_meters nullable
+        uuid session_id FK "nullable"
+        float distance_meters "nullable"
         timestamp created_at
         timestamp updated_at
     }
 ```
 
 ### Ringkasan Tabel Basis Data
-| Nama Tabel | Deskripsi & Peran Entitas |
-| :--- | :--- |
-| `users` | Data akun pengguna sistem (Siswa, Guru, Admin) dengan identitas login `identity_number` (NISN / NIP), `birth_date` (dasar password default `DDMMYYYY`), dan `role`. |
-| `classrooms` | Master data rombongan belajar / kelas (contoh: 7A, 7B, 8A, 9A) dan tahun ajaran aktif. |
-| `subjects` | Master data mata pelajaran madrasah (contoh: Al-Qur'an Hadits, Akidah Akhlak, Fikih, Matematika). |
-| `class_schedules` | Jadwal mingguan mata pelajaran yang mengaitkan kelas, mapel, guru pengampu, hari, serta slot waktu. |
-| `school_locations` | Konfigurasi koordinat geofence madrasah (titik koordinat MA Ma'arif Cilageni Kadungora) beserta radius toleransi meter. |
-| `class_sessions` | Data sesi presensi kelas aktif yang memuat PIN 4-digit acak, durasi menit, batas waktu kedaluwarsa (*expires_at*), dan status siklus sesi. |
-| `daily_attendances` | Rekam presensi harian datang & pulang guru/staf via Kiosk Ruang Guru serta otomatisasi kehadiran harian siswa dari mapel jam pertama. |
+| Nama Tabel           | Deskripsi & Peran Entitas                                                                                                                                                                                                                                                                                               |
+| :------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `users`              | Data akun pengguna sistem (Siswa, Guru, Admin) dengan identitas login `identity_number` (NISN / NIP), `birth_date` (dasar password default `DDMMYYYY`), dan `role`.                                                                                                                                                     |
+| `classrooms`         | Master data rombongan belajar / kelas (contoh: 7A, 7B, 8A, 9A) dan tahun ajaran aktif.                                                                                                                                                                                                                                  |
+| `subjects`           | Master data mata pelajaran madrasah (contoh: Al-Qur'an Hadits, Akidah Akhlak, Fikih, Matematika).                                                                                                                                                                                                                       |
+| `class_schedules`    | Jadwal mingguan mata pelajaran yang mengaitkan kelas, mapel, guru pengampu, hari, serta slot waktu.                                                                                                                                                                                                                     |
+| `school_locations`   | Konfigurasi koordinat geofence madrasah (titik koordinat MA Ma'arif Cilageni Kadungora) beserta radius toleransi meter.                                                                                                                                                                                                 |
+| `class_sessions`     | Data sesi presensi kelas aktif yang memuat PIN 4-digit acak, durasi menit, batas waktu kedaluwarsa (*expires_at*), dan status siklus sesi.                                                                                                                                                                              |
+| `daily_attendances`  | Rekam presensi harian datang & pulang guru/staf via Kiosk Ruang Guru serta otomatisasi kehadiran harian siswa dari mapel jam pertama.                                                                                                                                                                                   |
 | `lesson_attendances` | Rekam kehadiran sesi pelajaran per siswa beserta status hasil input PIN atau konfirmasi rekonsiliasi guru (Hadir, Izin, Sakit, Alpa), catatan alasan, dan foreign key guru validator (`confirmed_by`), serta `session_id` (FK ke class_sessions, nullable) dan `distance_meters` (jarak GPS saat verifikasi, nullable). |
 
 > **Catatan:** Export laporan: CSV BOM UTF-8 (bukan XLSX) via `/laporan/ekspor-excel`.

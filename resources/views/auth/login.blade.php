@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-slate-50">
+<html lang="id" class="h-full">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#15803D">
-    <title>Masuk — Sistem Absensi MA Ma'arif Cilageni</title>
+    <meta name="theme-color" content="#14532d">
+    <title>Masuk - Presensi MA Ma'arif Cilageni</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -18,138 +18,128 @@
                 extend: {
                     colors: {
                         maarif: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803D',
-                            800: '#166534',
-                            900: '#14532d',
-                            gold: '#EAB308',
+                            50:   '#f0fdf4',
+                            100:  '#dcfce7',
+                            200:  '#bbf7d0',
+                            500:  '#22c55e',
+                            600:  '#16a34a',
+                            700:  '#15803D',
+                            800:  '#166534',
+                            900:  '#14532d',
+                            950:  '#052e16',
                         }
                     },
                     fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                        heading: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                        sans:    ['Inter',             'system-ui', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'Inter',     'sans-serif'],
                     }
                 }
             }
         }
     </script>
+    <style>
+        input[type="checkbox"]:checked { accent-color: #15803D; }
+        input:focus { outline: none; }
+    </style>
 </head>
-<body class="min-h-screen bg-slate-100 flex items-center justify-center p-4 sm:p-6 lg:p-8 antialiased selection:bg-maarif-100 selection:text-maarif-800">
-    <div class="w-full max-w-5xl bg-white rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden grid grid-cols-1 lg:grid-cols-12">
+<body class="min-h-full bg-slate-50 antialiased selection:bg-maarif-100 selection:text-maarif-900 flex flex-col">
+    <div class="min-h-screen flex-1 flex flex-col lg:flex-row">
         
-        <!-- Left Banner: Visual & Madrasah Brand (Visible on Desktop / Large Tablet) -->
-        <div class="hidden lg:flex lg:col-span-6 bg-gradient-to-br from-maarif-900 via-maarif-800 to-slate-950 text-white p-10 flex-col justify-between relative overflow-hidden">
-            <!-- Background Decorative Rings -->
-            <div class="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-maarif-600/20 blur-3xl pointer-events-none"></div>
-            <div class="absolute -left-16 -bottom-16 w-64 h-64 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
+        <!-- Sisi Kiri: Branding Madrasah (Desktop: Kolom Kiri Fullscreen, Mobile: Banner Header di Atas) -->
+        <div class="w-full lg:w-[45%] xl:w-[40%] bg-gradient-to-br from-maarif-900 via-maarif-800 to-slate-950 text-white p-6 sm:p-10 lg:p-12 flex flex-col justify-between relative overflow-hidden shrink-0">
+            <!-- Ambient Lighting Lembut -->
+            <div class="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-maarif-600/20 blur-3xl pointer-events-none" aria-hidden="true"></div>
+            <div class="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-emerald-500/15 blur-3xl pointer-events-none" aria-hidden="true"></div>
 
-            <!-- Top Header in Banner -->
+            <!-- Header Identitas Madrasah -->
             <div class="relative z-10">
-                <div class="flex items-center space-x-3 mb-6">
-                    <img src="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" alt="Logo MA Ma'arif Cilageni" class="w-12 h-12 object-contain shrink-0">
+                <div class="flex items-center space-x-3.5 mb-6">
+                    <img src="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" alt="Logo MA Ma'arif Cilageni" class="w-12 h-12 object-contain shrink-0 drop-shadow-md">
                     <div>
-                        <span class="text-[11px] font-bold tracking-widest text-emerald-300 uppercase">LP Ma'arif NU</span>
-                        <h1 class="text-lg font-black tracking-tight text-white leading-tight">MA Ma'arif Cilageni</h1>
-                        <p class="text-xs text-slate-300">Kadungora - Garut, Jawa Barat</p>
+                        <span class="text-[10px] font-extrabold tracking-[0.18em] text-emerald-300 uppercase block">LP Ma'arif NU</span>
+                        <h1 class="text-base sm:text-lg font-black tracking-tight text-white leading-tight font-display">MA Ma'arif Cilageni</h1>
+                        <p class="text-[11px] text-slate-300">Kadungora - Garut, Jawa Barat</p>
                     </div>
                 </div>
 
-                <div class="space-y-4 pt-4 border-t border-maarif-700/60">
-                    <h2 class="text-2xl font-black text-white leading-snug heading-font">
-                        Presensi Digital Terpadu & Terintegrasi
+                <div class="pt-2">
+                    <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-white leading-snug font-display">
+                        Presensi Harian Guru &amp; Siswa
                     </h2>
-                    <p class="text-xs text-emerald-100/80 leading-relaxed">
-                        Sistem presensi mandiri Bapak/Ibu Guru dan siswa di lingkungan madrasah (radius 75 meter), Layar Presensi Madrasah QR Code, serta konfirmasi kehadiran siswa yang tertib dan transparan.
+                    <p class="text-xs sm:text-sm text-emerald-100/80 leading-relaxed mt-2.5 max-w-md">
+                        Catat kehadiran mengajar dan belajar di madrasah dengan verifikasi radius lokasi serta PIN sesi kelas.
                     </p>
                 </div>
             </div>
 
-            <!-- Middle Highlights -->
-            <div class="space-y-3 my-6 relative z-10">
-                <div class="flex items-center space-x-3 bg-white/10 backdrop-blur rounded-2xl p-3.5 border border-white/10">
-                    <div class="w-8 h-8 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center shrink-0">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <!-- Fitur Utama (Hanya Tampil di Desktop untuk Menghemat Ruang Mobile) -->
+            <div class="hidden lg:flex flex-col space-y-3.5 my-8 relative z-10">
+                <div class="flex items-center space-x-3.5 bg-white/8 backdrop-blur-sm rounded-2xl p-4 border border-white/10 shadow-sm">
+                    <div class="w-9 h-9 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                         </svg>
                     </div>
                     <div>
-                        <p class="text-xs font-bold text-white">Layar Presensi Madrasah</p>
-                        <p class="text-[11px] text-slate-300">Kode QR otomatis diperbarui setiap 20 detik untuk keakuratan kehadiran.</p>
+                        <p class="text-xs font-bold text-white">Kode QR Kiosk</p>
+                        <p class="text-[11px] text-slate-300">Pindai kode QR dinamis di layar madrasah saat tiba.</p>
                     </div>
                 </div>
 
-                <div class="flex items-center space-x-3 bg-white/10 backdrop-blur rounded-2xl p-3.5 border border-white/10">
-                    <div class="w-8 h-8 rounded-xl bg-emerald-400/20 text-emerald-300 flex items-center justify-center shrink-0">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="flex items-center space-x-3.5 bg-white/8 backdrop-blur-sm rounded-2xl p-4 border border-white/10 shadow-sm">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-400/20 text-emerald-300 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                     </div>
                     <div>
-                        <p class="text-xs font-bold text-white">Batas Area Madrasah & PIN Kelas</p>
-                        <p class="text-[11px] text-slate-300">Siswa wajib berada di area madrasah (radius 75 meter) saat presensi.</p>
+                        <p class="text-xs font-bold text-white">Radius Lokasi Madrasah</p>
+                        <p class="text-[11px] text-slate-300">Presensi hanya aktif saat Anda berada di area madrasah.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Bottom Banner Action -->
-            <div class="relative z-10 pt-4 border-t border-maarif-700/60 flex items-center justify-between">
-                <span class="text-[11px] text-emerald-200">Layar Presensi Bersama:</span>
-                <a href="{{ route('kiosk.index') }}" target="_blank" class="inline-flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl bg-white/20 hover:bg-white/30 active:bg-white/40 text-white text-xs font-bold transition-all duration-150 active:scale-95 cursor-pointer backdrop-blur-sm border border-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
-                    <span>Buka Layar Presensi</span>
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                </a>
+            <!-- Footer Kiri -->
+            <div class="hidden lg:block relative z-10 pt-4 border-t border-white/10">
+                <p class="text-[11px] text-emerald-300/80">&copy; {{ date('Y') }} MA Ma'arif Cilageni</p>
             </div>
         </div>
 
-        <!-- Right Side: Login Form -->
-        <div class="col-span-12 lg:col-span-6 p-6 sm:p-10 flex flex-col justify-between">
-            <div>
-                <!-- Mobile Brand Header (Hidden on Desktop) -->
-                <div class="lg:hidden text-center mb-6">
-                    <img src="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" alt="Logo MA Ma'arif Cilageni" class="w-14 h-14 object-contain shrink-0 mx-auto mb-3">
-                    <h1 class="text-xs uppercase font-bold tracking-wider text-slate-500">MA Ma'arif Cilageni</h1>
-                    <h2 class="text-xl font-extrabold text-slate-900 tracking-tight heading-font">
-                        Sistem Presensi Kehadiran
+        <!-- Sisi Kanan: Form Login (Fullscreen, Bersih, & Rata Tengah) -->
+        <div class="w-full lg:w-[55%] xl:w-[60%] flex-1 bg-white flex flex-col justify-between p-6 sm:p-10 lg:p-16">
+            <div class="w-full max-w-md mx-auto my-auto py-6">
+                <!-- Title & Greeting -->
+                <div class="mb-7">
+                    <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight font-display">
+                        Masuk ke Akun Anda
                     </h2>
-                </div>
-
-                <!-- Desktop Title Header -->
-                <div class="hidden lg:block mb-6">
-                    <h2 class="text-2xl font-black text-slate-900 tracking-tight heading-font">
-                        Selamat Datang
-                    </h2>
-                    <p class="text-xs text-slate-500 mt-1">
-                        Masukkan nomor identitas madrasah atau email Anda untuk masuk ke sistem presensi.
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">
+                        Gunakan NISN, NIP, atau alamat email yang telah terdaftar.
                     </p>
                 </div>
 
-                <!-- Error & Success Notifications -->
+                <!-- Notifikasi Error & Sukses -->
                 @if($errors->any() || session('error'))
-                    <div class="mb-4 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-2xl p-3.5 flex items-start space-x-2.5">
-                        <svg class="w-4 h-4 text-rose-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="mb-5 bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm rounded-2xl p-4 flex items-start space-x-3 shadow-xs" role="alert">
+                        <svg class="w-5 h-5 text-rose-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span>{{ session('error') ?? $errors->first() }}</span>
+                        <span class="font-medium leading-relaxed">{{ session('error') ?? $errors->first() }}</span>
                     </div>
                 @endif
 
                 @if(session('success'))
-                    <div class="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-2xl p-3.5 flex items-start space-x-2.5">
-                        <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="mb-5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm rounded-2xl p-4 flex items-start space-x-3 shadow-xs" role="alert">
+                        <svg class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
-                        <span>{{ session('success') }}</span>
+                        <span class="font-medium leading-relaxed">{{ session('success') }}</span>
                     </div>
                 @endif
 
-                <!-- Login Form -->
-                <form action="{{ route('login') }}" method="POST" class="space-y-4">
+                <!-- Form Login -->
+                <form action="{{ route('login') }}" method="POST" class="space-y-5">
                     @csrf
 
                     <div>
@@ -157,14 +147,14 @@
                             NISN / NIP / Email
                         </label>
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                             </div>
-                            <input type="text" id="login" name="login" value="{{ old('login') }}" required autofocus
-                                class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-maarif-600 focus:border-transparent text-sm placeholder-slate-400 font-medium transition bg-slate-50/50 focus:bg-white"
-                                placeholder="NISN Siswa, NIP Bapak/Ibu Guru, atau Email">
+                            <input type="text" id="login" name="login" value="{{ old('login') }}" required autofocus autocomplete="username"
+                                class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/70 text-slate-900 placeholder-slate-400 text-sm font-medium transition focus:bg-white focus:border-maarif-600 focus:ring-2 focus:ring-maarif-600/20"
+                                placeholder="NISN Siswa, NIP Guru, atau Email">
                         </div>
                     </div>
 
@@ -173,28 +163,35 @@
                             Kata Sandi
                         </label>
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
                             </div>
-                            <input type="password" id="password" name="password" required
-                                class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-maarif-600 focus:border-transparent text-sm placeholder-slate-400 font-medium transition bg-slate-50/50 focus:bg-white"
-                                placeholder="Kata Sandi Bawaan: Tanggal Lahir (HHBBTTTT)">
+                            <input type="password" id="password" name="password" required autocomplete="current-password"
+                                class="w-full pl-11 pr-12 py-3.5 rounded-xl border border-slate-200 bg-slate-50/70 text-slate-900 placeholder-slate-400 text-sm font-medium transition focus:bg-white focus:border-maarif-600 focus:ring-2 focus:ring-maarif-600/20"
+                                placeholder="Masukkan kata sandi Anda">
+                            
+                            <!-- Toggle Show / Hide Password -->
+                            <button type="button" id="togglePassword" aria-label="Tampilkan kata sandi" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer focus:outline-none focus-visible:text-maarif-700">
+                                <svg id="eyeIcon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
 
                     <div class="flex items-center justify-between text-xs text-slate-600 pt-1">
-                        <label class="flex items-center space-x-2 cursor-pointer select-none">
-                            <input type="checkbox" name="remember" value="1" checked class="rounded border-slate-300 text-maarif-700 focus:ring-maarif-600 cursor-pointer">
-                            <span>Ingat sesi masuk</span>
+                        <label class="flex items-center space-x-2.5 cursor-pointer select-none">
+                            <input type="checkbox" name="remember" value="1" checked class="w-4 h-4 rounded border-slate-300 text-maarif-700 focus:ring-maarif-600 cursor-pointer">
+                            <span class="font-medium text-slate-600">Ingat sesi masuk</span>
                         </label>
-                        <span class="text-[11px] text-slate-400">Format: Tanggal Lahir (HHBBTTTT)</span>
                     </div>
 
                     <button type="submit"
-                        class="w-full inline-flex items-center justify-center gap-2 py-3.5 px-5 sm:px-6 rounded-xl sm:rounded-2xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-bold text-sm sm:text-base shadow-md shadow-maarif-700/25 transition-all duration-150 active:scale-[0.98] min-h-[48px] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-maarif-600">
-                        <span>Masuk ke Sistem</span>
+                        class="w-full inline-flex items-center justify-center gap-2 py-4 px-6 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-extrabold text-sm sm:text-base shadow-lg shadow-maarif-700/25 transition-all duration-150 active:scale-[0.985] min-h-[50px] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-maarif-600">
+                        <span>Masuk</span>
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>
@@ -202,17 +199,30 @@
                 </form>
             </div>
 
-            <!-- Footer / Mobile Kiosk Link -->
-            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                <span class="text-[11px]">MA Ma'arif Cilageni &copy; {{ date('Y') }}</span>
-                <a href="{{ route('kiosk.index') }}" target="_blank" class="font-bold text-maarif-700 hover:text-maarif-800 inline-flex items-center gap-1 transition-colors duration-150">
-                    <span>Layar Presensi</span>
-                    <svg class="w-3.5 h-3.5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                </a>
+            <!-- Footer Mobile & Desktop -->
+            <div class="pt-6 border-t border-slate-100 text-center text-xs text-slate-400">
+                <p>&copy; {{ date('Y') }} MA Ma'arif Cilageni Kadungora</p>
             </div>
         </div>
     </div>
+
+    <!-- Script Show/Hide Password -->
+    <script>
+        const btn = document.getElementById('togglePassword');
+        const pwd = document.getElementById('password');
+        const ico = document.getElementById('eyeIcon');
+
+        const eyeOpen = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>`;
+        const eyeSlash = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>`;
+
+        if (btn && pwd && ico) {
+            btn.addEventListener('click', () => {
+                const isHidden = pwd.type === 'password';
+                pwd.type = isHidden ? 'text' : 'password';
+                ico.innerHTML = isHidden ? eyeSlash : eyeOpen;
+                btn.setAttribute('aria-label', isHidden ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi');
+            });
+        }
+    </script>
 </body>
 </html>
