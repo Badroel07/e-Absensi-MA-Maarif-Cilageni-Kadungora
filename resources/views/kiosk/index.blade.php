@@ -327,7 +327,9 @@
         const recentScansList = document.getElementById('recentScansList');
         const recentScansCount = document.getElementById('recentScansCount');
 
+        // Persist last shown greeting across refresh so we don't replay same welcome on every reload
         let lastEventId = null;
+        try { lastEventId = localStorage.getItem('kiosk_last_greeting_id') || null; } catch(e) {}
         let modalDismissTimer = null;
         let modalCountdownInterval = null;
 
@@ -586,21 +588,22 @@
 
                 const data = await res.json();
 
-                // 1. Check for incoming new scan event
+                // 1. Check for incoming new scan event — deduped across refresh via localStorage
                 if (data.latest_event && data.latest_event.id) {
                     const evt = data.latest_event;
                     const serverNowMs = (typeof window.getServerNow === 'function') ? window.getServerNow().getTime() : Date.now();
-                    
+
                     // Trigger only if event is fresh (< 35 seconds from server clock)
                     const isFresh = evt.timestamp_ms ? (Math.abs(serverNowMs - evt.timestamp_ms) < 35000) : true;
-                    if (lastEventId === null) {
+                    const alreadySeen = evt.id === lastEventId;
+
+                    if (!alreadySeen) {
+                        // Always advance pointer so a stale event is not replayed after refresh
                         lastEventId = evt.id;
+                        try { localStorage.setItem('kiosk_last_greeting_id', evt.id); } catch(e) {}
                         if (isFresh) {
                             showGreetingModal(evt);
                         }
-                    } else if (evt.id !== lastEventId && isFresh) {
-                        lastEventId = evt.id;
-                        showGreetingModal(evt);
                     }
                 }
 
