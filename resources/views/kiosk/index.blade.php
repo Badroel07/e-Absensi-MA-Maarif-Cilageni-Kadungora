@@ -217,6 +217,16 @@
         </div>
     </main>
 
+    <!-- Audio Unlock Floating Button (autoplay policy) -->
+    <button id="audioUnlockBtn" type="button" class="fixed bottom-5 right-5 z-40 hidden items-center gap-2 px-4 py-2.5 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold shadow-lg shadow-amber-500/20 active:scale-95 transition-all cursor-pointer">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14"/></svg>
+        Aktifkan Suara Sambutan
+    </button>
+    <div id="audioStatusPill" class="fixed bottom-5 left-5 z-40 hidden items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-[11px] font-medium text-slate-300">
+        <span id="audioStatusDot" class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span id="audioStatusText">Suara Aktif</span>
+    </div>
+
     <!-- Footer System Status -->
     <footer class="relative z-10 border-t border-slate-800/80 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
         <div>
@@ -321,6 +331,79 @@
         let modalDismissTimer = null;
         let modalCountdownInterval = null;
 
+        // ── Audio Unlock (fix autoplay block) ──────────────────────────
+        let kioskAudioCtx = null;
+        let audioUnlocked = false;
+        const audioUnlockBtn = document.getElementById('audioUnlockBtn');
+        const audioStatusPill = document.getElementById('audioStatusPill');
+        const audioStatusText = document.getElementById('audioStatusText');
+        const audioStatusDot = document.getElementById('audioStatusDot');
+
+        function getAudioCtx() {
+            if (!kioskAudioCtx) {
+                const AC = window.AudioContext || window.webkitAudioContext;
+                if (!AC) return null;
+                kioskAudioCtx = new AC();
+            }
+            return kioskAudioCtx;
+        }
+
+        function updateAudioUi() {
+            const ctx = kioskAudioCtx;
+            const isReady = ctx && ctx.state === 'running' && audioUnlocked;
+            if (audioUnlockBtn) {
+                audioUnlockBtn.classList.toggle('hidden', isReady);
+                audioUnlockBtn.classList.toggle('flex', !isReady);
+            }
+            if (audioStatusPill) {
+                audioStatusPill.classList.toggle('hidden', !isReady);
+                audioStatusPill.classList.toggle('flex', isReady);
+            }
+        }
+
+        async function unlockAudio() {
+            try {
+                const ctx = getAudioCtx();
+                if (!ctx) return false;
+                if (ctx.state === 'suspended') await ctx.resume();
+                // iOS silent blip to fully unlock
+                if (!audioUnlocked) {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    gain.gain.value = 0.0001;
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.02);
+                    audioUnlocked = true;
+                }
+                updateAudioUi();
+                return ctx.state === 'running';
+            } catch (e) {
+                console.warn('[KioskAudio] unlock failed:', e);
+                return false;
+            }
+        }
+
+        // Try unlock on any user gesture
+        ['click', 'touchstart', 'keydown'].forEach(evt => {
+            document.addEventListener(evt, () => { unlockAudio(); }, { once: false, passive: true });
+        });
+        if (audioUnlockBtn) {
+            audioUnlockBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const ok = await unlockAudio();
+                if (ok) {
+                    // Play preview chime so user knows it's active
+                    playGreetingChime(true);
+                }
+            });
+        }
+        // Initial UI check after load
+        setTimeout(updateAudioUi, 500);
+        // Also poll context state in case browser auto-suspends
+        setInterval(updateAudioUi, 2000);
+
         // Synchronize with simulated server time
         window.__serverTimeMs = {{ \Carbon\Carbon::now()->getTimestampMs() }};
         window.__clientInitMs = Date.now();
@@ -340,23 +423,39 @@
         updateClock();
 
         // Harmonious Audio Chime via Web Audio API (Synthesizer, zero external MP3 dependencies)
-        function playGreetingChime(isCheckIn = true) {
+        async function playGreetingChime(isCheckIn = true) {
             try {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                if (!AudioContext) return;
-                const audioCtx = new AudioContext();
-                const now = audioCtx.currentTime;
+                const audioCtx = getAudioCtx();
+                if (!audioCtx) return;
+                if (audioCtx.state === 'suspended') {
+                    try { await audioCtx.resume(); } catch(e) {}
+                }
+                // If still suspended (no user gesture yet), show unlock button and queue retry
+                if (audioCtx.state !== 'running') {
+                    updateAudioUi();
+                    // Queue one retry after next user interaction
+                    const retryOnce = async () => {
+                        document.removeEventListener('click', retryOnce);
+                        document.removeEventListener('touchstart', retryOnce);
+                        await unlockAudio();
+                        playGreetingChime(isCheckIn);
+                    };
+                    document.addEventListener('click', retryOnce, { once: true });
+                    document.addEventListener('touchstart', retryOnce, { once: true, passive: true });
+                    return;
+                }
 
+                const now = audioCtx.currentTime;
                 // Cheerful chord arpeggio for Check-in (C5, E5, G5, C6) or warm cadence for Check-out (G5, E5, C5)
                 const notes = isCheckIn ? [523.25, 659.25, 783.99, 1046.50] : [783.99, 659.25, 523.25];
-                
+
                 notes.forEach((freq, idx) => {
                     const osc = audioCtx.createOscillator();
                     const gain = audioCtx.createGain();
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(freq, now + idx * 0.12);
 
-                    gain.gain.setValueAtTime(0.2, now + idx * 0.12);
+                    gain.gain.setValueAtTime(0.28, now + idx * 0.12);
                     gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.6);
 
                     osc.connect(gain);
@@ -364,6 +463,8 @@
                     osc.start(now + idx * 0.12);
                     osc.stop(now + idx * 0.12 + 0.65);
                 });
+                audioUnlocked = true;
+                updateAudioUi();
             } catch (err) {
                 console.warn("Audio playback notice:", err);
             }
