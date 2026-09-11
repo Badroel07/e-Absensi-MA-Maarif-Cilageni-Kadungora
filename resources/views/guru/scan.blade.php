@@ -211,35 +211,127 @@
             if (hint) hint.textContent = "Pulang: sistem kunci jika masih ada sesi kelas belum disimpan.";
         }
     }
+    let activeScanWatchId = null;
+    let scanGpsRetryTimeout = null;
+    let lastScanGeoAttempt = 0;
+
     function initScanGeolocation(isManual = false) {
+        const now = Date.now();
+        if (!isManual && (now - lastScanGeoAttempt < 1500)) {
+            return;
+        }
+        lastScanGeoAttempt = now;
+
         const refreshIcon = document.getElementById('scanGpsRefreshIcon');
-        if (isManual && refreshIcon) { refreshIcon.classList.add('animate-spin'); setTimeout(()=>refreshIcon.classList.remove('animate-spin'),1500); }
-        if (!navigator.geolocation) { if(scanGeofenceTitle) scanGeofenceTitle.textContent="Geolocation tidak didukung"; if(scanGeofenceDesc) scanGeofenceDesc.textContent="Peramban tidak mendukung akses lokasi."; return; }
-        if(scanGeofenceTitle) scanGeofenceTitle.textContent="Mendeteksi lokasi...";
-        if(scanGeofenceDesc) scanGeofenceDesc.textContent="Izinkan GPS di peramban.";
-        navigator.geolocation.getCurrentPosition(async(pos)=>{
-            userCoords.lat=pos.coords.latitude; userCoords.lng=pos.coords.longitude;
-            try{
-                const res=await fetch("{{ route('guru.check-status', [], false) }}",{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content,'Accept':'application/json'},body:JSON.stringify({latitude:userCoords.lat,longitude:userCoords.lng})});
-                const data=await res.json();
-                isWithinGeofence=data.within; geofenceDistance=data.distance;
-                if(data.within){
-                    if(scanGeofenceIconBox) scanGeofenceIconBox.className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0";
-                    if(scanGeofenceTitle){scanGeofenceTitle.textContent="Di lingkungan madrasah";scanGeofenceTitle.className="text-xs font-semibold text-emerald-700";}
-                    if(scanGeofenceDesc) scanGeofenceDesc.textContent="Radius "+data.radius+" m — siap presensi.";
-                    if(scanGeofenceDistance){scanGeofenceDistance.textContent=Math.round(data.distance)+" m";scanGeofenceDistance.className="mono-font text-xs px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700";}
+        if (isManual && refreshIcon) {
+            refreshIcon.classList.add('animate-spin');
+            setTimeout(() => refreshIcon.classList.remove('animate-spin'), 1500);
+        }
+
+        if (!navigator.geolocation) {
+            if (scanGeofenceTitle) scanGeofenceTitle.textContent = "Geolocation tidak didukung";
+            if (scanGeofenceDesc) scanGeofenceDesc.textContent = "Peramban tidak mendukung akses lokasi.";
+            return;
+        }
+
+        if (scanGpsRetryTimeout) {
+            clearTimeout(scanGpsRetryTimeout);
+            scanGpsRetryTimeout = null;
+        }
+
+        isWithinGeofence = null;
+
+        if (scanGeofenceTitle && !userCoords.lat) scanGeofenceTitle.textContent = "Mendeteksi lokasi...";
+        if (scanGeofenceDesc && !userCoords.lat) scanGeofenceDesc.textContent = "Sedang mencari sinyal GPS...";
+
+        const handleScanPosition = async (pos) => {
+            if (scanGpsRetryTimeout) {
+                clearTimeout(scanGpsRetryTimeout);
+                scanGpsRetryTimeout = null;
+            }
+            userCoords.lat = pos.coords.latitude;
+            userCoords.lng = pos.coords.longitude;
+            try {
+                const res = await fetch("{{ route('guru.check-status', [], false) }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ latitude: userCoords.lat, longitude: userCoords.lng })
+                });
+                const data = await res.json();
+                isWithinGeofence = data.within;
+                geofenceDistance = data.distance;
+                if (data.within) {
+                    if (scanGeofenceIconBox) scanGeofenceIconBox.className = "w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0";
+                    if (scanGeofenceTitle) { scanGeofenceTitle.textContent = "Di lingkungan madrasah"; scanGeofenceTitle.className = "text-xs font-semibold text-emerald-700"; }
+                    if (scanGeofenceDesc) scanGeofenceDesc.textContent = "Radius " + data.radius + " m — siap presensi.";
+                    if (scanGeofenceDistance) { scanGeofenceDistance.textContent = Math.round(data.distance) + " m"; scanGeofenceDistance.className = "mono-font text-xs px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700"; }
                 } else {
-                    if(scanGeofenceIconBox) scanGeofenceIconBox.className="w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0";
-                    if(scanGeofenceTitle){scanGeofenceTitle.textContent="Di luar area madrasah";scanGeofenceTitle.className="text-xs font-semibold text-rose-700";}
-                    if(scanGeofenceDesc) scanGeofenceDesc.textContent="Di luar "+data.radius+" m — presensi ditolak.";
-                    if(scanGeofenceDistance){scanGeofenceDistance.textContent=Math.round(data.distance)+" m";scanGeofenceDistance.className="mono-font text-xs px-1.5 py-0.5 rounded-md bg-rose-50 text-rose-700";}
+                    if (scanGeofenceIconBox) scanGeofenceIconBox.className = "w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0";
+                    if (scanGeofenceTitle) { scanGeofenceTitle.textContent = "Di luar area madrasah"; scanGeofenceTitle.className = "text-xs font-semibold text-rose-700"; }
+                    if (scanGeofenceDesc) scanGeofenceDesc.textContent = "Di luar " + data.radius + " m — presensi ditolak.";
+                    if (scanGeofenceDistance) { scanGeofenceDistance.textContent = Math.round(data.distance) + " m"; scanGeofenceDistance.className = "mono-font text-xs px-1.5 py-0.5 rounded-md bg-rose-50 text-rose-700"; }
                 }
-            }catch(e){ console.warn("Gagal cek geofence:",e); }
-        },(err)=>{
-            if(scanGeofenceTitle) scanGeofenceTitle.textContent="Lokasi belum aktif";
-            if(scanGeofenceDesc) scanGeofenceDesc.textContent="Aktifkan GPS & izinkan akses lokasi.";
-            if(scanGeofenceDistance) scanGeofenceDistance.textContent="-- m";
-        },{enableHighAccuracy:true,timeout:10000,maximumAge:0});
+            } catch (e) {
+                console.warn("Gagal cek geofence:", e);
+            }
+        };
+
+        const scheduleScanRetry = (delay = 3500) => {
+            if (!scanGpsRetryTimeout && (!userCoords.lat || !userCoords.lng)) {
+                scanGpsRetryTimeout = setTimeout(() => {
+                    scanGpsRetryTimeout = null;
+                    if (document.visibilityState !== 'hidden') {
+                        initScanGeolocation(false);
+                    }
+                }, delay);
+            }
+        };
+
+        const handleScanError = (err) => {
+            if (err.code === 1) { // PERMISSION_DENIED
+                if (scanGeofenceTitle) { scanGeofenceTitle.textContent = "Izin lokasi ditolak"; scanGeofenceTitle.className = "text-xs font-semibold text-rose-700"; }
+                if (scanGeofenceDesc) scanGeofenceDesc.textContent = "Izinkan akses lokasi pada peramban.";
+                if (scanGeofenceDistance) scanGeofenceDistance.textContent = "-- m";
+            } else if (err.code === 2) { // POSITION_UNAVAILABLE
+                if (scanGeofenceTitle) { scanGeofenceTitle.textContent = "Mencari sinyal GPS..."; scanGeofenceTitle.className = "text-xs font-semibold text-amber-700"; }
+                if (scanGeofenceDesc) scanGeofenceDesc.textContent = "Aktifkan GPS & tunggu sinyal terkunci.";
+                if (scanGeofenceDistance) scanGeofenceDistance.textContent = "-- m";
+                scheduleScanRetry(3500);
+            } else if (err.code === 3) { // TIMEOUT
+                if (!userCoords.lat) {
+                    if (scanGeofenceTitle) { scanGeofenceTitle.textContent = "Mencari lokasi GPS..."; scanGeofenceTitle.className = "text-xs font-semibold text-amber-700"; }
+                    if (scanGeofenceDesc) scanGeofenceDesc.textContent = "Menghubungkan ke satelit...";
+                    scheduleScanRetry(3000);
+                }
+            }
+        };
+
+        if (activeScanWatchId !== null) {
+            navigator.geolocation.clearWatch(activeScanWatchId);
+            activeScanWatchId = null;
+        }
+
+        // Tier 1: Fast initial fix (allow cached coordinates up to 60s for instant scanning)
+        navigator.geolocation.getCurrentPosition(
+            handleScanPosition,
+            () => {},
+            { enableHighAccuracy: false, timeout: 6000, maximumAge: 60000 }
+        );
+
+        // Tier 2: Continuous high-accuracy refinement
+        try {
+            activeScanWatchId = navigator.geolocation.watchPosition(
+                handleScanPosition,
+                handleScanError,
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+            );
+        } catch (e) {
+            console.warn("Gagal memulai watchPosition:", e);
+        }
     }
     function setScanLineActive(active){ const line=document.getElementById('scanLine'); if(!line) return; if(active){line.classList.remove('opacity-0');line.classList.add('scan-line')} else {line.classList.add('opacity-0');line.classList.remove('scan-line')} }
     function startCamera(){
@@ -251,8 +343,22 @@
     }
     async function sendScanToken(token){
         window.triggerHaptic([100,50,100]);
-        if(!userCoords.lat||!userCoords.lng){ if(typeof window.showAlertDialog==='function'){ await window.showAlertDialog({title:'Lokasi GPS Belum Terdeteksi',message:'Sistem sedang mencari posisi GPS. Pastikan GPS aktif, izinkan akses lokasi, dan tunggu beberapa detik.',type:'warning',icon:'alert-triangle'});} else alert('Lokasi GPS belum terdeteksi.'); startCamera(); return; }
-        if(isWithinGeofence===false){ if(typeof window.showAlertDialog==='function'){ await window.showAlertDialog({title:'Di Luar Area Madrasah',message:"Presensi ditolak. Posisi Anda "+Math.round(geofenceDistance||0)+" m dari madrasah — wajib di dalam area.",type:'danger',icon:'map-pin'});} else alert('Di luar area madrasah.'); startCamera(); return; }
+        if(!userCoords.lat || !userCoords.lng || isWithinGeofence !== true){
+            if(typeof window.showAlertDialog==='function'){
+                await window.showAlertDialog({
+                    title: (isWithinGeofence === false) ? 'Di Luar Area Madrasah' : 'Lokasi GPS Belum Terkunci',
+                    message: (isWithinGeofence === false)
+                        ? "Presensi ditolak. Posisi Anda "+Math.round(geofenceDistance||0)+" m dari madrasah — wajib di dalam area."
+                        : "Sistem sedang mencari posisi GPS. Pastikan GPS aktif dan tunggu hingga lokasi terverifikasi.",
+                    type: (isWithinGeofence === false) ? 'danger' : 'warning',
+                    icon: (isWithinGeofence === false) ? 'map-pin' : 'alert-triangle'
+                });
+            } else {
+                alert((isWithinGeofence === false) ? 'Di luar area madrasah.' : 'Lokasi GPS belum terkunci.');
+            }
+            startCamera();
+            return;
+        }
         const endpoint=(currentMode==='datang')?"{{ route('guru.checkin', [], false) }}":"{{ route('guru.checkout', [], false) }}";
         try{
             const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content,'Accept':'application/json'},body:JSON.stringify({qr_token:token.trim(),latitude:userCoords.lat,longitude:userCoords.lng})});
@@ -261,9 +367,60 @@
             else { if(data.code==='TEACHING_COMPLETION_LOCKED') showLockModal(data); else { if(typeof window.showAlertDialog==='function'){ await window.showAlertDialog({title:'Presensi Gagal',message:data.message||'Kode QR tidak valid atau sudah berganti. Pindai ulang.',type:'danger',icon:'alert-circle'});} else alert("Gagal: "+(data.message||'Kode QR tidak valid.')); startCamera(); } }
         }catch(err){ if(typeof window.showAlertDialog==='function'){ await window.showAlertDialog({title:'Kesalahan Jaringan',message:'Terjadi kesalahan jaringan: '+err,type:'danger',icon:'alert-circle'});} else alert("Kesalahan jaringan: "+err); startCamera(); }
     }
-    function submitManualToken(e){ e.preventDefault(); const token=document.getElementById('manualToken').value; if(!token) return; document.getElementById('scannerPlaceholder').classList.add('hidden'); setScanLineActive(false); if(html5QrCode){ try{html5QrCode.stop()}catch(_){} } sendScanToken(token); }
+    function submitManualToken(e){
+        e.preventDefault();
+        const token=document.getElementById('manualToken').value;
+        if(!token) return;
+        if(!userCoords.lat || !userCoords.lng || isWithinGeofence !== true){
+            if(typeof window.showAlertDialog==='function'){
+                window.showAlertDialog({
+                    title: (isWithinGeofence === false) ? 'Di Luar Area Madrasah' : 'Lokasi GPS Belum Terkunci',
+                    message: (isWithinGeofence === false)
+                        ? "Presensi ditolak. Posisi Anda "+Math.round(geofenceDistance||0)+" m dari madrasah — wajib di dalam area."
+                        : "Sistem sedang mencari posisi GPS. Pastikan GPS aktif dan tunggu hingga lokasi terverifikasi.",
+                    type: (isWithinGeofence === false) ? 'danger' : 'warning',
+                    icon: (isWithinGeofence === false) ? 'map-pin' : 'alert-triangle'
+                });
+            } else {
+                alert((isWithinGeofence === false) ? 'Di luar area madrasah.' : 'Lokasi GPS belum terkunci.');
+            }
+            return;
+        }
+        document.getElementById('scannerPlaceholder').classList.add('hidden');
+        setScanLineActive(false);
+        if(html5QrCode){ try{html5QrCode.stop()}catch(_){} }
+        sendScanToken(token);
+    }
     function showLockModal(data){ document.getElementById('modalLockMessage').textContent=data.message; const listEl=document.getElementById('modalLockList'); listEl.innerHTML=''; if(data.pending_schedules) data.pending_schedules.forEach(item=>{ const p=document.createElement('p'); p.className='font-semibold text-rose-700'; p.textContent='• '+item; listEl.appendChild(p); }); document.getElementById('modalLock').classList.remove('hidden'); }
-    function closeLockModal(){ document.getElementById('modalLock').classList.add('hidden'); startCamera(); }
-    window.addEventListener('DOMContentLoaded',()=>{ initScanGeolocation(); startCamera(); });
+    window.addEventListener('DOMContentLoaded', () => {
+        initScanGeolocation();
+        startCamera();
+
+        // Auto re-acquire GPS when user returns to scanner
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                initScanGeolocation(false);
+            }
+        });
+
+        window.addEventListener('focus', () => {
+            initScanGeolocation(false);
+        });
+
+        // Permissions API: immediately re-run when user grants permission in browser prompt
+        if (navigator.permissions && navigator.permissions.query) {
+            navigator.permissions.query({ name: 'geolocation' }).then((permissionStatus) => {
+                permissionStatus.onchange = () => {
+                    if (permissionStatus.state === 'granted') {
+                        initScanGeolocation(true);
+                    }
+                };
+            }).catch(() => {});
+        }
+    });
+
+    window.addEventListener('dev-location-changed', () => {
+        initScanGeolocation(true);
+    });
 </script>
 @endpush

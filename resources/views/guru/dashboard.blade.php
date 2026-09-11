@@ -488,7 +488,7 @@
                                                         <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
                                                     </div>
                                                 </div>
-                                                <button type="submit" class="sessionSubmitBtn w-full sm:flex-1 h-11 bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 active:scale-[0.98] text-white font-semibold px-4 rounded-xl text-xs inline-flex items-center justify-center gap-1.5 transition-all duration-150 shadow-md shadow-maarif-700/25 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-maarif-600 leading-none">
+                                                <button type="submit" disabled class="sessionSubmitBtn opacity-50 cursor-not-allowed w-full sm:flex-1 h-11 bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 active:scale-[0.98] text-white font-semibold px-4 rounded-xl text-xs inline-flex items-center justify-center gap-1.5 transition-all duration-150 shadow-md shadow-maarif-700/25 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-maarif-600 leading-none">
                                                     <span>Buka Sesi Presensi</span>
                                                     <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -700,6 +700,12 @@
 
     // Geolocation Engine
     let currentCoords = { lat: null, lng: null };
+    let activeWatchId = null;
+    let gpsRetryTimeout = null;
+    let lastGeoAttempt = 0;
+    let isWithinGeofence = false;
+    let isGpsLocked = false;
+
     const geofenceIconBox = document.getElementById('geofenceIconBox');
     const geofenceTitle = document.getElementById('geofenceTitle');
     const geofenceDesc = document.getElementById('geofenceDesc');
@@ -708,25 +714,73 @@
     const outsideDistanceText = document.getElementById('outsideDistanceText');
 
     function initGeolocation(isManual = false) {
+        const now = Date.now();
+        // Throttle auto-triggers to avoid rapid spam within 1.5s, but always allow manual triggers
+        if (!isManual && (now - lastGeoAttempt < 1500)) {
+            return;
+        }
+        lastGeoAttempt = now;
+
         const refreshIcon = document.getElementById('gpsRefreshIcon');
         if (isManual && refreshIcon) {
             refreshIcon.classList.add('animate-spin');
             setTimeout(() => refreshIcon.classList.remove('animate-spin'), 1500);
         }
 
+        // Lock session buttons while GPS is searching / re-acquiring
+        if (!isGpsLocked || isManual) {
+            isGpsLocked = false;
+            isWithinGeofence = false;
+            document.querySelectorAll('.sessionSubmitBtn').forEach(btn => {
+                btn.setAttribute('disabled', 'disabled');
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+            });
+        }
+
         if (!navigator.geolocation) {
             if (geofenceTitle) geofenceTitle.textContent = "GPS Tidak Didukung";
             if (geofenceDesc) geofenceDesc.textContent = "Browser perangkat Anda tidak mendukung geolokasi.";
+            document.querySelectorAll('.sessionSubmitBtn').forEach(btn => {
+                btn.setAttribute('disabled', 'disabled');
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+            });
             return;
         }
 
+        if (gpsRetryTimeout) {
+            clearTimeout(gpsRetryTimeout);
+            gpsRetryTimeout = null;
+        }
+
         const handlePosition = (pos) => {
+            if (gpsRetryTimeout) {
+                clearTimeout(gpsRetryTimeout);
+                gpsRetryTimeout = null;
+            }
             currentCoords.lat = pos.coords.latitude;
             currentCoords.lng = pos.coords.longitude;
             checkServerStatus();
         };
 
+        const scheduleRetry = (delay = 3500) => {
+            if (!gpsRetryTimeout && (!currentCoords.lat || !currentCoords.lng)) {
+                gpsRetryTimeout = setTimeout(() => {
+                    gpsRetryTimeout = null;
+                    if (document.visibilityState !== 'hidden') {
+                        initGeolocation(false);
+                    }
+                }, delay);
+            }
+        };
+
         const handleError = (err) => {
+            isGpsLocked = false;
+            isWithinGeofence = false;
+            document.querySelectorAll('.sessionSubmitBtn').forEach(btn => {
+                btn.setAttribute('disabled', 'disabled');
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+            });
+
             if (err.code === 1) { // PERMISSION_DENIED
                 if (geofenceIconBox) {
                     geofenceIconBox.className = "w-10 h-10 rounded-xl bg-red-600 border border-red-500 text-white flex items-center justify-center shrink-0 shadow-md transition-all";
@@ -743,12 +797,13 @@
                     geofenceIconBox.className = "w-10 h-10 rounded-xl bg-amber-500 border border-amber-400 text-white flex items-center justify-center shrink-0 shadow-md animate-pulse transition-all";
                 }
                 if (geofenceTitle) {
-                    geofenceTitle.textContent = "Lokasi Tidak Terdeteksi";
+                    geofenceTitle.textContent = "Mencari Sinyal GPS...";
                     geofenceTitle.className = "font-semibold text-white uppercase tracking-wider text-xs heading-font";
                 }
                 if (geofenceDesc) {
-                    geofenceDesc.textContent = "Pastikan GPS aktif dan perangkat terhubung ke internet.";
+                    geofenceDesc.textContent = "Pastikan GPS aktif. Menghubungkan ke satelit...";
                 }
+                scheduleRetry(3500);
             } else if (err.code === 3) { // TIMEOUT
                 if (!currentCoords.lat) {
                     if (geofenceIconBox) {
@@ -761,11 +816,18 @@
                     if (geofenceDesc) {
                         geofenceDesc.textContent = "Sedang memeriksa posisi madrasah. Harap tunggu beberapa saat...";
                     }
+                    scheduleRetry(3000);
                 }
             }
         };
 
-        // Tier 1: Fast initial fix
+        // Clear previous watch to prevent watcher stacking/leaks
+        if (activeWatchId !== null) {
+            navigator.geolocation.clearWatch(activeWatchId);
+            activeWatchId = null;
+        }
+
+        // Tier 1: Fast initial fix (allow cached coordinates up to 60s for immediate UI responsiveness)
         navigator.geolocation.getCurrentPosition(
             handlePosition,
             () => {},
@@ -773,11 +835,15 @@
         );
 
         // Tier 2: Refine with high accuracy
-        navigator.geolocation.watchPosition(
-            handlePosition,
-            handleError,
-            { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-        );
+        try {
+            activeWatchId = navigator.geolocation.watchPosition(
+                handlePosition,
+                handleError,
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+            );
+        } catch(e) {
+            console.warn("Gagal memulai watchPosition:", e);
+        }
     }
 
     async function checkServerStatus() {
@@ -825,12 +891,18 @@
 
             if (outsideWarning) outsideWarning.classList.add('hidden');
 
+            isWithinGeofence = true;
+            isGpsLocked = true;
+
             // Enable open session buttons
             document.querySelectorAll('.sessionSubmitBtn').forEach(btn => {
                 btn.removeAttribute('disabled');
                 btn.classList.remove('opacity-50', 'cursor-not-allowed');
             });
         } else {
+            isWithinGeofence = false;
+            isGpsLocked = true;
+
             if (geofenceIconBox) {
                 geofenceIconBox.className = "w-10 h-10 rounded-xl bg-red-600 border border-red-500 text-white flex items-center justify-center shrink-0 shadow-md transition-all";
             }
@@ -863,9 +935,41 @@
         }
     }
 
-    // Auto-initiate Geolocation on page load
+    // Auto-initiate Geolocation on page load & setup reactive lifecycle listeners
     document.addEventListener('DOMContentLoaded', () => {
         initGeolocation(false);
+
+        // Guard form submissions against clicking before GPS is locked
+        document.querySelectorAll('.openSessionForm').forEach(form => {
+            form.addEventListener('submit', (e) => {
+                if (!isWithinGeofence || !currentCoords.lat) {
+                    e.preventDefault();
+                    alert('Presensi terkunci: Posisi GPS belum terverifikasi berada di dalam lingkungan madrasah.');
+                }
+            });
+        });
+
+        // Auto re-acquire GPS when user returns to browser (e.g. from notification panel or settings)
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                initGeolocation(false);
+            }
+        });
+
+        window.addEventListener('focus', () => {
+            initGeolocation(false);
+        });
+
+        // Permissions API: immediately re-run when user grants permission in browser prompt
+        if (navigator.permissions && navigator.permissions.query) {
+            navigator.permissions.query({ name: 'geolocation' }).then((permissionStatus) => {
+                permissionStatus.onchange = () => {
+                    if (permissionStatus.state === 'granted') {
+                        initGeolocation(true);
+                    }
+                };
+            }).catch(() => {});
+        }
     });
 
     window.addEventListener('dev-location-changed', () => {

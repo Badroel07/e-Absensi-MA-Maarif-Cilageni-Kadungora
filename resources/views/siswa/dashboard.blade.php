@@ -339,8 +339,28 @@
         </div>
 
 
+        <!-- GPS Searching Notice (Shown while GPS is locking/verifying position) -->
+        <div id="gpsSearchingNotice" class="bg-emerald-50/70 border border-emerald-200/80 rounded-3xl p-6 text-center space-y-3.5 shadow-xs transition-all duration-300">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-100/80 text-emerald-700 flex items-center justify-center mx-auto shadow-2xs">
+                <i data-lucide="satellite" class="w-7 h-7 animate-pulse"></i>
+            </div>
+            <div class="max-w-md mx-auto space-y-1">
+                <h4 class="text-base font-bold text-emerald-950 heading-font">Sedang Memeriksa Lokasi GPS...</h4>
+                <p class="text-xs text-emerald-800/90 leading-relaxed font-medium">
+                    Sistem sedang memverifikasi posisi kamu di lingkungan madrasah. Menu presensi kelas akan terbuka secara otomatis setelah lokasi kamu terkonfirmasi.
+                </p>
+            </div>
+            <div class="pt-1 flex items-center justify-center gap-2 text-[11px] font-semibold text-emerald-700 bg-emerald-100/60 py-1.5 px-3.5 rounded-full w-fit mx-auto border border-emerald-200/60">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+                </span>
+                <span>Pastikan GPS HP aktif & izinkan akses lokasi</span>
+            </div>
+        </div>
+
         <!-- Standby / No Active Session Notice (Refined Hub State) -->
-        <div id="noSessionNotice" class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs text-center space-y-3 relative overflow-hidden">
+        <div id="noSessionNotice" class="hidden bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs text-center space-y-3 relative overflow-hidden">
             <div class="flex justify-center text-maarif-700">
                 <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -491,6 +511,7 @@
     const outsideWarning = document.getElementById('outsideWarning');
     const outsideDistanceText = document.getElementById('outsideDistanceText');
     const noSessionNotice = document.getElementById('noSessionNotice');
+    const gpsSearchingNotice = document.getElementById('gpsSearchingNotice');
 
     const sessionSubject = document.getElementById('sessionSubject');
     const sessionTeacher = document.getElementById('sessionTeacher');
@@ -498,6 +519,9 @@
     const pinSection = document.getElementById('pinSection');
     const successSection = document.getElementById('successSection');
     const pinFeedback = document.getElementById('pinFeedback');
+
+    let isWithinGeofence = false;
+    let isGpsLocked = false;
 
     // Live Clock Ticker
     function startLiveClock() {
@@ -513,8 +537,19 @@
         }, 1000);
     }
 
-    // Geolocation with manual refresh animation support
+    let activeWatchId = null;
+    let gpsRetryTimeout = null;
+    let lastGeoAttempt = 0;
+
+    // Geolocation with manual refresh animation support & lifecycle auto-recovery
     function initGeolocation(isManual = false) {
+        const now = Date.now();
+        // Throttle auto-triggers to avoid rapid spam within 1.5s, but always allow manual triggers
+        if (!isManual && (now - lastGeoAttempt < 1500)) {
+            return;
+        }
+        lastGeoAttempt = now;
+
         const refreshIcon = document.getElementById('gpsRefreshIcon');
         const badgeIcon = document.getElementById('gpsBadgeIcon');
         if (isManual) {
@@ -528,7 +563,19 @@
             }
         }
 
+        // Lock attendance menu while GPS is searching / re-acquiring
+        if (!isGpsLocked || isManual) {
+            isGpsLocked = false;
+            isWithinGeofence = false;
+            if (gpsSearchingNotice) gpsSearchingNotice.classList.remove('hidden');
+            if (sessionCard) sessionCard.classList.add('hidden');
+            if (noSessionNotice) noSessionNotice.classList.add('hidden');
+            if (outsideWarning) outsideWarning.classList.add('hidden');
+        }
+
         if (!navigator.geolocation) {
+            if (gpsSearchingNotice) gpsSearchingNotice.classList.add('hidden');
+            if (sessionCard) sessionCard.classList.add('hidden');
             if (geofenceBadge) {
                 geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-rose-200 hover:text-rose-100 transition-colors cursor-pointer focus:outline-none";
             }
@@ -541,14 +588,40 @@
             return;
         }
 
+        if (gpsRetryTimeout) {
+            clearTimeout(gpsRetryTimeout);
+            gpsRetryTimeout = null;
+        }
+
         const handlePosition = (pos) => {
+            if (gpsRetryTimeout) {
+                clearTimeout(gpsRetryTimeout);
+                gpsRetryTimeout = null;
+            }
             currentCoords.lat = pos.coords.latitude;
             currentCoords.lng = pos.coords.longitude;
             checkServerStatus();
         };
 
+        const scheduleRetry = (delay = 3500) => {
+            if (!gpsRetryTimeout && (!currentCoords.lat || !currentCoords.lng)) {
+                gpsRetryTimeout = setTimeout(() => {
+                    gpsRetryTimeout = null;
+                    if (document.visibilityState !== 'hidden') {
+                        initGeolocation(false);
+                    }
+                }, delay);
+            }
+        };
+
         const handleError = (err) => {
+            isGpsLocked = false;
+            isWithinGeofence = false;
+            if (sessionCard) sessionCard.classList.add('hidden');
+
             if (err.code === 1) { // PERMISSION_DENIED
+                if (gpsSearchingNotice) gpsSearchingNotice.classList.add('hidden');
+                if (noSessionNotice) noSessionNotice.classList.add('hidden');
                 if (geofenceBadge) {
                     geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-rose-200 hover:text-rose-100 transition-colors cursor-pointer focus:outline-none";
                 }
@@ -558,7 +631,14 @@
                 }
                 if (geofenceBadgeText) geofenceBadgeText.textContent = "Izin GPS Ditolak";
                 if (geofenceBadgeDist) geofenceBadgeDist.classList.add('hidden');
+                if (outsideWarning) {
+                    outsideWarning.classList.remove('hidden');
+                    if (outsideDistanceText) outsideDistanceText.textContent = "Akses lokasi ditolak. Harap izinkan GPS pada browser kamu untuk melakukan presensi.";
+                }
             } else if (err.code === 2) { // POSITION_UNAVAILABLE
+                if (gpsSearchingNotice) gpsSearchingNotice.classList.remove('hidden');
+                if (noSessionNotice) noSessionNotice.classList.add('hidden');
+                if (outsideWarning) outsideWarning.classList.add('hidden');
                 if (geofenceBadge) {
                     geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-amber-200 hover:text-amber-100 transition-colors cursor-pointer focus:outline-none";
                 }
@@ -569,10 +649,14 @@
                 if (geofenceBadgeDot) {
                     geofenceBadgeDot.className = "relative inline-flex rounded-full h-2 w-2 bg-amber-400";
                 }
-                if (geofenceBadgeText) geofenceBadgeText.textContent = "Lokasi Belum Terdeteksi";
+                if (geofenceBadgeText) geofenceBadgeText.textContent = "Mencari Sinyal GPS...";
                 if (geofenceBadgeDist) geofenceBadgeDist.classList.add('hidden');
+                scheduleRetry(3500);
             } else if (err.code === 3) { // TIMEOUT
                 if (!currentCoords.lat) {
+                    if (gpsSearchingNotice) gpsSearchingNotice.classList.remove('hidden');
+                    if (noSessionNotice) noSessionNotice.classList.add('hidden');
+                    if (outsideWarning) outsideWarning.classList.add('hidden');
                     if (geofenceBadge) {
                         geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-amber-200 hover:text-amber-100 transition-colors cursor-pointer focus:outline-none";
                     }
@@ -585,11 +669,18 @@
                     }
                     if (geofenceBadgeText) geofenceBadgeText.textContent = "Mencari Lokasi GPS...";
                     if (geofenceBadgeDist) geofenceBadgeDist.classList.add('hidden');
+                    scheduleRetry(3000);
                 }
             }
         };
 
-        // Tier 1: Fast initial fix
+        // Clear previous watch to prevent watcher stacking/leaks
+        if (activeWatchId !== null) {
+            navigator.geolocation.clearWatch(activeWatchId);
+            activeWatchId = null;
+        }
+
+        // Tier 1: Fast initial fix (allow cached coordinates up to 60s for immediate UI responsiveness)
         navigator.geolocation.getCurrentPosition(
             handlePosition,
             () => {},
@@ -597,11 +688,15 @@
         );
 
         // Tier 2: Refine with high accuracy
-        navigator.geolocation.watchPosition(
-            handlePosition,
-            handleError,
-            { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-        );
+        try {
+            activeWatchId = navigator.geolocation.watchPosition(
+                handlePosition,
+                handleError,
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+            );
+        } catch(e) {
+            console.warn("Gagal memulai watchPosition:", e);
+        }
     }
 
     async function checkServerStatus() {
@@ -635,7 +730,12 @@
             ? (data.distance / 1000).toFixed(1) + ' km' 
             : Math.round(data.distance) + 'm';
 
+        // Mark GPS as resolved and hide searching notice
+        if (gpsSearchingNotice) gpsSearchingNotice.classList.add('hidden');
+        isGpsLocked = true;
+
         if (data.is_within_geofence) {
+            isWithinGeofence = true;
             if (geofenceBadge) {
                 geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-emerald-200 hover:text-white transition-colors cursor-pointer focus:outline-none";
             }
@@ -673,6 +773,7 @@
                 if (noSessionNotice) noSessionNotice.classList.remove('hidden');
             }
         } else {
+            isWithinGeofence = false;
             if (geofenceBadge) {
                 geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-rose-200 hover:text-rose-100 transition-colors cursor-pointer focus:outline-none";
             }
@@ -721,6 +822,14 @@
 
     // Keypad Logic
     function pressKey(num) {
+        if (!isGpsLocked || !isWithinGeofence || !currentCoords.lat) {
+            if (pinFeedback) {
+                pinFeedback.textContent = "Presensi terkunci: Menunggu lokasi GPS madrasah terverifikasi.";
+                pinFeedback.className = "text-xs font-semibold text-amber-600 h-5";
+            }
+            if (window.triggerHaptic) window.triggerHaptic(100);
+            return;
+        }
         if (enteredPin.length < 4) {
             if (window.triggerHaptic) window.triggerHaptic(40);
             enteredPin += num;
@@ -765,6 +874,15 @@
     }
 
     async function submitPin() {
+        if (!isGpsLocked || !isWithinGeofence || !currentCoords.lat || !currentCoords.lng) {
+            if (pinFeedback) {
+                pinFeedback.textContent = "Gagal: Lokasi GPS belum terverifikasi di madrasah.";
+                pinFeedback.className = "text-xs font-semibold text-rose-600 h-5";
+            }
+            clearPin();
+            return;
+        }
+
         if (pinFeedback) {
             pinFeedback.textContent = "Memeriksa PIN...";
             pinFeedback.className = "text-xs font-semibold text-slate-500 h-5";
@@ -814,6 +932,7 @@
     // Physical keyboard input support
     document.addEventListener('keydown', (e) => {
         if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+        if (!isGpsLocked || !isWithinGeofence || !currentCoords.lat) return;
         if (sessionCard && !sessionCard.classList.contains('hidden') && pinSection && !pinSection.classList.contains('hidden')) {
             if (e.key >= '0' && e.key <= '9') {
                 pressKey(e.key);
@@ -825,12 +944,34 @@
         }
     });
 
-    // Initialize on load
+    // Initialize on load & setup reactive lifecycle listeners
     window.addEventListener('DOMContentLoaded', () => {
         startLiveClock();
         initGeolocation();
         updatePinBoxes();
         setInterval(checkServerStatus, 4000);
+
+        // Auto re-acquire GPS when user returns to browser (e.g. from notification panel or settings)
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                initGeolocation(false);
+            }
+        });
+
+        window.addEventListener('focus', () => {
+            initGeolocation(false);
+        });
+
+        // Permissions API: immediately re-run when user grants permission in browser prompt
+        if (navigator.permissions && navigator.permissions.query) {
+            navigator.permissions.query({ name: 'geolocation' }).then((permissionStatus) => {
+                permissionStatus.onchange = () => {
+                    if (permissionStatus.state === 'granted') {
+                        initGeolocation(true);
+                    }
+                };
+            }).catch(() => {});
+        }
     });
 
     window.addEventListener('dev-location-changed', () => {
