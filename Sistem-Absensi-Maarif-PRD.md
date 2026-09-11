@@ -540,9 +540,8 @@ erDiagram
 ### 9.4 Token Sistem Desain (Design System Tokens)
 Mengadopsi identitas visual resmi bernuansa **Hijau Ma'arif NU — Formal Modern**:
 
-- **Token Tipografi**:
-  - *Heading Font*: `Plus Jakarta Sans`, `Inter`, `sans-serif` (elegan, tegas, dan modern).
-  - *Body / Interface Font*: `Inter`, `system-ui`, `sans-serif` (tingkat keterbacaan tinggi pada layar ponsel).
+- **Token Tipografi** (hanya 2 kombinasi font family):
+  - *Sans Font (Heading, Body & Interface)*: `Inter`, `system-ui`, `sans-serif` (keterbacaan tinggi + heading tegas dengan weight 700–900 dan tracking-tight).
   - *Monospace Font (Angka PIN, Countdown Timer, Hash QR, Jam)*: `JetBrains Mono`, `monospace` (memastikan angka tidak bergeser).
 - **Token Palet Warna**:
   - *Primary (Ma'arif Green)*: `#15803D` (Warna identitas madrasah, tombol aksi utama, header menu aktif, status hadir).

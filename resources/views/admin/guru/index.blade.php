@@ -9,11 +9,11 @@
     {{-- ── PAGE HEADER ──────────────────────────────────────────────── --}}
     <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
         <div>
-            <h1 class="text-2xl font-black text-slate-900 heading-font tracking-tight">Data Dewan Guru</h1>
+            <h1 class="text-2xl font-bold text-slate-900 heading-font tracking-tight">Data Dewan Guru</h1>
             <p class="text-xs text-slate-500 mt-0.5">Kelola data pokok dewan guru, NIP/NUPTK, kontak, dan kredensial akun presensi.</p>
         </div>
         <button type="button" onclick="openAddModal()"
-            class="inline-flex items-center justify-center gap-2 py-2.5 px-5 bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-extrabold text-xs rounded-xl shadow-sm transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600 shrink-0">
+            class="inline-flex items-center justify-center gap-2 py-2.5 px-5 bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-semibold text-xs rounded-xl shadow-sm transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600 shrink-0">
             <i data-lucide="plus" class="w-4 h-4"></i>
             <span>Tambah Guru</span>
         </button>
@@ -21,7 +21,7 @@
 
     {{-- ── FILTER & SEARCH BAR ───────────────────────────────────────── --}}
     <div class="bg-white rounded-2xl border border-slate-200/80 p-4">
-        <form method="GET" action="{{ route('admin.guru.index') }}" class="flex flex-wrap items-center gap-3">
+        <form method="GET" action="{{ route('admin.guru.index') }}" data-loading-form class="flex flex-wrap items-center gap-3">
             <div class="relative flex-1 min-w-[220px] max-w-sm">
                 <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari NIP, nama guru, email..."
@@ -29,7 +29,7 @@
             </div>
 
             <button type="submit"
-                class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700">
+                class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700">
                 <i data-lucide="search" class="w-3.5 h-3.5"></i>
                 <span>Cari</span>
             </button>
@@ -44,11 +44,21 @@
     </div>
 
     {{-- ── TABLE GURU ───────────────────────────────────────────────── --}}
-    <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs">
+    <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden"
+         x-data="{ ready: false }"
+         x-init="$nextTick(() => { setTimeout(() => { ready = true; }, window.__isLiveSearching ? 0 : 450); })">
+
+        {{-- Skeleton placeholder — visible immediately on page load (NO x-cloak) --}}
+        <div x-show="!ready" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" aria-hidden="true">
+            <x-skeleton :count="8" :columns="5" />
+        </div>
+
+        {{-- Real Table Content --}}
+        <div x-show="ready" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
                 <thead>
-                    <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 uppercase font-bold text-[10px] tracking-widest">
+                    <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 uppercase font-semibold text-[10px] tracking-widest">
                         <th class="py-3 px-5">NIP / NUPTK</th>
                         <th class="py-3 px-5">Nama Guru</th>
                         <th class="py-3 px-5">Tanggal Lahir</th>
@@ -63,7 +73,7 @@
 
                             {{-- NIP --}}
                             <td class="py-3.5 px-5">
-                                <span class="font-mono font-bold text-xs text-slate-700 mono-font tracking-wide">
+                                <span class="font-mono font-semibold text-xs text-slate-700 mono-font tracking-wide">
                                     {{ $g->identity_number }}
                                 </span>
                             </td>
@@ -72,22 +82,22 @@
                             <td class="py-3.5 px-5">
                                 <div class="flex items-center gap-3">
                                     @if($g->profile_photo_url)
-                                        <img src="{{ $g->profile_photo_url }}" alt="{{ $g->name }}"
+                                        <img src="{{ $g->profile_photo_url }}" loading="lazy" decoding="async" alt="{{ $g->name }}"
                                              class="w-8 h-8 rounded-lg object-cover shrink-0 border border-slate-200">
                                     @else
-                                        <div class="w-8 h-8 rounded-lg bg-maarif-700 text-white font-black text-xs flex items-center justify-center shrink-0">
+                                        <div class="w-8 h-8 rounded-lg bg-maarif-700 text-white font-bold text-xs flex items-center justify-center shrink-0">
                                             {{ mb_substr($g->name, 0, 1) }}
                                         </div>
                                     @endif
                                     <div class="min-w-0">
-                                        <p class="font-bold text-slate-900 text-sm truncate leading-snug">{{ $g->name }}</p>
+                                        <p class="font-semibold text-slate-900 text-sm truncate leading-snug">{{ $g->name }}</p>
                                         <p class="text-[11px] text-slate-400 mono-font truncate mt-0.5">{{ $g->email ?? '-' }}</p>
                                     </div>
                                 </div>
                             </td>
 
                             {{-- Tanggal Lahir --}}
-                            <td class="py-3.5 px-5 text-slate-600 mono-font font-semibold text-xs">
+                            <td class="py-3.5 px-5 text-slate-600 mono-font font-medium text-xs">
                                 {{ $g->birth_date ? $g->birth_date->format('d-m-Y') : '-' }}
                             </td>
 
@@ -99,12 +109,12 @@
                             {{-- Status --}}
                             <td class="py-3.5 px-5 text-center">
                                 @if($g->is_active)
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200/70">
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/70">
                                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
                                         Aktif
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-slate-100 text-slate-600 border border-slate-200">
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
                                         <span class="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span>
                                         Nonaktif
                                     </span>
@@ -117,7 +127,7 @@
                                     {{-- Riwayat — primary action, labeled --}}
                                     <a href="{{ route('admin.guru.riwayat', $g) }}"
                                        title="Lihat Riwayat Presensi Guru"
-                                       class="inline-flex items-center gap-1.5 py-1.5 px-3 bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white rounded-lg text-xs font-bold transition-all duration-150 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
+                                       class="inline-flex items-center gap-1.5 py-1.5 px-3 bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white rounded-lg text-xs font-semibold transition-all duration-150 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
                                         <i data-lucide="history" class="w-3.5 h-3.5 shrink-0"></i>
                                         <span>Riwayat</span>
                                     </a>
@@ -177,7 +187,7 @@
                                     <span class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
                                         <i data-lucide="users" class="w-6 h-6 text-slate-400"></i>
                                     </span>
-                                    <p class="text-sm font-bold text-slate-600">
+                                    <p class="text-sm font-semibold text-slate-600">
                                         @if(request('search'))
                                             Tidak ada data guru yang cocok dengan pencarian.
                                         @else
@@ -199,12 +209,13 @@
             </table>
         </div>
 
-        {{-- Pagination --}}
-        @if($teachers->hasPages())
-            <div class="px-5 py-4 border-t border-slate-100">
-                {{ $teachers->links() }}
-            </div>
-        @endif
+            {{-- Pagination --}}
+            @if($teachers->hasPages())
+                <div class="px-5 py-4 border-t border-slate-100">
+                    {{ $teachers->links() }}
+                </div>
+            @endif
+        </div>
     </div>
 
     {{-- ── MODAL TAMBAH GURU ────────────────────────────────────────── --}}
@@ -217,7 +228,7 @@
                         <i data-lucide="user-plus" class="w-5 h-5"></i>
                     </span>
                     <div>
-                        <h3 id="modalAddTitle" class="font-extrabold text-slate-900 heading-font text-base sm:text-lg">Tambah Pendidik / Guru</h3>
+                        <h3 id="modalAddTitle" class="font-bold text-slate-900 heading-font text-base sm:text-lg">Tambah Pendidik / Guru</h3>
                         <p class="text-xs text-slate-400 font-medium">Registrasi profil, NIP/NUPTK, akun login dan data guru madrasah</p>
                     </div>
                 </div>
@@ -229,19 +240,19 @@
             </div>
 
             {{-- Form Body (Scrollable) --}}
-            <form action="{{ route('admin.guru.store') }}" method="POST" enctype="multipart/form-data" class="flex-1 overflow-y-auto p-6 space-y-6 text-xs">
+            <form action="{{ route('admin.guru.store') }}" method="POST" enctype="multipart/form-data" data-loading-form class="flex-1 overflow-y-auto p-6 space-y-6 text-xs">
                 @csrf
 
                 {{-- Group 1: Identitas Kepegawaian --}}
                 <div class="space-y-3">
                     <div class="flex items-center gap-2 pb-1 border-b border-slate-100">
                         <span class="w-1.5 h-3.5 bg-maarif-700 rounded-full"></span>
-                        <span class="font-extrabold text-slate-800 uppercase tracking-wider text-[11px]">Identitas Kepegawaian</span>
+                        <span class="font-semibold text-slate-800 uppercase tracking-wider text-[11px]">Identitas Kepegawaian</span>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block font-bold text-slate-700 mb-1.5">
+                            <label class="block font-semibold text-slate-700 mb-1.5">
                                 NIP / NUPTK / No. Pegawai <span class="text-rose-500">*</span>
                             </label>
                             <input type="text" name="identity_number" required placeholder="198001012005011001"
@@ -249,7 +260,7 @@
                         </div>
 
                         <div>
-                            <label class="block font-bold text-slate-700 mb-1.5">
+                            <label class="block font-semibold text-slate-700 mb-1.5">
                                 Nama Lengkap &amp; Gelar <span class="text-rose-500">*</span>
                             </label>
                             <input type="text" name="name" required placeholder="Ust. Ahmad Dahlan, S.Pd.I"
@@ -262,12 +273,12 @@
                 <div class="space-y-3">
                     <div class="flex items-center gap-2 pb-1 border-b border-slate-100">
                         <span class="w-1.5 h-3.5 bg-maarif-700 rounded-full"></span>
-                        <span class="font-extrabold text-slate-800 uppercase tracking-wider text-[11px]">Akun &amp; Kontak Resmi</span>
+                        <span class="font-semibold text-slate-800 uppercase tracking-wider text-[11px]">Akun &amp; Kontak Resmi</span>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block font-bold text-slate-700 mb-1.5">
+                            <label class="block font-semibold text-slate-700 mb-1.5">
                                 Alamat Email Login <span class="text-rose-500">*</span>
                             </label>
                             <input type="email" name="email" required placeholder="guru@maarif.sch.id"
@@ -276,7 +287,7 @@
                         </div>
 
                         <div>
-                            <label class="block font-bold text-slate-700 mb-1.5">
+                            <label class="block font-semibold text-slate-700 mb-1.5">
                                 Tanggal Lahir <span class="text-rose-500">*</span>
                             </label>
                             <input type="date" name="birth_date" required
@@ -285,7 +296,7 @@
                         </div>
 
                         <div class="sm:col-span-2">
-                            <label class="block font-bold text-slate-700 mb-1.5">
+                            <label class="block font-semibold text-slate-700 mb-1.5">
                                 No. Handphone / WhatsApp
                                 <span class="text-[10px] font-normal text-slate-400 ml-1">(opsional)</span>
                             </label>
@@ -299,7 +310,7 @@
                 <div class="space-y-3">
                     <div class="flex items-center gap-2 pb-1 border-b border-slate-100">
                         <span class="w-1.5 h-3.5 bg-maarif-700 rounded-full"></span>
-                        <span class="font-extrabold text-slate-800 uppercase tracking-wider text-[11px]">Foto Profil Guru</span>
+                        <span class="font-semibold text-slate-800 uppercase tracking-wider text-[11px]">Foto Profil Guru</span>
                     </div>
 
                     <div class="flex items-center gap-4 p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/80">
@@ -308,9 +319,9 @@
                             <i id="addGuruPlaceholder" data-lucide="user" class="w-6 h-6"></i>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <label class="block font-bold text-slate-700 mb-1">Unggah Foto Pendidik <span class="text-[10px] font-normal text-slate-400">(JPG, PNG, WebP maks 2MB)</span></label>
+                            <label class="block font-semibold text-slate-700 mb-1">Unggah Foto Pendidik <span class="text-[10px] font-normal text-slate-400">(JPG, PNG, WebP maks 2MB)</span></label>
                             <input type="file" name="photo" id="addGuruPhotoInput" accept="image/jpeg,image/png,image/jpg,image/webp"
-                                class="w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-maarif-50 file:text-maarif-700 hover:file:bg-maarif-100 cursor-pointer">
+                                class="w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-maarif-50 file:text-maarif-700 hover:file:bg-maarif-100 cursor-pointer">
                         </div>
                     </div>
                 </div>
@@ -318,11 +329,11 @@
                 {{-- Sticky Footer Inside Form --}}
                 <div class="pt-4 flex items-center justify-end gap-2.5 border-t border-slate-100">
                     <button type="button" onclick="closeAddModal()"
-                        class="py-2.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-bold text-xs border border-slate-200 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+                        class="py-2.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs border border-slate-200 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
                         Batal
                     </button>
                     <button type="submit"
-                        class="py-2.5 px-6 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-bold text-xs shadow-xs transition-all duration-150 active:scale-[0.98] inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
+                        class="py-2.5 px-6 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-semibold text-xs shadow-xs transition-all duration-150 active:scale-[0.98] inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
                         <i data-lucide="check" class="w-4 h-4"></i>
                         <span>Simpan Guru</span>
                     </button>
@@ -341,7 +352,7 @@
                         <i data-lucide="pencil" class="w-5 h-5"></i>
                     </span>
                     <div>
-                        <h3 id="modalEditTitle" class="font-extrabold text-slate-900 heading-font text-base sm:text-lg">Perbarui Data Guru</h3>
+                        <h3 id="modalEditTitle" class="font-bold text-slate-900 heading-font text-base sm:text-lg">Perbarui Data Guru</h3>
                         <p class="text-xs text-slate-400 font-medium">Ubah profil kepegawaian, kontak, status aktif, atau foto pendidik</p>
                     </div>
                 </div>
@@ -353,7 +364,7 @@
             </div>
 
             {{-- Form Body (Scrollable) --}}
-            <form id="formEditGuru" method="POST" enctype="multipart/form-data" class="flex-1 overflow-y-auto p-6 space-y-6 text-xs">
+            <form id="formEditGuru" method="POST" enctype="multipart/form-data" data-loading-form class="flex-1 overflow-y-auto p-6 space-y-6 text-xs">
                 @csrf
                 @method('PUT')
 
@@ -362,16 +373,16 @@
                     <div class="flex items-center gap-4">
                         <div class="w-14 h-14 rounded-2xl overflow-hidden shrink-0 border border-slate-300 flex items-center justify-center bg-slate-200 shadow-xs">
                             <img id="editGuruPreviewImg" src="" alt="Foto Guru" class="w-full h-full object-cover hidden">
-                            <div id="editGuruFallback" class="w-full h-full bg-maarif-700 text-white font-black flex items-center justify-center text-lg">G</div>
+                            <div id="editGuruFallback" class="w-full h-full bg-maarif-700 text-white font-bold flex items-center justify-center text-lg">G</div>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <label class="block font-bold text-slate-700 mb-1">Ganti Foto Profil <span class="text-[10px] font-normal text-slate-400">(maks. 2MB)</span></label>
+                            <label class="block font-semibold text-slate-700 mb-1">Ganti Foto Profil <span class="text-[10px] font-normal text-slate-400">(maks. 2MB)</span></label>
                             <input type="file" id="editGuruPhoto" name="photo" accept="image/jpeg,image/png,image/jpg,image/webp"
-                                class="w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 cursor-pointer">
+                                class="w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 cursor-pointer">
                         </div>
                     </div>
                     <div id="editGuruRemovePhotoBox" class="hidden pt-2.5 border-t border-slate-200/70">
-                        <label class="inline-flex items-center text-xs text-rose-600 font-bold cursor-pointer gap-2 select-none hover:text-rose-700">
+                        <label class="inline-flex items-center text-xs text-rose-600 font-semibold cursor-pointer gap-2 select-none hover:text-rose-700">
                             <input type="checkbox" id="editGuruRemovePhoto" name="remove_photo" value="1" class="rounded text-rose-600 focus:ring-rose-500 cursor-pointer w-3.5 h-3.5">
                             <span>Hapus foto saat ini (kembalikan ke inisial nama)</span>
                         </label>
@@ -382,12 +393,12 @@
                 <div class="space-y-3">
                     <div class="flex items-center gap-2 pb-1 border-b border-slate-100">
                         <span class="w-1.5 h-3.5 bg-sky-600 rounded-full"></span>
-                        <span class="font-extrabold text-slate-800 uppercase tracking-wider text-[11px]">Identitas Kepegawaian</span>
+                        <span class="font-semibold text-slate-800 uppercase tracking-wider text-[11px]">Identitas Kepegawaian</span>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block font-bold text-slate-700 mb-1.5">
+                            <label class="block font-semibold text-slate-700 mb-1.5">
                                 NIP / NUPTK / No. Pegawai <span class="text-rose-500">*</span>
                             </label>
                             <input type="text" id="editGuruNip" name="identity_number" required
@@ -395,7 +406,7 @@
                         </div>
 
                         <div>
-                            <label class="block font-bold text-slate-700 mb-1.5">
+                            <label class="block font-semibold text-slate-700 mb-1.5">
                                 Nama Lengkap &amp; Gelar <span class="text-rose-500">*</span>
                             </label>
                             <input type="text" id="editGuruName" name="name" required
@@ -408,12 +419,12 @@
                 <div class="space-y-3">
                     <div class="flex items-center gap-2 pb-1 border-b border-slate-100">
                         <span class="w-1.5 h-3.5 bg-sky-600 rounded-full"></span>
-                        <span class="font-extrabold text-slate-800 uppercase tracking-wider text-[11px]">Akun, Kontak &amp; Status</span>
+                        <span class="font-semibold text-slate-800 uppercase tracking-wider text-[11px]">Akun, Kontak &amp; Status</span>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block font-bold text-slate-700 mb-1.5">
+                            <label class="block font-semibold text-slate-700 mb-1.5">
                                 Alamat Email <span class="text-rose-500">*</span>
                             </label>
                             <input type="email" id="editGuruEmail" name="email" required
@@ -421,7 +432,7 @@
                         </div>
 
                         <div>
-                            <label class="block font-bold text-slate-700 mb-1.5">
+                            <label class="block font-semibold text-slate-700 mb-1.5">
                                 Tanggal Lahir <span class="text-rose-500">*</span>
                             </label>
                             <input type="date" id="editGuruBirthDate" name="birth_date" required
@@ -429,7 +440,7 @@
                         </div>
 
                         <div class="sm:col-span-2">
-                            <label class="block font-bold text-slate-700 mb-1.5">
+                            <label class="block font-semibold text-slate-700 mb-1.5">
                                 No. Handphone / WhatsApp
                                 <span class="text-[10px] font-normal text-slate-400 ml-1">(opsional)</span>
                             </label>
@@ -438,19 +449,19 @@
                         </div>
 
                         <div class="sm:col-span-2">
-                            <label class="block font-bold text-slate-700 mb-1.5">Status Akun Guru</label>
+                            <label class="block font-semibold text-slate-700 mb-1.5">Status Akun Guru</label>
                             <div class="grid grid-cols-2 gap-3">
                                 <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50/60 cursor-pointer hover:bg-slate-100/60 transition">
                                     <input type="radio" name="is_active" id="editGuruStatusActive" value="1" class="text-maarif-700 focus:ring-maarif-600">
                                     <div>
-                                        <span class="font-bold text-slate-800 text-xs block">Aktif</span>
+                                        <span class="font-semibold text-slate-800 text-xs block">Aktif</span>
                                         <span class="text-[10px] text-slate-400">Dapat presensi dan buka sesi mengajar</span>
                                     </div>
                                 </label>
                                 <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50/60 cursor-pointer hover:bg-slate-100/60 transition">
                                     <input type="radio" name="is_active" id="editGuruStatusInactive" value="0" class="text-rose-600 focus:ring-rose-500">
                                     <div>
-                                        <span class="font-bold text-slate-800 text-xs block">Nonaktif</span>
+                                        <span class="font-semibold text-slate-800 text-xs block">Nonaktif</span>
                                         <span class="text-[10px] text-slate-400">Akses akun sementara dibekukan</span>
                                     </div>
                                 </label>
@@ -462,11 +473,11 @@
                 {{-- Sticky Footer Inside Form --}}
                 <div class="pt-4 flex items-center justify-end gap-2.5 border-t border-slate-100">
                     <button type="button" onclick="closeEditModal()"
-                        class="py-2.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-bold text-xs border border-slate-200 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+                        class="py-2.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs border border-slate-200 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
                         Batal
                     </button>
                     <button type="submit"
-                        class="py-2.5 px-6 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-bold text-xs shadow-xs transition-all duration-150 active:scale-[0.98] inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
+                        class="py-2.5 px-6 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-semibold text-xs shadow-xs transition-all duration-150 active:scale-[0.98] inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
                         <i data-lucide="check" class="w-4 h-4"></i>
                         <span>Perbarui Guru</span>
                     </button>

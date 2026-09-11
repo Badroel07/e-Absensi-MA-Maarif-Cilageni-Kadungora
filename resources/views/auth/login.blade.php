@@ -12,7 +12,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -34,8 +34,8 @@
                         }
                     },
                     fontFamily: {
-                        sans:    ['Inter',             'system-ui', 'sans-serif'],
-                        display: ['Plus Jakarta Sans', 'Inter',     'sans-serif'],
+                        sans:    ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['Inter', 'system-ui', 'sans-serif'],
                     }
                 }
             }
@@ -62,14 +62,14 @@
                     <div class="flex items-center space-x-4 sm:space-x-5 mb-6 sm:mb-8">
                         <img src="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" alt="Logo MA Ma'arif Cilageni" class="w-16 h-16 sm:w-20 sm:h-20 object-contain shrink-0 drop-shadow-xl">
                         <div>
-                            <span class="text-[11px] font-extrabold tracking-[0.2em] text-emerald-300 uppercase block mb-0.5">LP Ma'arif NU</span>
-                            <h1 class="text-lg sm:text-xl lg:text-2xl font-black tracking-tight text-white leading-tight font-display">MA Ma'arif Cilageni</h1>
+                            <span class="text-[11px] font-semibold tracking-[0.2em] text-emerald-300 uppercase block mb-0.5">LP Ma'arif NU</span>
+                            <h1 class="text-lg sm:text-xl lg:text-2xl font-bold tracking-tight text-white leading-tight font-display">MA Ma'arif Cilageni</h1>
                             <p class="text-xs text-slate-300 mt-0.5">Kadungora - Garut, Jawa Barat</p>
                         </div>
                     </div>
 
                     <div class="pt-1">
-                        <h2 class="text-2xl sm:text-3xl lg:text-3xl font-black text-white leading-tight font-display">
+                        <h2 class="text-2xl sm:text-3xl lg:text-3xl font-bold text-white leading-tight font-display">
                             Presensi Harian Guru &amp; Siswa
                         </h2>
                         <p class="text-xs sm:text-sm text-emerald-100/80 leading-relaxed mt-3 max-w-md">
@@ -87,7 +87,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-xs font-bold text-white">Kode QR Kiosk</p>
+                            <p class="text-xs font-semibold text-white">Kode QR Kiosk</p>
                             <p class="text-[11px] text-slate-300">Pindai kode QR dinamis di layar madrasah saat tiba.</p>
                         </div>
                     </div>
@@ -100,7 +100,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-xs font-bold text-white">Radius Lokasi Madrasah</p>
+                            <p class="text-xs font-semibold text-white">Radius Lokasi Madrasah</p>
                             <p class="text-[11px] text-slate-300">Presensi hanya aktif saat Anda berada di area madrasah.</p>
                         </div>
                     </div>
@@ -114,7 +114,7 @@
             <div class="w-full max-w-md mx-auto my-auto py-6">
                 <!-- Title & Greeting -->
                 <div class="mb-7">
-                    <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight font-display">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight font-display">
                         Masuk ke Akun Anda
                     </h2>
                     <p class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">
@@ -142,11 +142,11 @@
                 @endif
 
                 <!-- Form Login -->
-                <form action="{{ route('login') }}" method="POST" class="space-y-5">
+                <form action="{{ route('login') }}" method="POST" data-loading-form class="space-y-5">
                     @csrf
 
                     <div>
-                        <label for="login" class="block text-xs font-bold text-slate-700 mb-1.5">
+                        <label for="login" class="block text-xs font-semibold text-slate-700 mb-1.5">
                             Alamat Email
                         </label>
                         <div class="relative">
@@ -162,7 +162,7 @@
                     </div>
 
                     <div>
-                        <label for="password" class="block text-xs font-bold text-slate-700 mb-1.5">
+                        <label for="password" class="block text-xs font-semibold text-slate-700 mb-1.5">
                             Kata Sandi
                         </label>
                         <div class="relative">
@@ -193,7 +193,7 @@
                     </div>
 
                     <button type="submit"
-                        class="w-full inline-flex items-center justify-center gap-2 py-4 px-6 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-extrabold text-sm sm:text-base shadow-lg shadow-maarif-700/25 transition-all duration-150 active:scale-[0.985] min-h-[50px] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-maarif-600">
+                        class="w-full inline-flex items-center justify-center gap-2 py-4 px-6 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-semibold text-sm sm:text-base shadow-lg shadow-maarif-700/25 transition-all duration-150 active:scale-[0.985] min-h-[50px] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-maarif-600">
                         <span>Masuk</span>
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -232,6 +232,18 @@
                 btn.setAttribute('aria-label', isHidden ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi');
             });
         }
+
+        // Auto-loading on any form with [data-loading-form]
+        document.addEventListener('submit', (event) => {
+            const form = event.target;
+            if (!(form instanceof HTMLFormElement)) return;
+            if (!form.hasAttribute('data-loading-form')) return;
+            form.querySelectorAll('button[type="submit"], button:not([type])').forEach((btn) => {
+                btn.disabled = true;
+                btn.style.opacity = '0.7';
+                btn.style.cursor = 'wait';
+            });
+        }, true);
     </script>
 </body>
 </html>

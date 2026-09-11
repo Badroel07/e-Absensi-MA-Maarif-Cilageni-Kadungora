@@ -9,22 +9,32 @@
     {{-- ── PAGE HEADER ──────────────────────────────────────────────── --}}
     <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
         <div>
-            <h1 class="text-2xl font-black text-slate-900 heading-font tracking-tight">Data Rombongan Belajar</h1>
+            <h1 class="text-2xl font-bold text-slate-900 heading-font tracking-tight">Data Rombongan Belajar</h1>
             <p class="text-xs text-slate-500 mt-0.5">Kelola pembagian kelas, tingkat pendidikan, dan tahun ajaran aktif madrasah.</p>
         </div>
         <button type="button" onclick="openAddModal()"
-            class="inline-flex items-center justify-center gap-2 py-2.5 px-5 bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-extrabold text-xs rounded-xl shadow-sm transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600 shrink-0">
+            class="inline-flex items-center justify-center gap-2 py-2.5 px-5 bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-semibold text-xs rounded-xl shadow-sm transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600 shrink-0">
             <i data-lucide="plus" class="w-4 h-4"></i>
             <span>Tambah Kelas</span>
         </button>
     </div>
 
     {{-- ── TABLE KELAS ──────────────────────────────────────────────── --}}
-    <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs">
+    <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden"
+         x-data="{ ready: false }"
+         x-init="$nextTick(() => { setTimeout(() => { ready = true; }, window.__isLiveSearching ? 0 : 450); })">
+
+        {{-- Skeleton placeholder — visible immediately on page load (NO x-cloak) --}}
+        <div x-show="!ready" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" aria-hidden="true">
+            <x-skeleton :count="6" :columns="5" :avatar="false" />
+        </div>
+
+        {{-- Real Table Content --}}
+        <div x-show="ready" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
                 <thead>
-                    <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 uppercase font-bold text-[10px] tracking-widest">
+                    <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 uppercase font-semibold text-[10px] tracking-widest">
                         <th class="py-3 px-5">Rombel / Nama Kelas</th>
                         <th class="py-3 px-5">Tingkat Pendidikan</th>
                         <th class="py-3 px-5">Tahun Ajaran</th>
@@ -37,13 +47,13 @@
                         <tr class="hover:bg-slate-50/60 transition-colors duration-100">
                             {{-- Nama Kelas --}}
                             <td class="py-3.5 px-5">
-                                <span class="px-2.5 py-1 rounded-md bg-maarif-50 text-maarif-800 border border-maarif-200/70 font-extrabold text-xs">
+                                <span class="px-2.5 py-1 rounded-md bg-maarif-50 text-maarif-800 border border-maarif-200/70 font-semibold text-xs">
                                     Kelas {{ $c->name }}
                                 </span>
                             </td>
 
                             {{-- Tingkat --}}
-                            <td class="py-3.5 px-5 text-slate-800 font-bold text-xs">
+                            <td class="py-3.5 px-5 text-slate-800 font-semibold text-xs">
                                 @if($c->grade_level == '10')
                                     Tingkat X (Sepuluh)
                                 @elseif($c->grade_level == '11')
@@ -56,13 +66,13 @@
                             </td>
 
                             {{-- Tahun Ajaran --}}
-                            <td class="py-3.5 px-5 text-slate-600 mono-font font-semibold text-xs">
+                            <td class="py-3.5 px-5 text-slate-600 mono-font font-medium text-xs">
                                 {{ $c->academic_year }}
                             </td>
 
                             {{-- Jumlah Siswa --}}
                             <td class="py-3.5 px-5 text-center">
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200 mono-font">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200 mono-font">
                                     <i data-lucide="users" class="w-3.5 h-3.5 text-slate-400"></i>
                                     {{ $c->students_count }} Siswa
                                 </span>
@@ -108,7 +118,7 @@
                                     <span class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
                                         <i data-lucide="school" class="w-6 h-6 text-slate-400"></i>
                                     </span>
-                                    <p class="text-sm font-bold text-slate-600">Belum ada kelas yang terdaftar</p>
+                                    <p class="text-sm font-semibold text-slate-600">Belum ada kelas yang terdaftar</p>
                                     <p class="text-xs text-slate-400">
                                         Klik <button onclick="openAddModal()" class="text-maarif-700 font-semibold hover:underline">Tambah Kelas</button> untuk mulai menyusun rombongan belajar.
                                     </p>
@@ -119,9 +129,9 @@
                 </tbody>
             </table>
         </div>
+        </div>
     </div>
 
-    {{-- ── MODAL TAMBAH KELAS ───────────────────────────────────────── --}}
     {{-- ── MODAL TAMBAH KELAS ───────────────────────────────────────── --}}
     <div id="modalAddKelas" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 hidden transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalAddTitle">
         <div class="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden transform transition-all">
@@ -131,7 +141,7 @@
                         <i data-lucide="graduation-cap" class="w-5 h-5"></i>
                     </span>
                     <div>
-                        <h3 id="modalAddTitle" class="font-extrabold text-slate-900 heading-font text-base sm:text-lg">Tambah Rombel / Kelas</h3>
+                        <h3 id="modalAddTitle" class="font-bold text-slate-900 heading-font text-base sm:text-lg">Tambah Rombel / Kelas</h3>
                         <p class="text-xs text-slate-400 font-medium">Buka rombongan belajar baru untuk tahun ajaran aktif</p>
                     </div>
                 </div>
@@ -142,20 +152,20 @@
                 </button>
             </div>
 
-            <form action="{{ route('admin.kelas.store') }}" method="POST" class="p-6 space-y-4 text-xs">
+            <form action="{{ route('admin.kelas.store') }}" method="POST" data-loading-form class="p-6 space-y-4 text-xs">
                 @csrf
                 <div>
-                    <label class="block font-bold text-slate-700 mb-1.5">
+                    <label class="block font-semibold text-slate-700 mb-1.5">
                         Nama Kelas / Rombel <span class="text-rose-500">*</span>
                         <span class="text-[10px] font-normal text-slate-400 ml-1">(contoh: 10 IPA 1, 11 IPS, 12 Keagamaan)</span>
                     </label>
                     <input type="text" name="name" required placeholder="Contoh: 10 IPA 1"
-                        class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none font-bold text-xs bg-slate-50/70 focus:bg-white transition placeholder:font-normal placeholder:text-slate-400">
+                        class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none font-medium text-xs bg-slate-50/70 focus:bg-white transition placeholder:font-normal placeholder:text-slate-400">
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1.5">Tingkat Pendidikan <span class="text-rose-500">*</span></label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">Tingkat Pendidikan <span class="text-rose-500">*</span></label>
                         <select name="grade_level" required
                             class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none bg-slate-50/70 focus:bg-white text-xs transition cursor-pointer font-medium">
                             <option value="10">Tingkat 10 (Kelas X)</option>
@@ -165,7 +175,7 @@
                     </div>
 
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1.5">Tahun Ajaran <span class="text-rose-500">*</span></label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">Tahun Ajaran <span class="text-rose-500">*</span></label>
                         <input type="text" name="academic_year" value="2026/2027" required placeholder="2026/2027"
                             class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none mono-font text-xs bg-slate-50/70 focus:bg-white transition">
                     </div>
@@ -173,11 +183,11 @@
 
                 <div class="pt-4 flex items-center justify-end gap-2.5 border-t border-slate-100">
                     <button type="button" onclick="closeAddModal()"
-                        class="py-2.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-bold text-xs border border-slate-200 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+                        class="py-2.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs border border-slate-200 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
                         Batal
                     </button>
                     <button type="submit"
-                        class="py-2.5 px-6 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-bold text-xs shadow-xs transition-all duration-150 active:scale-[0.98] inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
+                        class="py-2.5 px-6 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-semibold text-xs shadow-xs transition-all duration-150 active:scale-[0.98] inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
                         <i data-lucide="check" class="w-4 h-4"></i>
                         <span>Simpan Kelas</span>
                     </button>
@@ -195,7 +205,7 @@
                         <i data-lucide="pencil" class="w-5 h-5"></i>
                     </span>
                     <div>
-                        <h3 id="modalEditTitle" class="font-extrabold text-slate-900 heading-font text-base sm:text-lg">Perbarui Data Kelas</h3>
+                        <h3 id="modalEditTitle" class="font-bold text-slate-900 heading-font text-base sm:text-lg">Perbarui Data Kelas</h3>
                         <p class="text-xs text-slate-400 font-medium">Ubah nama rombel, tingkat kelas, atau tahun ajaran</p>
                     </div>
                 </div>
@@ -206,18 +216,18 @@
                 </button>
             </div>
 
-            <form id="formEditKelas" method="POST" class="p-6 space-y-4 text-xs">
+            <form id="formEditKelas" method="POST" data-loading-form class="p-6 space-y-4 text-xs">
                 @csrf
                 @method('PUT')
                 <div>
-                    <label class="block font-bold text-slate-700 mb-1.5">Nama Kelas <span class="text-rose-500">*</span></label>
+                    <label class="block font-semibold text-slate-700 mb-1.5">Nama Kelas <span class="text-rose-500">*</span></label>
                     <input type="text" id="editKelasName" name="name" required
-                        class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-600 focus:border-sky-600 focus:outline-none font-bold text-xs bg-slate-50/70 focus:bg-white transition">
+                        class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-600 focus:border-sky-600 focus:outline-none font-medium text-xs bg-slate-50/70 focus:bg-white transition">
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1.5">Tingkat Pendidikan <span class="text-rose-500">*</span></label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">Tingkat Pendidikan <span class="text-rose-500">*</span></label>
                         <select id="editKelasGradeLevel" name="grade_level" required
                             class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-600 focus:border-sky-600 focus:outline-none bg-slate-50/70 focus:bg-white text-xs transition cursor-pointer font-medium">
                             <option value="10">Tingkat 10 (Kelas X)</option>
@@ -227,7 +237,7 @@
                     </div>
 
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1.5">Tahun Ajaran <span class="text-rose-500">*</span></label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">Tahun Ajaran <span class="text-rose-500">*</span></label>
                         <input type="text" id="editKelasAcademicYear" name="academic_year" required
                             class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-600 focus:border-sky-600 focus:outline-none mono-font text-xs bg-slate-50/70 focus:bg-white transition">
                     </div>
@@ -235,11 +245,11 @@
 
                 <div class="pt-4 flex items-center justify-end gap-2.5 border-t border-slate-100">
                     <button type="button" onclick="closeEditModal()"
-                        class="py-2.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-bold text-xs border border-slate-200 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+                        class="py-2.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs border border-slate-200 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
                         Batal
                     </button>
                     <button type="submit"
-                        class="py-2.5 px-6 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-bold text-xs shadow-xs transition-all duration-150 active:scale-[0.98] inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
+                        class="py-2.5 px-6 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-semibold text-xs shadow-xs transition-all duration-150 active:scale-[0.98] inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
                         <i data-lucide="check" class="w-4 h-4"></i>
                         <span>Perbarui Kelas</span>
                     </button>

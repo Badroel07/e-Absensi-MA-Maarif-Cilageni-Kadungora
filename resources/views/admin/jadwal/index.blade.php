@@ -9,11 +9,11 @@
     {{-- ── PAGE HEADER ──────────────────────────────────────────────── --}}
     <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
         <div>
-            <h1 class="text-2xl font-black text-slate-900 heading-font tracking-tight">Jadwal Pelajaran</h1>
+            <h1 class="text-2xl font-bold text-slate-900 heading-font tracking-tight">Jadwal Pelajaran</h1>
             <p class="text-xs text-slate-500 mt-0.5">Agenda mingguan, alokasi jam pelajaran per rombel, dan penugasan guru pengampu.</p>
         </div>
         <button type="button" onclick="openAddModal()"
-            class="inline-flex items-center justify-center gap-2 py-2.5 px-5 bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-extrabold text-xs rounded-xl shadow-sm transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600 shrink-0">
+            class="inline-flex items-center justify-center gap-2 py-2.5 px-5 bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-semibold text-xs rounded-xl shadow-sm transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600 shrink-0">
             <i data-lucide="plus" class="w-4 h-4"></i>
             <span>Tambah Jadwal</span>
         </button>
@@ -21,7 +21,7 @@
 
     {{-- ── FILTER BAR ───────────────────────────────────────────────── --}}
     <div class="bg-white rounded-2xl border border-slate-200/80 p-4">
-        <form method="GET" action="{{ route('admin.jadwal.index') }}" class="flex flex-wrap items-center gap-3">
+        <form method="GET" action="{{ route('admin.jadwal.index') }}" data-loading-form class="flex flex-wrap items-center gap-3">
             <select name="day"
                 class="px-3.5 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:outline-none bg-slate-50 focus:bg-white font-medium transition cursor-pointer">
                 <option value="">Semua Hari</option>
@@ -41,7 +41,7 @@
             </select>
 
             <button type="submit"
-                class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700">
+                class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700">
                 <i data-lucide="filter" class="w-3.5 h-3.5"></i>
                 <span>Filter</span>
             </button>
@@ -55,12 +55,22 @@
         </form>
     </div>
 
-    {{-- ── TABLE JADWAL ─────────────────────────────────────────────── --}}
-    <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs">
+    {{-- ── TABLE JADWAL ─────────────────────────────────────── --}}
+    <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden"
+         x-data="{ ready: false }"
+         x-init="$nextTick(() => { setTimeout(() => { ready = true; }, window.__isLiveSearching ? 0 : 450); })">
+
+        {{-- Skeleton placeholder — visible immediately on page load (NO x-cloak) --}}
+        <div x-show="!ready" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" aria-hidden="true">
+            <x-skeleton :count="8" :columns="6" :avatar="false" />
+        </div>
+
+        {{-- Real Table Content --}}
+        <div x-show="ready" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
                 <thead>
-                    <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 uppercase font-bold text-[10px] tracking-widest">
+                    <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 uppercase font-semibold text-[10px] tracking-widest">
                         <th class="py-3 px-5">Hari</th>
                         <th class="py-3 px-5">Jam Pelajaran</th>
                         <th class="py-3 px-5">Kelas</th>
@@ -73,26 +83,26 @@
                     @forelse($schedules as $sch)
                         <tr class="hover:bg-slate-50/60 transition-colors duration-100">
                             {{-- Hari --}}
-                            <td class="py-3.5 px-5 font-bold text-slate-900">
-                                <span class="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 font-bold text-xs border border-slate-200">
+                            <td class="py-3.5 px-5 font-semibold text-slate-900">
+                                <span class="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 font-semibold text-xs border border-slate-200">
                                     {{ $sch->day_of_week }}
                                 </span>
                             </td>
 
                             {{-- Jam Pelajaran --}}
-                            <td class="py-3.5 px-5 font-mono font-bold text-slate-800 mono-font text-xs">
+                            <td class="py-3.5 px-5 font-mono font-medium text-slate-800 mono-font text-xs">
                                 {{ substr($sch->start_time, 0, 5) }} – {{ substr($sch->end_time, 0, 5) }} WIB
                             </td>
 
                             {{-- Kelas --}}
                             <td class="py-3.5 px-5">
-                                <span class="px-2.5 py-1 rounded-md bg-maarif-50 text-maarif-800 border border-maarif-200/70 font-extrabold text-xs">
+                                <span class="px-2.5 py-1 rounded-md bg-maarif-50 text-maarif-800 border border-maarif-200/70 font-semibold text-xs">
                                     Kelas {{ $sch->classroom->name }}
                                 </span>
                             </td>
 
                             {{-- Mapel --}}
-                            <td class="py-3.5 px-5 font-bold text-slate-900 text-sm">
+                            <td class="py-3.5 px-5 font-semibold text-slate-900 text-sm">
                                 {{ $sch->subject->name }}
                             </td>
 
@@ -144,7 +154,7 @@
                                     <span class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
                                         <i data-lucide="calendar-x" class="w-6 h-6 text-slate-400"></i>
                                     </span>
-                                    <p class="text-sm font-bold text-slate-600">
+                                    <p class="text-sm font-semibold text-slate-600">
                                         @if(request()->hasAny(['day', 'classroom_id']))
                                             Tidak ada jadwal pelajaran yang cocok dengan filter.
                                         @else
@@ -166,11 +176,13 @@
             </table>
         </div>
 
-        @if($schedules->hasPages())
-            <div class="px-5 py-4 border-t border-slate-100">
-                {{ $schedules->links() }}
-            </div>
-        @endif
+            {{-- Pagination --}}
+            @if($schedules->hasPages())
+                <div class="px-5 py-4 border-t border-slate-100">
+                    {{ $schedules->links() }}
+                </div>
+            @endif
+        </div>
     </div>
 
     {{-- ── MODAL TAMBAH JADWAL ──────────────────────────────────────── --}}
@@ -183,7 +195,7 @@
                         <i data-lucide="calendar-plus" class="w-5 h-5"></i>
                     </span>
                     <div>
-                        <h3 id="modalAddTitle" class="font-extrabold text-slate-900 heading-font text-base sm:text-lg">Tambah Jadwal Pelajaran</h3>
+                        <h3 id="modalAddTitle" class="font-bold text-slate-900 heading-font text-base sm:text-lg">Tambah Jadwal Pelajaran</h3>
                         <p class="text-xs text-slate-400 font-medium">Plotting mata pelajaran, guru pengampu, kelas, dan rentang jam</p>
                     </div>
                 </div>
@@ -194,13 +206,13 @@
                 </button>
             </div>
 
-            <form action="{{ route('admin.jadwal.store') }}" method="POST" class="flex-1 overflow-y-auto p-6 space-y-5 text-xs">
+            <form action="{{ route('admin.jadwal.store') }}" method="POST" data-loading-form class="flex-1 overflow-y-auto p-6 space-y-5 text-xs">
                 @csrf
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1.5">Hari Pelajaran <span class="text-rose-500">*</span></label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">Hari Pelajaran <span class="text-rose-500">*</span></label>
                         <select name="day_of_week" required
-                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none bg-slate-50/70 focus:bg-white text-xs transition cursor-pointer font-bold text-slate-800">
+                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none bg-slate-50/70 focus:bg-white text-xs transition cursor-pointer font-medium text-slate-800">
                             @foreach(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'] as $d)
                                 <option value="{{ $d }}">{{ $d }}</option>
                             @endforeach
@@ -208,9 +220,9 @@
                     </div>
 
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1.5">Rombel / Kelas <span class="text-rose-500">*</span></label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">Rombel / Kelas <span class="text-rose-500">*</span></label>
                         <select name="classroom_id" required
-                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none bg-slate-50/70 focus:bg-white text-xs transition cursor-pointer font-bold text-slate-800">
+                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none bg-slate-50/70 focus:bg-white text-xs transition cursor-pointer font-medium text-slate-800">
                             <option value="">Pilih Kelas</option>
                             @foreach($classrooms as $c)
                                 <option value="{{ $c->id }}">Kelas {{ $c->name }}</option>
@@ -219,7 +231,7 @@
                     </div>
 
                     <div class="sm:col-span-2">
-                        <label class="block font-bold text-slate-700 mb-1.5">Mata Pelajaran <span class="text-rose-500">*</span></label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">Mata Pelajaran <span class="text-rose-500">*</span></label>
                         <select name="subject_id" required
                             class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none bg-slate-50/70 focus:bg-white text-xs transition cursor-pointer font-medium">
                             <option value="">Pilih Mata Pelajaran</option>
@@ -230,7 +242,7 @@
                     </div>
 
                     <div class="sm:col-span-2">
-                        <label class="block font-bold text-slate-700 mb-1.5">Guru Pengampu <span class="text-rose-500">*</span></label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">Guru Pengampu <span class="text-rose-500">*</span></label>
                         <select name="teacher_id" required
                             class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none bg-slate-50/70 focus:bg-white text-xs transition cursor-pointer font-medium">
                             <option value="">Pilih Guru Pengampu</option>
@@ -241,15 +253,15 @@
                     </div>
 
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1.5">Jam Mulai <span class="text-rose-500">*</span></label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">Jam Mulai <span class="text-rose-500">*</span></label>
                         <input type="time" name="start_time" required
-                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none bg-slate-50/70 focus:bg-white mono-font font-bold text-xs transition">
+                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none bg-slate-50/70 focus:bg-white mono-font font-medium text-xs transition">
                     </div>
 
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1.5">Jam Selesai <span class="text-rose-500">*</span></label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">Jam Selesai <span class="text-rose-500">*</span></label>
                         <input type="time" name="end_time" required
-                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none bg-slate-50/70 focus:bg-white mono-font font-bold text-xs transition">
+                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none bg-slate-50/70 focus:bg-white mono-font font-medium text-xs transition">
                     </div>
                 </div>
 
@@ -260,11 +272,11 @@
 
                 <div class="pt-4 flex items-center justify-end gap-2.5 border-t border-slate-100">
                     <button type="button" onclick="closeAddModal()"
-                        class="py-2.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-bold text-xs border border-slate-200 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+                        class="py-2.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs border border-slate-200 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
                         Batal
                     </button>
                     <button type="submit"
-                        class="py-2.5 px-6 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-bold text-xs shadow-xs transition-all duration-150 active:scale-[0.98] inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
+                        class="py-2.5 px-6 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-semibold text-xs shadow-xs transition-all duration-150 active:scale-[0.98] inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
                         <i data-lucide="check" class="w-4 h-4"></i>
                         <span>Simpan Jadwal</span>
                     </button>
@@ -283,7 +295,7 @@
                         <i data-lucide="pencil" class="w-5 h-5"></i>
                     </span>
                     <div>
-                        <h3 id="modalEditTitle" class="font-extrabold text-slate-900 heading-font text-base sm:text-lg">Perbarui Jadwal Pelajaran</h3>
+                        <h3 id="modalEditTitle" class="font-bold text-slate-900 heading-font text-base sm:text-lg">Perbarui Jadwal Pelajaran</h3>
                         <p class="text-xs text-slate-400 font-medium">Sesuaikan hari, waktu, guru pengampu, atau kelas</p>
                     </div>
                 </div>
@@ -294,14 +306,14 @@
                 </button>
             </div>
 
-            <form id="formEditJadwal" method="POST" class="flex-1 overflow-y-auto p-6 space-y-5 text-xs">
+            <form id="formEditJadwal" method="POST" data-loading-form class="flex-1 overflow-y-auto p-6 space-y-5 text-xs">
                 @csrf
                 @method('PUT')
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1.5">Hari <span class="text-rose-500">*</span></label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">Hari <span class="text-rose-500">*</span></label>
                         <select id="editJadwalDay" name="day_of_week" required
-                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-600 focus:border-sky-600 focus:outline-none bg-slate-50/70 focus:bg-white text-xs transition cursor-pointer font-bold text-slate-800">
+                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-600 focus:border-sky-600 focus:outline-none bg-slate-50/70 focus:bg-white text-xs transition cursor-pointer font-medium text-slate-800">
                             @foreach(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'] as $d)
                                 <option value="{{ $d }}">{{ $d }}</option>
                             @endforeach
@@ -309,9 +321,9 @@
                     </div>
 
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1.5">Kelas <span class="text-rose-500">*</span></label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">Kelas <span class="text-rose-500">*</span></label>
                         <select id="editJadwalClassroom" name="classroom_id" required
-                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-600 focus:border-sky-600 focus:outline-none bg-slate-50/70 focus:bg-white text-xs transition cursor-pointer font-bold text-slate-800">
+                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-600 focus:border-sky-600 focus:outline-none bg-slate-50/70 focus:bg-white text-xs transition cursor-pointer font-medium text-slate-800">
                             <option value="">Pilih Kelas</option>
                             @foreach($classrooms as $c)
                                 <option value="{{ $c->id }}">Kelas {{ $c->name }}</option>
@@ -320,7 +332,7 @@
                     </div>
 
                     <div class="sm:col-span-2">
-                        <label class="block font-bold text-slate-700 mb-1.5">Mata Pelajaran <span class="text-rose-500">*</span></label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">Mata Pelajaran <span class="text-rose-500">*</span></label>
                         <select id="editJadwalSubject" name="subject_id" required
                             class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-600 focus:border-sky-600 focus:outline-none bg-slate-50/70 focus:bg-white text-xs transition cursor-pointer font-medium">
                             <option value="">Pilih Mata Pelajaran</option>
@@ -331,7 +343,7 @@
                     </div>
 
                     <div class="sm:col-span-2">
-                        <label class="block font-bold text-slate-700 mb-1.5">Guru Pengampu <span class="text-rose-500">*</span></label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">Guru Pengampu <span class="text-rose-500">*</span></label>
                         <select id="editJadwalTeacher" name="teacher_id" required
                             class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-600 focus:border-sky-600 focus:outline-none bg-slate-50/70 focus:bg-white text-xs transition cursor-pointer font-medium">
                             <option value="">Pilih Guru Pengampu</option>
@@ -342,25 +354,25 @@
                     </div>
 
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1.5">Jam Mulai <span class="text-rose-500">*</span></label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">Jam Mulai <span class="text-rose-500">*</span></label>
                         <input type="time" id="editJadwalStartTime" name="start_time" required
-                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-600 focus:border-sky-600 focus:outline-none bg-slate-50/70 focus:bg-white mono-font font-bold text-xs transition">
+                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-600 focus:border-sky-600 focus:outline-none bg-slate-50/70 focus:bg-white mono-font font-medium text-xs transition">
                     </div>
 
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1.5">Jam Selesai <span class="text-rose-500">*</span></label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">Jam Selesai <span class="text-rose-500">*</span></label>
                         <input type="time" id="editJadwalEndTime" name="end_time" required
-                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-600 focus:border-sky-600 focus:outline-none bg-slate-50/70 focus:bg-white mono-font font-bold text-xs transition">
+                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-600 focus:border-sky-600 focus:outline-none bg-slate-50/70 focus:bg-white mono-font font-medium text-xs transition">
                     </div>
                 </div>
 
                 <div class="pt-4 flex items-center justify-end gap-2.5 border-t border-slate-100">
                     <button type="button" onclick="closeEditModal()"
-                        class="py-2.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-bold text-xs border border-slate-200 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+                        class="py-2.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs border border-slate-200 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
                         Batal
                     </button>
                     <button type="submit"
-                        class="py-2.5 px-6 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-bold text-xs shadow-xs transition-all duration-150 active:scale-[0.98] inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
+                        class="py-2.5 px-6 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-semibold text-xs shadow-xs transition-all duration-150 active:scale-[0.98] inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
                         <i data-lucide="check" class="w-4 h-4"></i>
                         <span>Perbarui Jadwal</span>
                     </button>

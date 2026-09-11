@@ -15,11 +15,11 @@
     {{-- ── PAGE HEADER ──────────────────────────────────────────────── --}}
     <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
         <div>
-            <h1 class="text-2xl font-black text-slate-900 heading-font tracking-tight">Presensi Dewan Guru</h1>
+            <h1 class="text-2xl font-bold text-slate-900 heading-font tracking-tight">Presensi Dewan Guru</h1>
             <p class="text-xs text-slate-500 mt-0.5">Pemantauan status kehadiran harian, ketepatan waktu, dan riwayat presensi dewan guru.</p>
         </div>
         <div class="text-xs font-semibold text-slate-500 bg-white border border-slate-200/80 px-3.5 py-2 rounded-xl">
-            Tanggal: <span class="font-bold text-slate-900">{{ \Carbon\Carbon::parse($date)->translatedFormat('d F Y') }}</span>
+            Tanggal: <span class="font-semibold text-slate-900">{{ \Carbon\Carbon::parse($date)->translatedFormat('d F Y') }}</span>
         </div>
     </div>
 
@@ -28,16 +28,16 @@
         {{-- Card Utama --}}
         <div class="bg-gradient-to-br from-maarif-800 to-maarif-900 rounded-2xl p-5 text-white flex flex-col justify-between">
             <div>
-                <p class="text-[11px] font-extrabold text-emerald-300 uppercase tracking-widest">Total Guru Hadir</p>
+                <p class="text-[11px] font-semibold text-emerald-300 uppercase tracking-widest">Total Guru Hadir</p>
                 <div class="mt-2.5 flex items-baseline gap-2">
-                    <span class="text-4xl font-black mono-font tracking-tight leading-none">{{ $hadirTotal }}</span>
-                    <span class="text-xs font-bold text-emerald-200/80">/ {{ $totalGuru }} Guru</span>
+                    <span class="text-4xl font-bold mono-font tracking-tight leading-none">{{ $hadirTotal }}</span>
+                    <span class="text-xs font-semibold text-emerald-200/80">/ {{ $totalGuru }} Guru</span>
                 </div>
             </div>
             <div class="mt-4">
                 <div class="flex justify-between items-center mb-1 text-[11px]">
                     <span class="font-semibold text-emerald-200">Kehadiran Hari Ini</span>
-                    <span class="font-black mono-font text-white">{{ $persenKehadiran }}%</span>
+                    <span class="font-bold mono-font text-white">{{ $persenKehadiran }}%</span>
                 </div>
                 <div class="w-full bg-white/15 rounded-full h-1.5">
                     <div class="bg-emerald-400 h-1.5 rounded-full" style="width: {{ min($persenKehadiran, 100) }}%"></div>
@@ -48,13 +48,13 @@
         {{-- Tepat Waktu --}}
         <div class="bg-white rounded-2xl p-5 border border-slate-200/80 flex flex-col justify-between">
             <div class="flex items-center justify-between">
-                <p class="text-[11px] font-extrabold text-slate-500 uppercase tracking-widest">Tepat Waktu</p>
+                <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Tepat Waktu</p>
                 <span class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center">
                     <i data-lucide="clock-check" class="w-4 h-4"></i>
                 </span>
             </div>
             <div class="mt-3">
-                <span class="text-3xl font-black text-emerald-700 mono-font">{{ $summary['hadir'] }}</span>
+                <span class="text-3xl font-bold text-emerald-700 mono-font">{{ $summary['hadir'] }}</span>
                 <p class="text-[11px] text-slate-400 font-medium mt-1">Hadir &le; 07:15 WIB</p>
             </div>
         </div>
@@ -62,13 +62,13 @@
         {{-- Terlambat --}}
         <div class="bg-white rounded-2xl p-5 border border-slate-200/80 flex flex-col justify-between">
             <div class="flex items-center justify-between">
-                <p class="text-[11px] font-extrabold text-slate-500 uppercase tracking-widest">Terlambat</p>
+                <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Terlambat</p>
                 <span class="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200/70 text-amber-600 flex items-center justify-center">
                     <i data-lucide="clock-alert" class="w-4 h-4"></i>
                 </span>
             </div>
             <div class="mt-3">
-                <span class="text-3xl font-black text-amber-600 mono-font">{{ $summary['terlambat'] }}</span>
+                <span class="text-3xl font-bold text-amber-600 mono-font">{{ $summary['terlambat'] }}</span>
                 <p class="text-[11px] text-slate-400 font-medium mt-1">Hadir &gt; 07:15 WIB</p>
             </div>
         </div>
@@ -76,13 +76,13 @@
         {{-- Belum Hadir / Belum Presensi --}}
         <div class="bg-white rounded-2xl p-5 border border-slate-200/80 flex flex-col justify-between">
             <div class="flex items-center justify-between">
-                <p class="text-[11px] font-extrabold text-slate-500 uppercase tracking-widest">Belum Hadir</p>
+                <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Belum Hadir</p>
                 <span class="w-8 h-8 rounded-xl bg-rose-50 border border-rose-200/70 text-rose-600 flex items-center justify-center">
                     <i data-lucide="user-x" class="w-4 h-4"></i>
                 </span>
             </div>
             <div class="mt-3">
-                <span class="text-3xl font-black text-rose-600 mono-font">{{ $summary['belumHadir'] }}</span>
+                <span class="text-3xl font-bold text-rose-600 mono-font">{{ $summary['belumHadir'] }}</span>
                 <p class="text-[11px] text-slate-400 font-medium mt-1">Belum tercatat check-in</p>
             </div>
         </div>
@@ -90,10 +90,10 @@
 
     {{-- ── FILTER & SEARCH BAR ───────────────────────────────────────── --}}
     <div class="bg-white rounded-2xl border border-slate-200/80 p-4">
-        <form method="GET" action="{{ route('admin.presensi-guru.index') }}" class="flex flex-wrap items-center gap-3">
+        <form method="GET" action="{{ route('admin.presensi-guru.index') }}" data-loading-form class="flex flex-wrap items-center gap-3">
             <div class="w-40">
                 <input type="date" name="date" value="{{ $date }}"
-                    class="w-full px-3.5 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:outline-none bg-slate-50 focus:bg-white mono-font font-bold transition">
+                    class="w-full px-3.5 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:outline-none bg-slate-50 focus:bg-white mono-font font-medium transition">
             </div>
 
             <select name="status"
@@ -114,7 +114,7 @@
             </div>
 
             <button type="submit"
-                class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700">
+                class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700">
                 <i data-lucide="filter" class="w-3.5 h-3.5"></i>
                 <span>Terapkan</span>
             </button>
@@ -129,11 +129,21 @@
     </div>
 
     {{-- ── TABLE PRESENSI GURU ───────────────────────────────────────── --}}
-    <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs">
+    <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden"
+         x-data="{ ready: false }"
+         x-init="$nextTick(() => { setTimeout(() => { ready = true; }, window.__isLiveSearching ? 0 : 450); })">
+
+        {{-- Skeleton placeholder — visible immediately on page load (NO x-cloak) --}}
+        <div x-show="!ready" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" aria-hidden="true">
+            <x-skeleton :count="10" :columns="6" :avatar="true" />
+        </div>
+
+        {{-- Real Table Content --}}
+        <div x-show="ready" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
                 <thead>
-                    <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 uppercase font-bold text-[10px] tracking-widest">
+                    <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 uppercase font-semibold text-[10px] tracking-widest">
                         <th class="py-3 px-5">Guru / NIP</th>
                         <th class="py-3 px-5 text-center">Status Kehadiran</th>
                         <th class="py-3 px-5 text-center">Jam Masuk</th>
@@ -151,36 +161,36 @@
                         <tr class="hover:bg-slate-50/60 transition-colors duration-100">
                             {{-- Nama & NIP --}}
                             <td class="py-3.5 px-5">
-                                <p class="font-bold text-slate-900 text-sm leading-snug">{{ $t->name }}</p>
+                                <p class="font-semibold text-slate-900 text-sm leading-snug">{{ $t->name }}</p>
                                 <p class="font-mono text-slate-400 text-[11px] mt-0.5">NIP: {{ $t->identity_number }}</p>
                             </td>
 
                             {{-- Status Masuk --}}
                             <td class="py-3.5 px-5 text-center whitespace-nowrap">
                                 @if($st === 'HADIR')
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200/70">
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/70">
                                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
                                         Tepat Waktu
                                     </span>
                                 @elseif($st === 'TERLAMBAT')
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-amber-50 text-amber-800 border border-amber-200">
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
                                         <span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>
                                         Terlambat
                                     </span>
                                 @elseif($st === 'IZIN')
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-amber-50 text-amber-800 border border-amber-200">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
                                         Izin
                                     </span>
                                 @elseif($st === 'SAKIT')
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-sky-50 text-sky-800 border border-sky-200">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold bg-sky-50 text-sky-800 border border-sky-200">
                                         Sakit
                                     </span>
                                 @elseif($st === 'ALPA')
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-rose-50 text-rose-800 border border-rose-200/70">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold bg-rose-50 text-rose-800 border border-rose-200/70">
                                         Alpa
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-slate-100 text-slate-600 border border-slate-200">
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
                                         <span class="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span>
                                         Belum Hadir
                                     </span>
@@ -190,7 +200,7 @@
                             {{-- Jam Masuk --}}
                             <td class="py-3.5 px-5 text-center font-mono">
                                 @if($row['check_in_time'])
-                                    <span class="inline-block font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/70 text-xs">
+                                    <span class="inline-block font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/70 text-xs">
                                         {{ $row['check_in_time'] }} WIB
                                     </span>
                                 @else
@@ -201,7 +211,7 @@
                             {{-- Jam Pulang --}}
                             <td class="py-3.5 px-5 text-center font-mono">
                                 @if($row['check_out_time'])
-                                    <span class="inline-block font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/70 text-xs">
+                                    <span class="inline-block font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/70 text-xs">
                                         {{ $row['check_out_time'] }} WIB
                                     </span>
                                 @else
@@ -214,12 +224,12 @@
                                 @if($row['total_schedules_today'] === 0)
                                     <span class="text-slate-400 text-xs italic">Tidak ada jadwal</span>
                                 @elseif($row['pending_schedules_count'] === 0)
-                                    <span class="inline-flex items-center gap-1 text-emerald-700 font-bold text-xs bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200/70">
+                                    <span class="inline-flex items-center gap-1 text-emerald-700 font-semibold text-xs bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200/70">
                                         <i data-lucide="check-check" class="w-3.5 h-3.5 text-emerald-600"></i>
                                         <span>{{ $row['total_schedules_today'] }} Kelas Tuntas</span>
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center gap-1 text-amber-700 font-bold text-xs bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
+                                    <span class="inline-flex items-center gap-1 text-amber-700 font-semibold text-xs bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
                                         <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-600"></i>
                                         <span>{{ $row['pending_schedules_count'] }} dari {{ $row['total_schedules_today'] }} Belum</span>
                                     </span>
@@ -231,7 +241,7 @@
                                 <div class="inline-flex items-center justify-end gap-1.5">
                                     <a href="{{ route('admin.guru.riwayat', $t) }}"
                                        title="Lihat Riwayat Presensi Guru"
-                                       class="inline-flex items-center gap-1.5 py-1.5 px-3 bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white rounded-lg text-xs font-bold transition-all duration-150 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
+                                       class="inline-flex items-center gap-1.5 py-1.5 px-3 bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white rounded-lg text-xs font-semibold transition-all duration-150 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
                                         <i data-lucide="history" class="w-3.5 h-3.5 shrink-0"></i>
                                         <span>Riwayat</span>
                                     </a>
@@ -258,7 +268,7 @@
                                     <span class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
                                         <i data-lucide="user-x" class="w-6 h-6 text-slate-400"></i>
                                     </span>
-                                    <p class="text-sm font-bold text-slate-600">Tidak ada data kehadiran yang cocok dengan filter.</p>
+                                    <p class="text-sm font-semibold text-slate-600">Tidak ada data kehadiran yang cocok dengan filter.</p>
                                     <p class="text-xs text-slate-400">
                                         Coba sesuaikan tanggal atau <a href="{{ route('admin.presensi-guru.index') }}" class="text-maarif-700 font-semibold hover:underline">reset filter</a>.
                                     </p>
@@ -268,6 +278,7 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
         </div>
     </div>
 
@@ -280,8 +291,8 @@
                         <i data-lucide="clipboard-pen" class="w-5 h-5"></i>
                     </span>
                     <div>
-                        <h3 id="modalKoreksiGuruTitle" class="font-extrabold text-slate-900 heading-font text-base sm:text-lg">Koreksi Presensi Guru</h3>
-                        <p id="modalGuruName" class="text-xs text-slate-500 font-bold mt-0.5"></p>
+                        <h3 id="modalKoreksiGuruTitle" class="font-bold text-slate-900 heading-font text-base sm:text-lg">Koreksi Presensi Guru</h3>
+                        <p id="modalGuruName" class="text-xs text-slate-500 font-semibold mt-0.5"></p>
                     </div>
                 </div>
                 <button type="button" onclick="closeEditGuruModal()"
@@ -291,17 +302,17 @@
                 </button>
             </div>
 
-            <form id="formEditGuruPresensi" method="POST" class="flex-1 overflow-y-auto p-6 space-y-5 text-xs">
+            <form id="formEditGuruPresensi" method="POST" data-loading-form class="flex-1 overflow-y-auto p-6 space-y-5 text-xs">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="date" value="{{ $date }}">
 
                 <div>
-                    <label class="block font-bold text-slate-700 mb-1.5 uppercase tracking-wider text-[11px]">
+                    <label class="block font-semibold text-slate-700 mb-1.5 uppercase tracking-wider text-[11px]">
                         Pilih Status Kehadiran <span class="text-rose-500">*</span>
                     </label>
                     <select id="editGuruStatus" name="status" required
-                        class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none bg-slate-50/70 focus:bg-white text-xs transition font-bold cursor-pointer text-slate-800">
+                        class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none bg-slate-50/70 focus:bg-white text-xs transition font-semibold cursor-pointer text-slate-800">
                         <option value="HADIR">HADIR (Tepat Waktu)</option>
                         <option value="TERLAMBAT">TERLAMBAT</option>
                         <option value="IZIN">IZIN (Kedinasan / Izin Resmi)</option>
@@ -312,15 +323,15 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1.5">Jam Masuk (Check-in)</label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">Jam Masuk (Check-in)</label>
                         <input type="time" id="editGuruCheckIn" name="check_in_time"
-                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none bg-slate-50/70 focus:bg-white mono-font font-bold text-xs transition">
+                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none bg-slate-50/70 focus:bg-white mono-font font-medium text-xs transition">
                     </div>
 
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1.5">Jam Pulang (Check-out)</label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">Jam Pulang (Check-out)</label>
                         <input type="time" id="editGuruCheckOut" name="check_out_time"
-                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none bg-slate-50/70 focus:bg-white mono-font font-bold text-xs transition">
+                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none bg-slate-50/70 focus:bg-white mono-font font-medium text-xs transition">
                     </div>
                 </div>
 
@@ -331,11 +342,11 @@
 
                 <div class="pt-4 flex items-center justify-end gap-2.5 border-t border-slate-100">
                     <button type="button" onclick="closeEditGuruModal()"
-                        class="py-2.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-bold text-xs border border-slate-200 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+                        class="py-2.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs border border-slate-200 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
                         Batal
                     </button>
                     <button type="submit"
-                        class="py-2.5 px-6 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-bold text-xs shadow-xs transition-all duration-150 active:scale-[0.98] inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
+                        class="py-2.5 px-6 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-semibold text-xs shadow-xs transition-all duration-150 active:scale-[0.98] inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
                         <i data-lucide="check" class="w-4 h-4"></i>
                         <span>Simpan Koreksi</span>
                     </button>

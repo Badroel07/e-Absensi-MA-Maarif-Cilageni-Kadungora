@@ -48,7 +48,7 @@
                 <i data-lucide="${config.icon}" class="w-4 h-4"></i>
             </div>
             <div class="flex-1 min-w-0 pr-1">
-                <p class="text-xs sm:text-[13px] font-bold text-slate-100 leading-snug break-words">${message}</p>
+                <p class="text-xs sm:text-[13px] font-semibold text-slate-100 leading-snug break-words">${message}</p>
             </div>
             <button type="button" class="toast-close-btn p-1 -mr-1 -mt-1 text-slate-400 hover:text-white rounded-lg hover:bg-white/10 transition cursor-pointer" aria-label="Tutup notifikasi">
                 <i data-lucide="x" class="w-3.5 h-3.5"></i>
@@ -113,26 +113,47 @@
         info: (msg, duration = 2000) => window.showToast(msg, 'info', duration)
     };
 
+    // Global bridge for Flash messages from parsed SPA documents
+    window.triggerFlashFromDocument = function(doc) {
+        if (!doc) return;
+        const flashEl = doc.getElementById('page-flash-messages');
+        if (!flashEl) return;
+
+        const success = flashEl.getAttribute('data-success');
+        const error = flashEl.getAttribute('data-error');
+        const warning = flashEl.getAttribute('data-warning');
+        const info = flashEl.getAttribute('data-info');
+
+        if (success && success.trim()) window.toast.success(success.trim());
+        if (error && error.trim()) window.toast.error(error.trim());
+        if (warning && warning.trim()) window.toast.warning(warning.trim());
+        if (info && info.trim()) window.toast.info(info.trim());
+    };
+
     // Auto-trigger for Laravel Session Flash messages on initial real page load
     let hasShownInitialFlash = false;
     function triggerInitialFlash() {
         if (hasShownInitialFlash) return;
         hasShownInitialFlash = true;
 
-        @if(session('success'))
-            window.showToast(@json(session('success')), 'success', 2000);
-        @endif
-        @if(session('error'))
-            window.showToast(@json(session('error')), 'error', 2500);
-        @elseif($errors->any())
-            window.showToast(@json($errors->first()), 'error', 2500);
-        @endif
-        @if(session('warning'))
-            window.showToast(@json(session('warning')), 'warning', 2500);
-        @endif
-        @if(session('info'))
-            window.showToast(@json(session('info')), 'info', 2000);
-        @endif
+        if (typeof window.triggerFlashFromDocument === 'function') {
+            window.triggerFlashFromDocument(document);
+        } else {
+            @if(session('success'))
+                window.showToast(@json(session('success')), 'success', 2000);
+            @endif
+            @if(session('error'))
+                window.showToast(@json(session('error')), 'error', 2500);
+            @elseif($errors->any())
+                window.showToast(@json($errors->first()), 'error', 2500);
+            @endif
+            @if(session('warning'))
+                window.showToast(@json(session('warning')), 'warning', 2500);
+            @endif
+            @if(session('info'))
+                window.showToast(@json(session('info')), 'info', 2000);
+            @endif
+        }
     }
 
     if (document.readyState === 'loading') {

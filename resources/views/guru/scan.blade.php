@@ -17,7 +17,7 @@
 
     {{-- Header: sederhana --}}
     <div>
-        <h1 class="text-xl sm:text-2xl font-black text-slate-900 heading-font tracking-tight leading-none">Pemindai QR Presensi</h1>
+        <h1 class="text-xl sm:text-2xl font-bold text-slate-900 heading-font tracking-tight leading-none">Pemindai QR Presensi</h1>
         <p class="text-xs text-slate-500 mt-1">Arahkan kamera ke QR di Layar Presensi Madrasah.</p>
     </div>
 
@@ -47,12 +47,12 @@
                 <p class="text-xs font-semibold text-slate-500 mb-2">Pilih mode presensi</p>
                 <div class="p-1 rounded-xl bg-slate-100 flex gap-1">
                     <button type="button" id="btnModeDatang" onclick="setMode('datang')"
-                        class="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all duration-150 bg-maarif-700 text-white shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600 cursor-pointer min-h-[44px]"
+                        class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-150 bg-maarif-700 text-white shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600 cursor-pointer min-h-[44px]"
                         aria-pressed="true">
                         Masuk
                     </button>
                     <button type="button" id="btnModePulang" onclick="setMode('pulang')"
-                        class="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all duration-150 text-slate-500 hover:text-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 cursor-pointer min-h-[44px]"
+                        class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-150 text-slate-500 hover:text-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 cursor-pointer min-h-[44px]"
                         aria-pressed="false">
                         Pulang
                     </button>
@@ -85,11 +85,11 @@
                             <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                         </div>
                         <div class="text-center px-6">
-                            <p class="text-sm font-bold text-white heading-font">Kamera belum aktif</p>
+                            <p class="text-sm font-semibold text-white heading-font">Kamera belum aktif</p>
                             <p class="text-xs text-slate-400 mt-1">Izinkan akses kamera &amp; lokasi</p>
                         </div>
                         <button type="button" onclick="startCamera()"
-                            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white text-sm font-bold shadow-md shadow-maarif-700/40 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 min-h-[44px]">
+                            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white text-sm font-semibold shadow-md shadow-maarif-700/40 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 min-h-[44px]">
                             Aktifkan Kamera
                         </button>
                     </div>
@@ -117,7 +117,7 @@
                     </div>
                     <div class="min-w-0 flex-1">
                         <div class="flex flex-wrap items-center gap-2">
-                            <span id="scanGeofenceTitle" class="text-xs font-bold text-slate-700">Mendeteksi lokasi...</span>
+                            <span id="scanGeofenceTitle" class="text-xs font-semibold text-slate-700">Mendeteksi lokasi...</span>
                             <span id="scanGeofenceDistance" class="mono-font text-xs px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500">-- m</span>
                         </div>
                         <p id="scanGeofenceDesc" class="text-xs text-slate-400 leading-relaxed mt-0.5">Izinkan GPS di peramban.</p>
@@ -144,7 +144,7 @@
                         <input type="text" id="manualToken" placeholder="Tempel kode..." autocomplete="off" inputmode="text"
                             class="flex-1 min-w-0 px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none mono-font placeholder:text-slate-300 bg-slate-50 focus:bg-white transition-colors">
                         <button type="submit" id="btnSubmitManual"
-                            class="shrink-0 px-4 py-2.5 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-bold text-xs shadow-sm transition-all active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600 min-h-[42px]">
+                            class="shrink-0 px-4 py-2.5 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-semibold text-xs shadow-sm transition-all active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600 min-h-[42px]">
                             Kirim
                         </button>
                     </form>
@@ -161,17 +161,17 @@
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
             </div>
             <div class="text-center">
-                <h3 class="text-base font-bold text-slate-900 heading-font">Presensi pulang tertahan</h3>
+                <h3 class="text-base font-semibold text-slate-900 heading-font">Presensi pulang tertahan</h3>
                 <p id="modalLockMessage" class="text-xs text-slate-500 mt-1.5 leading-relaxed">Masih ada kelas mengajar yang belum dicatat kehadirannya.</p>
             </div>
             <div id="modalLockList" class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-700 space-y-1 max-h-36 overflow-y-auto"></div>
             <div class="flex items-center gap-2.5">
                 <button type="button" onclick="closeLockModal()"
-                    class="flex-1 py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-bold text-xs transition-all active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 min-h-[44px]">
+                    class="flex-1 py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-semibold text-xs transition-all active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 min-h-[44px]">
                     Tutup
                 </button>
                 <a href="{{ route('guru.dashboard') }}"
-                    class="flex-1 py-3 px-4 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-bold text-xs inline-flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600 min-h-[44px]">
+                    class="flex-1 py-3 px-4 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-semibold text-xs inline-flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600 min-h-[44px]">
                     Ke Beranda
                 </a>
             </div>
@@ -198,15 +198,15 @@
         const btnPulang = document.getElementById('btnModePulang');
         const hint = document.getElementById('modeHint');
         if (mode === 'datang') {
-            btnDatang.className = "flex-1 py-2.5 rounded-lg text-sm font-bold transition-all duration-150 bg-maarif-700 text-white shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600 cursor-pointer min-h-[44px]";
+            btnDatang.className = "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-150 bg-maarif-700 text-white shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600 cursor-pointer min-h-[44px]";
             btnDatang.setAttribute('aria-pressed','true');
-            btnPulang.className = "flex-1 py-2.5 rounded-lg text-sm font-bold transition-all duration-150 text-slate-500 hover:text-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 cursor-pointer min-h-[44px]";
+            btnPulang.className = "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-150 text-slate-500 hover:text-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 cursor-pointer min-h-[44px]";
             btnPulang.setAttribute('aria-pressed','false');
             if (hint) hint.textContent = "Masuk: catat kedatangan. Pulang: hanya setelah kelas hari ini disimpan.";
         } else {
-            btnPulang.className = "flex-1 py-2.5 rounded-lg text-sm font-bold transition-all duration-150 bg-slate-800 text-white shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 cursor-pointer min-h-[44px]";
+            btnPulang.className = "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-150 bg-slate-800 text-white shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 cursor-pointer min-h-[44px]";
             btnPulang.setAttribute('aria-pressed','true');
-            btnDatang.className = "flex-1 py-2.5 rounded-lg text-sm font-bold transition-all duration-150 text-slate-500 hover:text-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 cursor-pointer min-h-[44px]";
+            btnDatang.className = "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-150 text-slate-500 hover:text-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 cursor-pointer min-h-[44px]";
             btnDatang.setAttribute('aria-pressed','false');
             if (hint) hint.textContent = "Pulang: sistem kunci jika masih ada sesi kelas belum disimpan.";
         }
@@ -225,12 +225,12 @@
                 isWithinGeofence=data.within; geofenceDistance=data.distance;
                 if(data.within){
                     if(scanGeofenceIconBox) scanGeofenceIconBox.className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0";
-                    if(scanGeofenceTitle){scanGeofenceTitle.textContent="Di lingkungan madrasah";scanGeofenceTitle.className="text-xs font-bold text-emerald-700";}
+                    if(scanGeofenceTitle){scanGeofenceTitle.textContent="Di lingkungan madrasah";scanGeofenceTitle.className="text-xs font-semibold text-emerald-700";}
                     if(scanGeofenceDesc) scanGeofenceDesc.textContent="Radius "+data.radius+" m — siap presensi.";
                     if(scanGeofenceDistance){scanGeofenceDistance.textContent=Math.round(data.distance)+" m";scanGeofenceDistance.className="mono-font text-xs px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700";}
                 } else {
                     if(scanGeofenceIconBox) scanGeofenceIconBox.className="w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0";
-                    if(scanGeofenceTitle){scanGeofenceTitle.textContent="Di luar area madrasah";scanGeofenceTitle.className="text-xs font-bold text-rose-700";}
+                    if(scanGeofenceTitle){scanGeofenceTitle.textContent="Di luar area madrasah";scanGeofenceTitle.className="text-xs font-semibold text-rose-700";}
                     if(scanGeofenceDesc) scanGeofenceDesc.textContent="Di luar "+data.radius+" m — presensi ditolak.";
                     if(scanGeofenceDistance){scanGeofenceDistance.textContent=Math.round(data.distance)+" m";scanGeofenceDistance.className="mono-font text-xs px-1.5 py-0.5 rounded-md bg-rose-50 text-rose-700";}
                 }

@@ -10,10 +10,7 @@ export default defineConfig({
             refresh: true,
             fonts: [
                 bunny('Inter', {
-                    weights: [400, 500, 600, 700],
-                }),
-                bunny('Plus Jakarta Sans', {
-                    weights: [600, 700, 800, 900],
+                    weights: [400, 500, 600, 700, 800, 900],
                 }),
                 bunny('JetBrains Mono', {
                     weights: [500, 600, 700, 800],

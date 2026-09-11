@@ -18,7 +18,7 @@
 
         <!-- Text Content -->
         <div class="space-y-1.5">
-            <h3 id="confirmModalTitle" class="text-base sm:text-lg font-bold text-slate-900 heading-font tracking-tight">
+            <h3 id="confirmModalTitle" class="text-base sm:text-lg font-semibold text-slate-900 heading-font tracking-tight">
                 Konfirmasi Tindakan
             </h3>
             <div id="confirmModalMessage" class="text-xs sm:text-sm text-slate-600 leading-relaxed font-sans">
@@ -28,10 +28,10 @@
 
         <!-- Action Buttons Footer -->
         <div class="pt-2 flex items-center gap-2.5 sm:gap-3">
-            <button type="button" id="confirmModalCancelBtn" class="flex-1 py-3 px-4 rounded-xl sm:rounded-2xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-bold text-xs sm:text-sm border border-slate-200/60 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+            <button type="button" id="confirmModalCancelBtn" class="flex-1 py-3 px-4 rounded-xl sm:rounded-2xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-semibold text-xs sm:text-sm border border-slate-200/60 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
                 Batal
             </button>
-            <button type="button" id="confirmModalSubmitBtn" class="flex-1 py-3 px-4 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all duration-150 active:scale-[0.98] shadow-md flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2">
+            <button type="button" id="confirmModalSubmitBtn" class="flex-1 py-3 px-4 rounded-xl sm:rounded-2xl font-semibold text-xs sm:text-sm transition-all duration-150 active:scale-[0.98] shadow-md flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2">
                 <span id="confirmModalSubmitText">Lanjutkan</span>
             </button>
         </div>
@@ -301,7 +301,9 @@
                     hidden.value = submitter.value;
                     form.appendChild(hidden);
                 }
-                if (typeof form.requestSubmit === 'function') {
+                if (window.MaarifSPA && typeof window.MaarifSPA.submitForm === 'function') {
+                    window.MaarifSPA.submitForm(form, submitter);
+                } else if (typeof form.requestSubmit === 'function') {
                     form.requestSubmit();
                 } else {
                     form.submit();
@@ -322,9 +324,18 @@
         window.confirmAction(config).then(confirmed => {
             if (confirmed) {
                 if (target.tagName.toLowerCase() === 'a' && target.href) {
-                    window.location.href = target.href;
+                    if (window.MaarifSPA && typeof window.MaarifSPA.navigate === 'function') {
+                        window.MaarifSPA.navigate(target.href);
+                    } else {
+                        window.location.href = target.href;
+                    }
                 } else if (target.hasAttribute('data-action-url')) {
-                    window.location.href = target.getAttribute('data-action-url');
+                    const actionUrl = target.getAttribute('data-action-url');
+                    if (window.MaarifSPA && typeof window.MaarifSPA.navigate === 'function') {
+                        window.MaarifSPA.navigate(actionUrl);
+                    } else {
+                        window.location.href = actionUrl;
+                    }
                 }
             }
         });

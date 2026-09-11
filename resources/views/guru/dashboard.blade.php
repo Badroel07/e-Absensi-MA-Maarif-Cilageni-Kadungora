@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Dashboard — MA Ma\'arif Cilageni')
 
@@ -25,7 +25,7 @@
     <!-- Page Title Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
-            <h1 class="text-xl sm:text-2xl font-black text-slate-900 heading-font tracking-tight">Dashboard</h1>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 heading-font tracking-tight">Dashboard</h1>
             <p class="text-xs sm:text-sm text-slate-500">Halaman presensi harian Bapak/Ibu Guru, pembukaan sesi kelas, dan pencatatan kehadiran siswa</p>
         </div>
     </div>
@@ -48,8 +48,8 @@
                 <svg class="w-3.5 h-3.5 text-emerald-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <div class="liveClockTicker text-xs font-black mono-font tracking-wider">
-                    {{ now()->format('H:i:s') }} <span class="text-[10px] font-bold text-emerald-300">WIB</span>
+                <div class="liveClockTicker text-xs font-bold mono-font tracking-wider">
+                    {{ now()->format('H:i:s') }} <span class="text-[10px] font-semibold text-emerald-300">WIB</span>
                 </div>
             </div>
         </div>
@@ -58,20 +58,20 @@
         <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <!-- Teacher Identity (Left) -->
             <div class="flex items-center gap-4">
-                <div class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-white/20 to-white/5 border border-white/25 text-white flex items-center justify-center font-black text-2xl sm:text-3xl shadow-lg shrink-0 backdrop-blur-md overflow-hidden ring-2 ring-white/15">
+                <div class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-white/20 to-white/5 border border-white/25 text-white flex items-center justify-center font-bold text-2xl sm:text-3xl shadow-lg shrink-0 backdrop-blur-md overflow-hidden ring-2 ring-white/15">
                     @if($teacher->profile_photo_url)
-                        <img src="{{ $teacher->profile_photo_url }}" alt="{{ $teacher->name }}" class="w-full h-full object-cover">
+                        <img src="{{ $teacher->profile_photo_url }}" loading="lazy" decoding="async" alt="{{ $teacher->name }}" class="w-full h-full object-cover">
                     @else
                         <span class="select-none">{{ substr($teacher->name, 0, 1) }}</span>
                     @endif
                 </div>
                 <div class="min-w-0 flex-1">
                     <div class="flex items-center gap-2 flex-wrap mb-1">
-                        <span class="px-2 py-0.5 rounded-md bg-emerald-500/30 border border-emerald-400/40 text-[11px] font-bold text-emerald-200">
+                        <span class="px-2 py-0.5 rounded-md bg-emerald-500/30 border border-emerald-400/40 text-[11px] font-semibold text-emerald-200">
                             Dewan Guru
                         </span>
                     </div>
-                    <h2 class="text-xl sm:text-2xl font-black text-white heading-font tracking-tight truncate">
+                    <h2 class="text-xl sm:text-2xl font-bold text-white heading-font tracking-tight truncate">
                         {{ $teacher->name }}
                     </h2>
                     <p class="text-xs text-emerald-100/80 font-medium mt-0.5 flex items-center gap-2 flex-wrap">
@@ -84,8 +84,8 @@
 
             <!-- [DESKTOP ONLY] Live Clock & Date (Right) -->
             <div class="hidden md:flex flex-col items-end shrink-0 pl-6 border-l border-white/15 text-right">
-                <div class="liveClockTicker text-2xl lg:text-3xl font-black text-white mono-font tracking-tight drop-shadow-xs">
-                    {{ now()->format('H:i:s') }} <span class="text-xs font-bold text-emerald-200">WIB</span>
+                <div class="liveClockTicker text-2xl lg:text-3xl font-bold text-white mono-font tracking-tight drop-shadow-xs">
+                    {{ now()->format('H:i:s') }} <span class="text-xs font-semibold text-emerald-200">WIB</span>
                 </div>
                 <p class="text-xs text-emerald-100/90 mt-1 font-medium">
                     {{ $todayDay }}, {{ now()->translatedFormat('d F Y') }}
@@ -103,10 +103,10 @@
                 </div>
                 <div class="min-w-0 flex-1">
                     <div class="flex items-center gap-2 flex-wrap">
-                        <span id="geofenceTitle" class="font-bold text-white uppercase tracking-wider text-xs heading-font">
+                        <span id="geofenceTitle" class="font-semibold text-white uppercase tracking-wider text-xs heading-font">
                             Mendeteksi Lokasi GPS...
                         </span>
-                        <span id="geofenceDistance" class="font-mono font-black text-xs px-2.5 py-0.5 rounded-full bg-white text-emerald-950 shadow-xs border border-white">
+                        <span id="geofenceDistance" class="font-mono font-bold text-xs px-2.5 py-0.5 rounded-full bg-white text-emerald-950 shadow-xs border border-white">
                             -- m
                         </span>
                         <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-white/15 border border-white/20 text-[10px] sm:text-[11px] text-emerald-100 font-semibold">
@@ -120,7 +120,7 @@
             </div>
 
             <div class="flex items-center justify-end shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-white/10">
-                <button type="button" onclick="initGeolocation(true)" class="w-full md:w-auto py-2 sm:py-2.5 px-4 rounded-xl bg-white/15 hover:bg-white/25 active:bg-white/30 text-white text-xs font-bold backdrop-blur-md transition-all duration-150 inline-flex items-center justify-center gap-2 border border-white/25 hover:border-white/40 shadow-sm active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white whitespace-nowrap">
+                <button type="button" onclick="initGeolocation(true)" class="w-full md:w-auto py-2 sm:py-2.5 px-4 rounded-xl bg-white/15 hover:bg-white/25 active:bg-white/30 text-white text-xs font-semibold backdrop-blur-md transition-all duration-150 inline-flex items-center justify-center gap-2 border border-white/25 hover:border-white/40 shadow-sm active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white whitespace-nowrap">
                     <svg id="gpsRefreshIcon" class="w-4 h-4 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
@@ -139,7 +139,7 @@
             </svg>
         </div>
         <div>
-            <h3 class="text-base font-bold text-red-950 heading-font">Di Luar Area Madrasah</h3>
+            <h3 class="text-base font-semibold text-red-950 heading-font">Di Luar Area Madrasah</h3>
             <p id="outsideDistanceText" class="text-xs text-red-800 mt-1">
                 Sistem mendeteksi posisi Bapak/Ibu Guru berada di luar area lingkungan madrasah (maksimal {{ $location->radius_meters ?? 75 }} meter).
             </p>
@@ -147,7 +147,7 @@
                 Pembukaan sesi presensi siswa hanya dapat dilakukan saat Bapak/Ibu Guru telah berada di area madrasah.
             </p>
         </div>
-        <button type="button" onclick="initGeolocation(true)" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-red-50 active:bg-red-100 border border-red-200 text-red-700 font-bold text-xs transition-all duration-150 active:scale-95 shadow-xs cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500">
+        <button type="button" onclick="initGeolocation(true)" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-red-50 active:bg-red-100 border border-red-200 text-red-700 font-semibold text-xs transition-all duration-150 active:scale-95 shadow-xs cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500">
             <svg class="w-4 h-4 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
@@ -164,7 +164,7 @@
                 </svg>
             </div>
             <div>
-                <h3 class="text-base font-bold text-amber-950 heading-font">Presensi Masuk Diperlukan</h3>
+                <h3 class="text-base font-semibold text-amber-950 heading-font">Presensi Masuk Diperlukan</h3>
                 <p class="text-xs text-amber-800 mt-1">
                     Bapak/Ibu Guru belum melakukan presensi masuk di Layar Presensi Madrasah hari ini.
                 </p>
@@ -172,7 +172,7 @@
                     Pembukaan sesi presensi kelas baru dapat dibuka setelah Bapak/Ibu Guru memindai Kode QR di Layar Presensi Madrasah.
                 </p>
             </div>
-            <a href="{{ route('guru.scan') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-bold text-xs shadow-md shadow-amber-600/25 transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500">
+            <a href="{{ route('guru.scan') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-semibold text-xs shadow-md shadow-amber-600/25 transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500">
                 <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                 </svg>
@@ -192,10 +192,10 @@
                 </div>
                 <div class="min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
-                        <h4 class="text-xs sm:text-sm font-bold text-slate-800 heading-font">
+                        <h4 class="text-xs sm:text-sm font-semibold text-slate-800 heading-font">
                             Panduan Presensi Bapak/Ibu Guru
                         </h4>
-                        <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
+                        <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
                             Petunjuk Alur
                         </span>
                     </div>
@@ -213,28 +213,28 @@
         <div class="px-4 pb-5 pt-2 border-t border-slate-100 text-xs sm:text-sm bg-slate-50/50">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
                 <div class="p-3 bg-white rounded-xl border border-slate-100 shadow-2xs flex items-start gap-2.5">
-                    <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                    <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
                     <div class="text-slate-600 text-xs leading-relaxed">
                         <strong class="text-slate-900 block mb-0.5">Presensi Masuk</strong>
                         Pastikan berada di area madrasah, lalu pindai Kode QR di Layar Presensi Madrasah.
                     </div>
                 </div>
                 <div class="p-3 bg-white rounded-xl border border-slate-100 shadow-2xs flex items-start gap-2.5">
-                    <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                    <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
                     <div class="text-slate-600 text-xs leading-relaxed">
                         <strong class="text-slate-900 block mb-0.5">Buka Presensi Kelas</strong>
                         Tentukan durasi (2–5 menit) dan bagikan 4 angka PIN kepada siswa di kelas.
                     </div>
                 </div>
                 <div class="p-3 bg-white rounded-xl border border-slate-100 shadow-2xs flex items-start gap-2.5">
-                    <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                    <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
                     <div class="text-slate-600 text-xs leading-relaxed">
                         <strong class="text-slate-900 block mb-0.5">Konfirmasi Siswa & Simpan</strong>
                         Periksa siswa tanpa PIN, beri keterangan Izin/Sakit, lalu simpan kehadiran kelas.
                     </div>
                 </div>
                 <div class="p-3 bg-white rounded-xl border border-slate-100 shadow-2xs flex items-start gap-2.5">
-                    <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold flex items-center justify-center shrink-0 mt-0.5">4</span>
+                    <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">4</span>
                     <div class="text-slate-600 text-xs leading-relaxed">
                         <strong class="text-slate-900 block mb-0.5">Presensi Pulang</strong>
                         Setelah seluruh kelas selesai dicatat, lakukan presensi pulang di Layar Presensi Madrasah.
@@ -249,7 +249,7 @@
         <!-- Metric 1: Total Jadwal Mengajar -->
         <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs hover:border-slate-300 transition">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Jadwal Mengajar</span>
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Jadwal Mengajar</span>
                 <div class="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -257,7 +257,7 @@
                 </div>
             </div>
             <div class="mt-2 flex items-baseline space-x-1.5">
-                <span class="text-2xl font-black text-slate-900 mono-font">{{ $schedules->count() }}</span>
+                <span class="text-2xl font-bold text-slate-900 mono-font">{{ $schedules->count() }}</span>
                 <span class="text-xs font-semibold text-slate-500">Mata Pelajaran</span>
             </div>
         </div>
@@ -265,7 +265,7 @@
         <!-- Metric 2: Sesi Aktif -->
         <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs hover:border-amber-200 transition">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-amber-700 uppercase tracking-wider">Sesi Aktif</span>
+                <span class="text-xs font-semibold text-amber-700 uppercase tracking-wider">Sesi Aktif</span>
                 <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -273,7 +273,7 @@
                 </div>
             </div>
             <div class="mt-2 flex items-baseline space-x-1.5">
-                <span class="text-2xl font-black text-amber-700 mono-font">{{ $activeSessionsCount }}</span>
+                <span class="text-2xl font-bold text-amber-700 mono-font">{{ $activeSessionsCount }}</span>
                 <span class="text-xs font-semibold text-slate-500">Sesi Terbuka</span>
             </div>
         </div>
@@ -281,7 +281,7 @@
         <!-- Metric 3: Tuntas & Disimpan -->
         <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs hover:border-emerald-200 transition">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Selesai & Disimpan</span>
+                <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Selesai & Disimpan</span>
                 <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
@@ -289,7 +289,7 @@
                 </div>
             </div>
             <div class="mt-2 flex items-baseline space-x-1.5">
-                <span class="text-2xl font-black text-emerald-700 mono-font">{{ $lockedSessionsCount }}</span>
+                <span class="text-2xl font-bold text-emerald-700 mono-font">{{ $lockedSessionsCount }}</span>
                 <span class="text-xs font-semibold text-slate-500">Kelas Selesai</span>
             </div>
         </div>
@@ -297,7 +297,7 @@
         <!-- Metric 4: Sisa Kelas Mengajar -->
         <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs hover:border-slate-300 transition">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Sisa Kelas</span>
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Sisa Kelas</span>
                 <div class="w-8 h-8 rounded-xl {{ $pendingSchedules->count() > 0 ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600' }} flex items-center justify-center">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -305,7 +305,7 @@
                 </div>
             </div>
             <div class="mt-2 flex items-baseline space-x-1.5">
-                <span class="text-2xl font-black {{ $pendingSchedules->count() > 0 ? 'text-amber-700' : 'text-emerald-700' }} mono-font">{{ $pendingSchedules->count() }}</span>
+                <span class="text-2xl font-bold {{ $pendingSchedules->count() > 0 ? 'text-amber-700' : 'text-emerald-700' }} mono-font">{{ $pendingSchedules->count() }}</span>
                 <span class="text-xs font-semibold text-slate-500">{{ $pendingSchedules->count() > 0 ? 'Kelas Menunggu' : 'Semua Tuntas' }}</span>
             </div>
         </div>
@@ -319,11 +319,11 @@
             <div class="bg-white rounded-3xl p-6 border-2 border-amber-500 shadow-xl shadow-amber-500/10 space-y-5 transition-all">
                 <div class="flex items-center justify-between pb-4 border-b border-slate-100">
                     <div>
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800 border border-amber-200">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">
                             <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping mr-2"></span>
                             Sesi Presensi Siswa Sedang Aktif
                         </span>
-                        <h3 class="text-xl sm:text-2xl font-black text-slate-900 heading-font mt-2">
+                        <h3 class="text-xl sm:text-2xl font-bold text-slate-900 heading-font mt-2">
                             {{ $activeSession->schedule->subject->name ?? 'Mata Pelajaran' }}
                         </h3>
                         <p class="text-xs text-slate-500 font-medium mt-0.5">
@@ -331,8 +331,8 @@
                         </p>
                     </div>
                     <div class="text-right pl-4">
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">KODE PIN</p>
-                        <div class="text-3xl sm:text-4xl font-black text-amber-600 mono-font tracking-widest">
+                        <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">KODE PIN</p>
+                        <div class="text-3xl sm:text-4xl font-bold text-amber-600 mono-font tracking-widest">
                             {{ $activeSession->pin_code }}
                         </div>
                     </div>
@@ -345,12 +345,12 @@
                         </svg>
                         <span>Berakhir pada: <strong>{{ $activeSession->expires_at->format('H:i:s') }} WIB</strong></span>
                     </div>
-                    <span class="font-bold text-amber-700">
+                    <span class="font-semibold text-amber-700">
                         {{ $activeSession->attendances->where('status', 'HADIR')->count() }} Siswa Hadir
                     </span>
                 </div>
 
-                <a href="{{ route('guru.session.show', $activeSession) }}" class="w-full bg-amber-500 hover:bg-amber-600 active:bg-amber-700 active:scale-[0.98] text-white font-bold py-3.5 px-4 rounded-xl text-xs inline-flex items-center justify-center gap-2 transition-all duration-150 shadow-md shadow-amber-500/25 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-500">
+                <a href="{{ route('guru.session.show', $activeSession) }}" class="w-full bg-amber-500 hover:bg-amber-600 active:bg-amber-700 active:scale-[0.98] text-white font-semibold py-3.5 px-4 rounded-xl text-xs inline-flex items-center justify-center gap-2 transition-all duration-150 shadow-md shadow-amber-500/25 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-500">
                     <span>Buka Layar Presensi Kelas (Lihat Siswa Masuk)</span>
                     <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -368,13 +368,13 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
                     <div class="min-w-0 flex-1">
-                        <h3 class="text-[13px] sm:text-sm font-bold text-slate-900 heading-font uppercase tracking-wide leading-snug break-words">
+                        <h3 class="text-[13px] sm:text-sm font-semibold text-slate-900 heading-font uppercase tracking-wide leading-snug break-words">
                             Jadwal Mengajar Hari Ini ({{ $todayDay }})
                         </h3>
                         <p class="text-xs text-slate-500 leading-snug break-words">Kelola sesi presensi kelas dan pencatatan kehadiran siswa</p>
                     </div>
                 </div>
-                <a href="{{ route('guru.history') }}" class="inline-flex items-center justify-center sm:justify-end self-start sm:self-center shrink-0 text-xs font-bold text-maarif-700 hover:text-maarif-800 active:text-maarif-900 bg-maarif-50 sm:bg-transparent border border-maarif-100 sm:border-0 px-3 py-1.5 sm:px-0 sm:py-0 rounded-full sm:rounded-none hover:bg-maarif-100 sm:hover:bg-transparent transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
+                <a href="{{ route('guru.history') }}" class="inline-flex items-center justify-center sm:justify-end self-start sm:self-center shrink-0 text-xs font-semibold text-maarif-700 hover:text-maarif-800 active:text-maarif-900 bg-maarif-50 sm:bg-transparent border border-maarif-100 sm:border-0 px-3 py-1.5 sm:px-0 sm:py-0 rounded-full sm:rounded-none hover:bg-maarif-100 sm:hover:bg-transparent transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
                     Riwayat Kelas &rarr;
                 </a>
             </div>
@@ -402,15 +402,15 @@
                                 <!-- Top Row: time pill + class badge (wrap) + title full width -->
                                 <div class="flex flex-col gap-2.5">
                                     <div class="flex flex-wrap items-center gap-2">
-                                        <span class="inline-flex items-center px-2.5 py-1.5 rounded-xl bg-white border border-slate-200/90 text-slate-800 font-extrabold mono-font text-xs shrink-0 shadow-2xs whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-1.5 rounded-xl bg-white border border-slate-200/90 text-slate-800 font-bold mono-font text-xs shrink-0 shadow-2xs whitespace-nowrap">
                                             {{ substr($sch->start_time, 0, 5) }} - {{ substr($sch->end_time, 0, 5) }}
                                         </span>
-                                        <span class="inline-flex items-center px-2 py-1 rounded-md bg-maarif-700 text-white font-extrabold text-[10px] shrink-0 tracking-wide">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-md bg-maarif-700 text-white font-semibold text-[10px] shrink-0 tracking-wide">
                                             Kelas {{ $sch->classroom->name }}
                                         </span>
                                     </div>
                                     <div class="min-w-0 w-full">
-                                        <h4 class="text-[15px] sm:text-sm font-bold text-slate-900 leading-snug break-words">{{ $sch->subject->name }}</h4>
+                                        <h4 class="text-[15px] sm:text-sm font-semibold text-slate-900 leading-snug break-words">{{ $sch->subject->name }}</h4>
                                         <p class="text-[11px] text-slate-500 mt-1 mono-font break-words leading-snug">Kode: {{ $sch->subject->code }}</p>
                                     </div>
                                 </div>
@@ -422,22 +422,22 @@
                                             Menunggu Dibuka
                                         </span>
                                         @if(!$isWithinSchedule)
-                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 leading-snug break-words max-w-full">
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 leading-snug break-words max-w-full">
                                                 <svg class="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                                 <span class="break-words">Di luar jam pelajaran ({{ substr($sch->start_time,0,5) }}–{{ substr($sch->end_time,0,5) }} WIB)</span>
                                             </span>
                                         @endif
                                     @elseif($session->isActive())
-                                        <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 animate-pulse leading-none break-words">
+                                        <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300 animate-pulse leading-none break-words">
                                             ● Sesi Aktif (PIN: {{ $session->pin_code }})
                                         </span>
                                     @elseif($session->isLocked())
-                                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 leading-none">
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300 leading-none">
                                             <i data-lucide="check-circle-2" class="w-3.5 h-3.5 shrink-0"></i>
                                             <span>Selesai & Disimpan</span>
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300 leading-none">
+                                        <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-300 leading-none">
                                             Perlu Konfirmasi Keterangan Siswa
                                         </span>
                                     @endif
@@ -453,7 +453,7 @@
                                                 <div class="px-3 py-3 rounded-xl bg-slate-100 border border-slate-200 text-[11px] leading-relaxed text-slate-600 text-center sm:text-left font-medium break-words">
                                                     Sesi hanya dapat dibuka dalam rentang <strong class="text-slate-800">{{ substr($sch->start_time,0,5) }}–{{ substr($sch->end_time,0,5) }} WIB</strong>. Sekarang {{ \Carbon\Carbon::now()->format('H:i') }} WIB — di luar jam pelajaran.
                                                 </div>
-                                                <form action="{{ route('guru.session.open', $sch) }}" method="POST" class="openSessionForm w-full flex flex-col sm:flex-row sm:items-center gap-2.5 opacity-60">
+                                                <form action="{{ route('guru.session.open', $sch) }}" method="POST" data-loading-form class="openSessionForm w-full flex flex-col sm:flex-row sm:items-center gap-2.5 opacity-60">
                                                     @csrf
                                                     <div class="relative w-full sm:w-[148px] shrink-0">
                                                         <select name="duration" disabled class="w-full h-11 block appearance-none text-xs border border-slate-300 rounded-xl pl-3.5 pr-8 bg-slate-100 text-slate-500 font-medium cursor-not-allowed">
@@ -466,7 +466,7 @@
                                                             <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
                                                         </div>
                                                     </div>
-                                                    <button type="submit" disabled class="sessionSubmitBtn w-full sm:flex-1 h-11 bg-slate-300 text-slate-500 font-bold px-4 rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-not-allowed leading-none">
+                                                    <button type="submit" disabled class="sessionSubmitBtn w-full sm:flex-1 h-11 bg-slate-300 text-slate-500 font-semibold px-4 rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-not-allowed leading-none">
                                                         <span>Di luar jam pelajaran</span>
                                                         <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -475,7 +475,7 @@
                                                 </form>
                                             </div>
                                         @else
-                                            <form action="{{ route('guru.session.open', $sch) }}" method="POST" class="openSessionForm w-full flex flex-col sm:flex-row sm:items-center gap-2.5">
+                                            <form action="{{ route('guru.session.open', $sch) }}" method="POST" data-loading-form class="openSessionForm w-full flex flex-col sm:flex-row sm:items-center gap-2.5">
                                                 @csrf
                                                 <div class="relative w-full sm:w-[148px] shrink-0">
                                                     <select name="duration" class="w-full h-11 block appearance-none text-xs border border-slate-300 rounded-xl pl-3.5 pr-8 bg-white text-slate-700 focus:ring-2 focus:ring-maarif-600 font-medium cursor-pointer">
@@ -488,7 +488,7 @@
                                                         <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
                                                     </div>
                                                 </div>
-                                                <button type="submit" class="sessionSubmitBtn w-full sm:flex-1 h-11 bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 active:scale-[0.98] text-white font-bold px-4 rounded-xl text-xs inline-flex items-center justify-center gap-1.5 transition-all duration-150 shadow-md shadow-maarif-700/25 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-maarif-600 leading-none">
+                                                <button type="submit" class="sessionSubmitBtn w-full sm:flex-1 h-11 bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 active:scale-[0.98] text-white font-semibold px-4 rounded-xl text-xs inline-flex items-center justify-center gap-1.5 transition-all duration-150 shadow-md shadow-maarif-700/25 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-maarif-600 leading-none">
                                                     <span>Buka Sesi Presensi</span>
                                                     <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -502,7 +502,7 @@
                                         </button>
                                     @endif
                                 @elseif($session->isActive())
-                                    <a href="{{ route('guru.session.show', $session) }}" class="w-full bg-amber-500 hover:bg-amber-600 active:bg-amber-700 active:scale-[0.98] text-white font-bold py-3 sm:py-2.5 px-4 rounded-xl text-xs inline-flex items-center justify-center gap-2 transition-all duration-150 shadow-md shadow-amber-500/25 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-500 leading-none text-center break-words">
+                                    <a href="{{ route('guru.session.show', $session) }}" class="w-full bg-amber-500 hover:bg-amber-600 active:bg-amber-700 active:scale-[0.98] text-white font-semibold py-3 sm:py-2.5 px-4 rounded-xl text-xs inline-flex items-center justify-center gap-2 transition-all duration-150 shadow-md shadow-amber-500/25 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-500 leading-none text-center break-words">
                                         <span>Buka Layar Presensi Kelas (PIN: {{ $session->pin_code }})</span>
                                         <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -511,12 +511,12 @@
                                 @elseif($session->isLocked())
                                     <div class="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs">
                                         <span class="text-slate-500 leading-snug break-words">Presensi kelas telah selesai dan tersimpan.</span>
-                                        <a href="{{ route('guru.session.reconcile', $session) }}" class="inline-flex items-center justify-center sm:justify-end text-maarif-700 hover:text-maarif-800 active:text-maarif-900 font-bold whitespace-nowrap bg-maarif-50 hover:bg-maarif-100 sm:bg-transparent border border-maarif-100 sm:border-0 rounded-full sm:rounded-none px-3 py-1.5 sm:px-0 sm:py-0 transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
+                                        <a href="{{ route('guru.session.reconcile', $session) }}" class="inline-flex items-center justify-center sm:justify-end text-maarif-700 hover:text-maarif-800 active:text-maarif-900 font-semibold whitespace-nowrap bg-maarif-50 hover:bg-maarif-100 sm:bg-transparent border border-maarif-100 sm:border-0 rounded-full sm:rounded-none px-3 py-1.5 sm:px-0 sm:py-0 transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
                                             Lihat Daftar Kehadiran &rarr;
                                         </a>
                                     </div>
                                 @else
-                                    <a href="{{ route('guru.session.reconcile', $session) }}" class="w-full bg-rose-600 hover:bg-rose-700 active:bg-rose-800 active:scale-[0.98] text-white font-bold py-3 sm:py-2.5 px-4 rounded-xl text-xs inline-flex items-center justify-center gap-1.5 transition-all duration-150 shadow-md shadow-rose-600/25 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-rose-600 leading-snug text-center break-words">
+                                    <a href="{{ route('guru.session.reconcile', $session) }}" class="w-full bg-rose-600 hover:bg-rose-700 active:bg-rose-800 active:scale-[0.98] text-white font-semibold py-3 sm:py-2.5 px-4 rounded-xl text-xs inline-flex items-center justify-center gap-1.5 transition-all duration-150 shadow-md shadow-rose-600/25 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-rose-600 leading-snug text-center break-words">
                                         <span>Catat Keterangan Siswa & Simpan</span>
                                         <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -538,13 +538,13 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
                     <div class="min-w-0 flex-1">
-                        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide heading-font leading-snug break-words">
+                        <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wide heading-font leading-snug break-words">
                             Status Presensi Pulang
                         </h3>
                         <p class="text-xs text-slate-500 leading-snug break-words">Kelengkapan tugas mengajar sebelum pulang</p>
                     </div>
                 </div>
-                <span class="text-xs font-extrabold px-3 py-1.5 rounded-full {{ $pendingSchedules->isEmpty() && $hasCheckedIn ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-amber-100 text-amber-800 border border-amber-200' }} shrink-0 inline-flex items-center gap-1 self-start sm:self-center whitespace-nowrap">
+                <span class="text-xs font-semibold px-3 py-1.5 rounded-full {{ $pendingSchedules->isEmpty() && $hasCheckedIn ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-amber-100 text-amber-800 border border-amber-200' }} shrink-0 inline-flex items-center gap-1 self-start sm:self-center whitespace-nowrap">
                     @if($pendingSchedules->isEmpty() && $hasCheckedIn)
                         <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
                         <span>SIAP PRESENSI PULANG</span>
@@ -559,21 +559,21 @@
                     <div class="flex items-center justify-between">
                         <span class="text-slate-600 font-medium">Presensi Masuk:</span>
                         @if($hasCheckedIn)
-                            <span class="font-bold text-emerald-700 font-mono">{{ substr($dailyAttendance->check_in_time ?? '', 0, 5) }} WIB ({{ $dailyAttendance->check_in_status ?? 'HADIR' }})</span>
+                            <span class="font-semibold text-emerald-700 font-mono">{{ substr($dailyAttendance->check_in_time ?? '', 0, 5) }} WIB ({{ $dailyAttendance->check_in_status ?? 'HADIR' }})</span>
                         @else
-                            <span class="font-bold text-rose-600">Belum Datang</span>
+                            <span class="font-semibold text-rose-600">Belum Datang</span>
                         @endif
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-slate-600 font-medium">Kelas Belum Disimpan:</span>
-                        <span class="font-bold {{ $pendingSchedules->isEmpty() ? 'text-emerald-700' : 'text-amber-700' }}">
+                        <span class="font-semibold {{ $pendingSchedules->isEmpty() ? 'text-emerald-700' : 'text-amber-700' }}">
                             {{ $pendingSchedules->count() }} Kelas
                         </span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-slate-600 font-medium">Presensi Pulang:</span>
                         @if($dailyAttendance?->check_out_time)
-                            <span class="font-bold text-emerald-700 font-mono">{{ substr($dailyAttendance->check_out_time, 0, 5) }} WIB</span>
+                            <span class="font-semibold text-emerald-700 font-mono">{{ substr($dailyAttendance->check_out_time, 0, 5) }} WIB</span>
                         @else
                             <span class="font-semibold text-slate-400">Belum Pulang</span>
                         @endif
@@ -591,14 +591,14 @@
                 <!-- Quick Action Button to Kiosk Scan -->
                 <div class="pt-2">
                     @if(!$hasCheckedIn)
-                        <a href="{{ route('guru.scan') }}" class="w-full py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-bold text-xs inline-flex items-center justify-center gap-2 shadow-md shadow-amber-600/25 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-500">
+                        <a href="{{ route('guru.scan') }}" class="w-full py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-semibold text-xs inline-flex items-center justify-center gap-2 shadow-md shadow-amber-600/25 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-500">
                             <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                             </svg>
                             <span>Pindai QR Presensi Masuk</span>
                         </a>
                     @else
-                        <a href="{{ route('guru.scan') }}" class="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-900 active:bg-slate-950 text-white font-bold text-xs inline-flex items-center justify-center gap-2 shadow-md shadow-slate-800/25 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-700">
+                        <a href="{{ route('guru.scan') }}" class="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-900 active:bg-slate-950 text-white font-semibold text-xs inline-flex items-center justify-center gap-2 shadow-md shadow-slate-800/25 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-700">
                             <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                             </svg>
@@ -617,7 +617,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div>
-                        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide heading-font">
+                        <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wide heading-font">
                             Riwayat Kelas Hari Ini
                         </h3>
                         <p class="text-xs text-slate-500">Catatan kehadiran mengajar hari ini</p>
@@ -651,17 +651,17 @@
                         <div class="p-3.5 rounded-2xl border border-slate-100 bg-slate-50/60 flex items-center justify-between gap-3 text-xs">
                             <div>
                                 <div class="flex items-center space-x-2">
-                                    <span class="font-extrabold text-slate-900">{{ $sch->subject->name }}</span>
-                                    <span class="px-1.5 py-0.5 rounded bg-slate-200 font-bold text-[10px] text-slate-700">
+                                    <span class="font-semibold text-slate-900">{{ $sch->subject->name }}</span>
+                                    <span class="px-1.5 py-0.5 rounded bg-slate-200 font-semibold text-[10px] text-slate-700">
                                         {{ $sch->classroom->name }}
                                     </span>
                                 </div>
                                 <p class="text-[11px] text-slate-400 mt-0.5">
-                                    Mulai: {{ $sess->started_at?->format('H:i') }} WIB &bull; PIN: <span class="font-mono font-bold text-slate-700">{{ $sess->pin_code }}</span>
+                                    Mulai: {{ $sess->started_at?->format('H:i') }} WIB &bull; PIN: <span class="font-mono font-semibold text-slate-700">{{ $sess->pin_code }}</span>
                                 </p>
                             </div>
                             <div class="text-right shrink-0">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full font-bold text-[10px] {{ $sess->isLocked() ? 'bg-emerald-100 text-emerald-800' : ($sess->isActive() ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800') }}">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full font-semibold text-[10px] {{ $sess->isLocked() ? 'bg-emerald-100 text-emerald-800' : ($sess->isActive() ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800') }}">
                                     {{ $sess->status }}
                                 </span>
                                 <p class="text-[10px] text-slate-500 mt-0.5">
@@ -684,8 +684,8 @@
         const hours = String(now.getHours()).padStart(2, '0');
         const minutes = String(now.getMinutes()).padStart(2, '0');
         const seconds = String(now.getSeconds()).padStart(2, '0');
-        const timeStrDesktop = `${hours}:${minutes}:${seconds} <span class="text-xs font-bold text-emerald-200">WIB</span>`;
-        const timeStrMobile = `${hours}:${minutes}:${seconds} <span class="text-[10px] font-bold text-emerald-300">WIB</span>`;
+        const timeStrDesktop = `${hours}:${minutes}:${seconds} <span class="text-xs font-semibold text-emerald-200">WIB</span>`;
+        const timeStrMobile = `${hours}:${minutes}:${seconds} <span class="text-[10px] font-semibold text-emerald-300">WIB</span>`;
 
         document.querySelectorAll('.liveClockTicker').forEach(el => {
             if (el.closest('.md\\:hidden')) {
@@ -733,7 +733,7 @@
                 }
                 if (geofenceTitle) {
                     geofenceTitle.textContent = "Izin Lokasi Ditolak";
-                    geofenceTitle.className = "font-black text-white uppercase tracking-wider text-xs heading-font";
+                    geofenceTitle.className = "font-semibold text-white uppercase tracking-wider text-xs heading-font";
                 }
                 if (geofenceDesc) {
                     geofenceDesc.textContent = "Harap izinkan akses lokasi (GPS) pada peramban HP atau laptop Bapak/Ibu Guru.";
@@ -744,7 +744,7 @@
                 }
                 if (geofenceTitle) {
                     geofenceTitle.textContent = "Lokasi Tidak Terdeteksi";
-                    geofenceTitle.className = "font-black text-white uppercase tracking-wider text-xs heading-font";
+                    geofenceTitle.className = "font-semibold text-white uppercase tracking-wider text-xs heading-font";
                 }
                 if (geofenceDesc) {
                     geofenceDesc.textContent = "Pastikan GPS aktif dan perangkat terhubung ke internet.";
@@ -756,7 +756,7 @@
                     }
                     if (geofenceTitle) {
                         geofenceTitle.textContent = "Mencari Lokasi GPS...";
-                        geofenceTitle.className = "font-black text-white uppercase tracking-wider text-xs heading-font";
+                        geofenceTitle.className = "font-semibold text-white uppercase tracking-wider text-xs heading-font";
                     }
                     if (geofenceDesc) {
                         geofenceDesc.textContent = "Sedang memeriksa posisi madrasah. Harap tunggu beberapa saat...";
@@ -813,14 +813,14 @@
             }
             if (geofenceTitle) {
                 geofenceTitle.textContent = "Di Lingkungan Madrasah";
-                geofenceTitle.className = "font-black text-white uppercase tracking-wider text-xs heading-font";
+                geofenceTitle.className = "font-semibold text-white uppercase tracking-wider text-xs heading-font";
             }
             if (geofenceDesc) {
                 geofenceDesc.textContent = `Posisi Bapak/Ibu Guru terverifikasi berada di dalam area ${data.school_name || "MA Ma'arif Cilageni"}.`;
             }
             if (geofenceDistance) {
                 geofenceDistance.textContent = Math.round(data.distance) + "m";
-                geofenceDistance.className = "font-mono font-black text-xs px-2.5 py-0.5 rounded-full bg-white text-emerald-900 shadow-xs border border-white";
+                geofenceDistance.className = "font-mono font-bold text-xs px-2.5 py-0.5 rounded-full bg-white text-emerald-900 shadow-xs border border-white";
             }
 
             if (outsideWarning) outsideWarning.classList.add('hidden');
@@ -836,7 +836,7 @@
             }
             if (geofenceTitle) {
                 geofenceTitle.textContent = "Di Luar Area Madrasah";
-                geofenceTitle.className = "font-black text-white uppercase tracking-wider text-xs heading-font";
+                geofenceTitle.className = "font-semibold text-white uppercase tracking-wider text-xs heading-font";
             }
             if (geofenceDesc) {
                 geofenceDesc.textContent = `Posisi Bapak/Ibu Guru berada di luar area madrasah (maksimal ${data.radius} meter).`;
@@ -844,7 +844,7 @@
             if (geofenceDistance) {
                 const distText = data.distance > 1000 ? (data.distance / 1000).toFixed(1) + "km" : Math.round(data.distance) + "m";
                 geofenceDistance.textContent = distText;
-                geofenceDistance.className = "font-mono font-black text-xs px-2.5 py-0.5 rounded-full bg-red-600 text-white shadow-xs border border-red-500";
+                geofenceDistance.className = "font-mono font-bold text-xs px-2.5 py-0.5 rounded-full bg-red-600 text-white shadow-xs border border-red-500";
             }
 
             if (outsideWarning) {
@@ -866,6 +866,10 @@
     // Auto-initiate Geolocation on page load
     document.addEventListener('DOMContentLoaded', () => {
         initGeolocation(false);
+    });
+
+    window.addEventListener('dev-location-changed', () => {
+        initGeolocation(true);
     });
 </script>
 @endpush

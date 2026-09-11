@@ -57,7 +57,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="font-extrabold text-sm text-rose-950 heading-font">Data Kehadiran Kelas Telah Ditutup & Disimpan Permanen</h3>
+                    <h3 class="font-bold text-sm text-rose-950 heading-font">Data Kehadiran Kelas Telah Ditutup & Disimpan Permanen</h3>
                     <p class="text-rose-700 leading-relaxed mt-1">
                         Data kehadiran kelas ini sudah berstatus final dan tersimpan. Jika terdapat kesalahan absensi siswa atau surat izin susulan, perubahan dapat dibantu oleh <strong>Admin</strong>.
                     </p>
@@ -73,20 +73,20 @@
                 </svg>
             </div>
             <div class="leading-relaxed">
-                <span class="font-bold text-slate-800">Petunjuk Konfirmasi:</span>
+                <span class="font-semibold text-slate-800">Petunjuk Konfirmasi:</span>
                 Siswa yang belum memasukkan PIN otomatis ditandai <span class="font-semibold text-rose-700">Alpa</span>. Bapak/Ibu Guru dapat memilih <span class="font-semibold text-emerald-700">Hadir</span> (manual jika siswa terkendala PIN), <span class="font-semibold text-amber-700">Izin</span>, atau <span class="font-semibold text-sky-700">Sakit</span>.
             </div>
         </div>
     @endif
 
     <!-- Reconciliation Form -->
-    <form action="{{ ($isLocked ?? false) ? '#' : route('guru.session.reconcile.save', $session) }}" method="POST" class="space-y-6">
+    <form action="{{ ($isLocked ?? false) ? '#' : route('guru.session.reconcile.save', $session) }}" method="POST" data-loading-form class="space-y-6">
         @csrf
 
         <div class="bg-white rounded-3xl p-4 sm:p-6 border border-slate-200/80 shadow-xs space-y-4">
             <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div>
-                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider heading-font">Daftar Siswa Kelas</h3>
+                    <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wider heading-font">Daftar Siswa Kelas</h3>
                     <p class="text-xs text-slate-400 mt-0.5">Tinjau status kehadiran masing-masing siswa di bawah ini</p>
                 </div>
             </div>
@@ -109,20 +109,20 @@
                         <!-- Row Hadir (PIN) -->
                         <div class="p-4 sm:p-4.5 rounded-2xl border border-emerald-200/90 bg-emerald-50/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 transition hover:border-emerald-300">
                             <div class="flex items-center gap-3.5 min-w-0 flex-1">
-                                <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white font-black text-sm flex items-center justify-center shrink-0 shadow-xs">
+                                <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-xs">
                                     {{ $initials ?: 'S' }}
                                 </div>
                                 <div class="min-w-0 flex-1">
-                                    <p class="text-sm font-bold text-slate-900 leading-snug">{{ $st->name }}</p>
+                                    <p class="text-sm font-semibold text-slate-900 leading-snug">{{ $st->name }}</p>
                                     <p class="text-xs text-slate-500 mt-0.5">NISN: <span class="mono-font">{{ $st->identity_number }}</span></p>
                                 </div>
                             </div>
 
                             <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-emerald-100">
                                 <span class="text-xs text-emerald-800 font-medium">
-                                    Terverifikasi PIN: <strong class="mono-font font-bold">{{ $att->verified_at ? $att->verified_at->format('H:i:s') . ' WIB' : 'Tercatat' }}</strong>
+                                    Terverifikasi PIN: <strong class="mono-font font-semibold">{{ $att->verified_at ? $att->verified_at->format('H:i:s') . ' WIB' : 'Tercatat' }}</strong>
                                 </span>
-                                <span class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1.5 whitespace-nowrap">
+                                <span class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1.5 whitespace-nowrap">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                                     </svg>
@@ -135,12 +135,12 @@
                         <div class="p-4 sm:p-4.5 rounded-2xl border border-slate-200/80 bg-white hover:border-slate-300 shadow-2xs transition flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4">
                             <!-- Left: Student Info -->
                             <div class="flex items-center gap-3.5 min-w-0 lg:w-1/3">
-                                <div class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-700 font-black text-sm flex items-center justify-center shrink-0 border border-slate-200/70">
+                                <div class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-700 font-bold text-sm flex items-center justify-center shrink-0 border border-slate-200/70">
                                     {{ $initials ?: 'S' }}
                                 </div>
                                 <div class="min-w-0 flex-1">
                                     <div class="flex items-center gap-2">
-                                        <p class="text-sm font-bold text-slate-900 leading-snug truncate" title="{{ $st->name }}">{{ $st->name }}</p>
+                                        <p class="text-sm font-semibold text-slate-900 leading-snug truncate" title="{{ $st->name }}">{{ $st->name }}</p>
                                         <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold text-slate-500 bg-slate-100 border border-slate-200 shrink-0">
                                             Belum Hadir
                                         </span>
@@ -165,7 +165,7 @@
                             <div class="bg-slate-100/90 p-1 rounded-xl grid grid-cols-4 gap-1 border border-slate-200/60 shrink-0 w-full sm:w-auto min-w-[290px]">
                                 <label class="{{ ($isLocked ?? false) ? 'cursor-not-allowed opacity-80' : 'cursor-pointer' }} select-none">
                                     <input type="radio" name="statuses[{{ $st->id }}]" value="HADIR" class="peer hidden" {{ $currentStatus === 'HADIR' ? 'checked' : '' }} {{ ($isLocked ?? false) ? 'disabled' : '' }}>
-                                    <span class="block py-1.5 px-2 text-center text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:font-bold peer-checked:shadow-xs transition-all">
+                                    <span class="block py-1.5 px-2 text-center text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:font-semibold peer-checked:shadow-xs transition-all">
                                         <span class="inline-flex items-center justify-center gap-1">
                                             <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
@@ -177,7 +177,7 @@
 
                                 <label class="{{ ($isLocked ?? false) ? 'cursor-not-allowed opacity-80' : 'cursor-pointer' }} select-none">
                                     <input type="radio" name="statuses[{{ $st->id }}]" value="IZIN" class="peer hidden" {{ $currentStatus === 'IZIN' ? 'checked' : '' }} {{ ($isLocked ?? false) ? 'disabled' : '' }}>
-                                    <span class="block py-1.5 px-2 text-center text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 peer-checked:bg-amber-500 peer-checked:text-white peer-checked:font-bold peer-checked:shadow-xs transition-all">
+                                    <span class="block py-1.5 px-2 text-center text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 peer-checked:bg-amber-500 peer-checked:text-white peer-checked:font-semibold peer-checked:shadow-xs transition-all">
                                         <span class="inline-flex items-center justify-center gap-1">
                                             <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -189,7 +189,7 @@
 
                                 <label class="{{ ($isLocked ?? false) ? 'cursor-not-allowed opacity-80' : 'cursor-pointer' }} select-none">
                                     <input type="radio" name="statuses[{{ $st->id }}]" value="SAKIT" class="peer hidden" {{ $currentStatus === 'SAKIT' ? 'checked' : '' }} {{ ($isLocked ?? false) ? 'disabled' : '' }}>
-                                    <span class="block py-1.5 px-2 text-center text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 peer-checked:bg-sky-600 peer-checked:text-white peer-checked:font-bold peer-checked:shadow-xs transition-all">
+                                    <span class="block py-1.5 px-2 text-center text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 peer-checked:bg-sky-600 peer-checked:text-white peer-checked:font-semibold peer-checked:shadow-xs transition-all">
                                         <span class="inline-flex items-center justify-center gap-1">
                                             <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -201,7 +201,7 @@
 
                                 <label class="{{ ($isLocked ?? false) ? 'cursor-not-allowed opacity-80' : 'cursor-pointer' }} select-none">
                                     <input type="radio" name="statuses[{{ $st->id }}]" value="ALPA" class="peer hidden" {{ $currentStatus === 'ALPA' ? 'checked' : '' }} {{ ($isLocked ?? false) ? 'disabled' : '' }}>
-                                    <span class="block py-1.5 px-2 text-center text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 peer-checked:bg-rose-600 peer-checked:text-white peer-checked:font-bold peer-checked:shadow-xs transition-all">
+                                    <span class="block py-1.5 px-2 text-center text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 peer-checked:bg-rose-600 peer-checked:text-white peer-checked:font-semibold peer-checked:shadow-xs transition-all">
                                         <span class="inline-flex items-center justify-center gap-1">
                                             <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -221,7 +221,7 @@
             <!-- Locked State Return Navigation -->
             <div class="pt-2 max-w-xl mx-auto space-y-2.5 text-center">
                 <a href="{{ route('guru.dashboard') }}"
-                    class="w-full bg-slate-800 hover:bg-slate-900 active:bg-slate-950 text-white font-bold py-3.5 px-6 rounded-2xl text-xs inline-flex items-center justify-center gap-2 transition-all duration-150 shadow-md shadow-slate-900/15 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-700">
+                    class="w-full bg-slate-800 hover:bg-slate-900 active:bg-slate-950 text-white font-semibold py-3.5 px-6 rounded-2xl text-xs inline-flex items-center justify-center gap-2 transition-all duration-150 shadow-md shadow-slate-900/15 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-700">
                     <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
@@ -243,7 +243,7 @@
                     data-confirm-type="primary"
                     data-confirm-btn="Ya, Simpan Sekarang"
                     data-confirm-icon="lock"
-                    class="w-full min-h-[48px] bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-bold py-3.5 sm:py-4 px-6 rounded-2xl text-sm inline-flex items-center justify-center gap-2 shadow-lg shadow-maarif-700/25 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-maarif-600">
+                    class="w-full min-h-[48px] bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-semibold py-3.5 sm:py-4 px-6 rounded-2xl text-sm inline-flex items-center justify-center gap-2 shadow-lg shadow-maarif-700/25 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-maarif-600">
                     <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>

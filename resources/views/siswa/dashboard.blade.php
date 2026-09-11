@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Dashboard — MA Ma\'arif Cilageni')
 
@@ -31,7 +31,7 @@
     <!-- Page Title Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-black text-slate-900 heading-font tracking-tight">Dashboard Siswa</h1>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 heading-font tracking-tight">Dashboard Siswa</h1>
             <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Terminal presensi ruang kelas dan pemantauan kehadiran harian madrasah</p>
         </div>
     </div>
@@ -52,8 +52,8 @@
             <!-- Live Clock Pill Capsule -->
             <div class="px-2.5 py-1 rounded-full bg-black/25 backdrop-blur-md border border-white/20 text-white shrink-0 shadow-inner flex items-center gap-1.5">
                 <i data-lucide="clock" class="w-3.5 h-3.5 text-emerald-300 shrink-0"></i>
-                <div class="liveClockTicker text-xs font-black mono-font tracking-wider">
-                    {{ now()->format('H:i:s') }} <span class="text-[10px] font-bold text-emerald-300">WIB</span>
+                <div class="liveClockTicker text-xs font-bold mono-font tracking-wider">
+                    {{ now()->format('H:i:s') }} <span class="text-[10px] font-semibold text-emerald-300">WIB</span>
                 </div>
             </div>
         </div>
@@ -62,72 +62,49 @@
         <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <!-- Student Identity (Left) -->
             <div class="flex items-center gap-4">
-                <div class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-white/20 to-white/5 border border-white/25 text-white flex items-center justify-center font-black text-2xl sm:text-3xl shadow-lg shrink-0 backdrop-blur-md overflow-hidden ring-2 ring-white/15">
+                <div class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-white/20 to-white/5 border border-white/25 text-white flex items-center justify-center font-bold text-2xl sm:text-3xl shadow-lg shrink-0 backdrop-blur-md overflow-hidden ring-2 ring-white/15">
                     @if($student->profile_photo_url)
-                        <img src="{{ $student->profile_photo_url }}" alt="{{ $student->name }}" class="w-full h-full object-cover">
+                        <img src="{{ $student->profile_photo_url }}" loading="lazy" decoding="async" alt="{{ $student->name }}" class="w-full h-full object-cover">
                     @else
                         <span class="select-none">{{ substr($student->name, 0, 1) }}</span>
                     @endif
                 </div>
                 <div class="min-w-0 flex-1">
-                    <div class="flex items-center gap-2 flex-wrap mb-1">
-                        <span class="px-2.5 py-0.5 rounded-md bg-emerald-500/30 border border-emerald-400/40 text-[11px] font-bold text-emerald-200">
-                            Kelas {{ $student->classroom->name ?? '-' }}
-                        </span>
-                        <span class="text-[11px] text-emerald-200/80 font-medium">
-                            TA {{ $student->classroom->academic_year ?? '2026/2027' }}
-                        </span>
-                    </div>
-                    <h2 class="text-xl sm:text-2xl font-black text-white heading-font tracking-tight truncate">
+                    <h2 class="text-xl sm:text-2xl font-bold text-white heading-font tracking-tight truncate">
                         {{ $student->name }}
                     </h2>
-                    <p class="text-xs text-emerald-100/80 font-medium mt-0.5 flex items-center gap-1.5">
-                        <span>NISN:</span>
-                        <span class="mono-font font-bold text-white tracking-wider">{{ $student->identity_number }}</span>
-                    </p>
+                    
+                    <div class="flex items-center gap-2 flex-wrap text-xs text-emerald-200/90 font-medium mt-1">
+                        <span>Kelas {{ $student->classroom->name ?? '-' }}</span>
+                        <span class="text-emerald-400/40 select-none">&bull;</span>
+                        <span>TA {{ $student->classroom->academic_year ?? '2026/2027' }}</span>
+                        <span class="text-emerald-400/40 select-none">&bull;</span>
+                        <span>NISN: <strong class="mono-font font-semibold text-white">{{ $student->identity_number }}</strong></span>
+                    </div>
+
+                    <!-- GPS Live Status Indicator (Linear / Clean Editorial) -->
+                    <div class="mt-2 flex items-center">
+                        <button type="button" onclick="initGeolocation(true)" id="geofenceBadge" title="Ketuk untuk memperbarui lokasi GPS" class="group inline-flex items-center gap-2 text-xs font-semibold text-emerald-200/90 hover:text-white transition-colors cursor-pointer focus:outline-none">
+                            <span class="relative flex h-2 w-2">
+                                <span id="geofenceBadgePing" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                <span id="geofenceBadgeDot" class="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
+                            </span>
+                            <span id="geofenceBadgeText" class="tracking-tight">Mendeteksi Lokasi GPS...</span>
+                            <span id="geofenceBadgeDist" class="hidden mono-font text-[11px] opacity-90"></span>
+                            <i data-lucide="rotate-cw" id="gpsBadgeIcon" class="w-3.5 h-3.5 text-emerald-300/70 group-hover:text-emerald-200 group-hover:rotate-180 transition-transform duration-300"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <!-- [DESKTOP ONLY] Live Clock & Date (Right) -->
             <div class="hidden md:flex flex-col items-end shrink-0 pl-6 border-l border-white/15 text-right">
-                <div id="liveClockDisplay" class="liveClockTicker text-2xl lg:text-3xl font-black text-white mono-font tracking-tight drop-shadow-xs">
-                    {{ now()->format('H:i:s') }} <span class="text-xs font-bold text-emerald-200">WIB</span>
+                <div id="liveClockDisplay" class="liveClockTicker text-2xl lg:text-3xl font-bold text-white mono-font tracking-tight drop-shadow-xs">
+                    {{ now()->format('H:i:s') }} <span class="text-xs font-semibold text-emerald-200">WIB</span>
                 </div>
                 <p class="text-xs text-emerald-100/90 mt-1 font-medium">
                     {{ $todayDay }}, {{ now()->translatedFormat('d F Y') }}
                 </p>
-            </div>
-        </div>
-
-        <!-- Bottom Row: Dedicated Frosted Glass GPS Pod -->
-        <div id="geofenceCard" class="relative z-10 rounded-2xl bg-black/20 sm:bg-white/10 p-3.5 sm:p-4 border border-white/15 backdrop-blur-md shadow-inner flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4 text-xs">
-            <div class="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1">
-                <div id="geofenceIconBox" class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-white/15 border border-white/25 text-white flex items-center justify-center shrink-0 shadow-sm transition-all">
-                    <i data-lucide="map-pin" class="w-5 h-5 sm:w-6 sm:h-6 text-white"></i>
-                </div>
-                <div class="min-w-0 flex-1">
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <span id="geofenceTitle" class="font-bold text-white uppercase tracking-wider text-xs heading-font">
-                            Mendeteksi Lokasi GPS...
-                        </span>
-                        <span id="geofenceDistance" class="font-mono font-black text-xs px-2.5 py-0.5 rounded-full bg-white text-emerald-950 shadow-xs border border-white">
-                            -- m
-                        </span>
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-white/15 border border-white/20 text-[10px] sm:text-[11px] text-emerald-100 font-semibold">
-                            Batas Radius: {{ $location->radius_meters ?? 75 }} meter
-                        </span>
-                    </div>
-                    <p id="geofenceDesc" class="text-[11px] sm:text-xs text-emerald-100/90 mt-1 leading-snug break-words">
-                        Harap izinkan akses lokasi (GPS) pada peramban HP Anda.
-                    </p>
-                </div>
-            </div>
-
-            <div class="flex items-center justify-end shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-white/10">
-                <button type="button" onclick="initGeolocation(true)" class="w-full md:w-auto py-2.5 px-4 rounded-xl bg-white/15 hover:bg-white/25 active:bg-white/30 text-white text-xs font-bold backdrop-blur-md transition-all duration-150 inline-flex items-center justify-center gap-2 border border-white/25 hover:border-white/40 shadow-xs active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white whitespace-nowrap">
-                    <i data-lucide="rotate-cw" id="gpsRefreshIcon" class="w-4 h-4 text-emerald-200"></i>
-                    <span>Perbarui Lokasi GPS</span>
-                </button>
             </div>
         </div>
     </div>
@@ -148,7 +125,7 @@
             </p>
         </div>
         <button type="button" onclick="initGeolocation(true)" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-rose-100 active:bg-rose-200 border border-rose-300 text-rose-800 font-bold text-xs transition-all duration-150 active:scale-[0.98] shadow-xs cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500">
-            <i data-lucide="rotate-cw" class="w-4 h-4 text-rose-600 shrink-0"></i>
+            <i data-lucide="rotate-cw" id="gpsRefreshIcon" class="w-4 h-4 text-rose-600 shrink-0"></i>
             <span>Coba Deteksi Ulang GPS</span>
         </button>
     </div>
@@ -179,10 +156,10 @@
                 </div>
                 <div class="min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
-                        <h4 class="text-sm font-bold text-slate-800 heading-font">
+                        <h4 class="text-sm font-semibold text-slate-800 heading-font">
                             Petunjuk Presensi Siswa
                         </h4>
-                        <span class="text-[10px] font-extrabold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/70">
+                        <span class="text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/70">
                             3 Langkah Alur
                         </span>
                     </div>
@@ -198,23 +175,23 @@
         <div class="px-5 pb-5 pt-2 border-t border-slate-100 text-xs sm:text-sm bg-slate-50/50">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 pt-2">
                 <div class="p-4 bg-white rounded-2xl border border-slate-200/70 shadow-2xs flex items-start gap-3">
-                    <span class="w-6 h-6 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-black mono-font flex items-center justify-center shrink-0 mt-0.5">1</span>
+                    <span class="w-6 h-6 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-semibold mono-font flex items-center justify-center shrink-0 mt-0.5">1</span>
                     <div class="text-slate-600 text-xs leading-relaxed">
-                        <strong class="text-slate-900 block font-bold mb-0.5">Berada di Madrasah</strong>
+                        <strong class="text-slate-900 block font-semibold mb-0.5">Berada di Madrasah</strong>
                         Presensi hanya dapat diverifikasi saat GPS mendeteksi kamu berada di area madrasah.
                     </div>
                 </div>
                 <div class="p-4 bg-white rounded-2xl border border-slate-200/70 shadow-2xs flex items-start gap-3">
-                    <span class="w-6 h-6 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-black mono-font flex items-center justify-center shrink-0 mt-0.5">2</span>
+                    <span class="w-6 h-6 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-semibold mono-font flex items-center justify-center shrink-0 mt-0.5">2</span>
                     <div class="text-slate-600 text-xs leading-relaxed">
-                        <strong class="text-slate-900 block font-bold mb-0.5">Masukkan PIN</strong>
+                        <strong class="text-slate-900 block font-semibold mb-0.5">Masukkan PIN</strong>
                         Ketik 4 angka PIN yang dibagikan oleh guru pengampu saat jam pelajaran dimulai.
                     </div>
                 </div>
                 <div class="p-4 bg-white rounded-2xl border border-slate-200/70 shadow-2xs flex items-start gap-3">
-                    <span class="w-6 h-6 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-black mono-font flex items-center justify-center shrink-0 mt-0.5">3</span>
+                    <span class="w-6 h-6 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-semibold mono-font flex items-center justify-center shrink-0 mt-0.5">3</span>
                     <div class="text-slate-600 text-xs leading-relaxed">
-                        <strong class="text-slate-900 block font-bold mb-0.5">Kehadiran Otomatis</strong>
+                        <strong class="text-slate-900 block font-semibold mb-0.5">Kehadiran Otomatis</strong>
                         Presensi pada jam pertama otomatis mencatat kehadiran masuk harian madrasah.
                     </div>
                 </div>
@@ -227,13 +204,13 @@
         <!-- Metric 1: Total Mapel Hari Ini -->
         <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-slate-300 transition">
             <div class="flex items-center justify-between">
-                <span class="text-[11px] sm:text-xs font-extrabold text-slate-500 uppercase tracking-wider">Jadwal Hari Ini</span>
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Jadwal Hari Ini</span>
                 <div class="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
                     <i data-lucide="calendar" class="w-4 h-4"></i>
                 </div>
             </div>
             <div class="mt-3">
-                <span class="text-2xl sm:text-3xl font-black text-slate-900 mono-font leading-none block">
+                <span class="text-2xl sm:text-3xl font-bold text-slate-900 mono-font leading-none block">
                     {{ $todaySchedules->count() }}
                 </span>
                 <p class="text-[11px] text-slate-500 font-medium mt-1">Mata Pelajaran</p>
@@ -243,13 +220,13 @@
         <!-- Metric 2: Hadir Hari Ini -->
         <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-emerald-300 transition">
             <div class="flex items-center justify-between">
-                <span class="text-[11px] sm:text-xs font-extrabold text-emerald-700 uppercase tracking-wider">Hadir</span>
+                <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Hadir</span>
                 <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/60 flex items-center justify-center shrink-0">
                     <i data-lucide="check-circle-2" class="w-4 h-4"></i>
                 </div>
             </div>
             <div class="mt-3">
-                <span class="text-2xl sm:text-3xl font-black text-emerald-700 mono-font leading-none block">
+                <span class="text-2xl sm:text-3xl font-bold text-emerald-700 mono-font leading-none block">
                     {{ $hadirCount }}
                 </span>
                 <p class="text-[11px] text-slate-500 font-medium mt-1">Sesi Terverifikasi</p>
@@ -259,13 +236,13 @@
         <!-- Metric 3: Izin / Sakit -->
         <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-amber-300 transition">
             <div class="flex items-center justify-between">
-                <span class="text-[11px] sm:text-xs font-extrabold text-amber-700 uppercase tracking-wider">Izin / Sakit</span>
+                <span class="text-xs font-semibold text-amber-700 uppercase tracking-wider">Izin / Sakit</span>
                 <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 border border-amber-200/60 flex items-center justify-center shrink-0">
                     <i data-lucide="file-text" class="w-4 h-4"></i>
                 </div>
             </div>
             <div class="mt-3">
-                <span class="text-2xl sm:text-3xl font-black text-amber-700 mono-font leading-none block">
+                <span class="text-2xl sm:text-3xl font-bold text-amber-700 mono-font leading-none block">
                     {{ $izinCount + $sakitCount }}
                 </span>
                 <p class="text-[11px] text-slate-500 font-medium mt-1">Dispensasi</p>
@@ -275,13 +252,13 @@
         <!-- Metric 4: Alpa -->
         <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-rose-300 transition">
             <div class="flex items-center justify-between">
-                <span class="text-[11px] sm:text-xs font-extrabold text-rose-700 uppercase tracking-wider">Alpa</span>
+                <span class="text-xs font-semibold text-rose-700 uppercase tracking-wider">Alpa</span>
                 <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-700 border border-rose-200/60 flex items-center justify-center shrink-0">
                     <i data-lucide="x-circle" class="w-4 h-4"></i>
                 </div>
             </div>
             <div class="mt-3">
-                <span class="text-2xl sm:text-3xl font-black text-rose-700 mono-font leading-none block">
+                <span class="text-2xl sm:text-3xl font-bold text-rose-700 mono-font leading-none block">
                     {{ $alpaCount }}
                 </span>
                 <p class="text-[11px] text-slate-500 font-medium mt-1">Tanpa Keterangan</p>
@@ -296,14 +273,14 @@
         <div id="sessionCard" class="hidden bg-white rounded-3xl p-6 border-2 border-maarif-600 shadow-xl shadow-maarif-700/10 space-y-6 transition-all duration-300">
             <div class="flex items-center justify-between pb-4 border-b border-slate-100">
                 <div class="min-w-0 flex-1">
-                    <h3 id="sessionSubject" class="text-xl sm:text-2xl font-black text-slate-900 heading-font truncate">
+                    <h3 id="sessionSubject" class="text-xl sm:text-2xl font-bold text-slate-900 heading-font truncate">
                         --
                     </h3>
                     <p id="sessionTeacher" class="text-xs text-slate-500 font-medium mt-0.5 truncate">Bapak/Ibu Guru: --</p>
                 </div>
                 <div class="text-right pl-4 shrink-0">
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Sisa Waktu</p>
-                    <div id="sessionCountdown" class="text-2xl sm:text-3xl font-black text-amber-600 mono-font">
+                    <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Sisa Waktu</p>
+                    <div id="sessionCountdown" class="text-2xl sm:text-3xl font-bold text-amber-600 mono-font">
                         --:--
                     </div>
                 </div>
@@ -312,15 +289,15 @@
             <!-- PIN Input Keypad Section -->
             <div id="pinSection" class="space-y-4">
                 <div class="text-center">
-                    <label class="text-xs font-bold text-slate-700">Masukkan 4 Angka PIN dari Bapak/Ibu Guru</label>
+                    <label class="text-xs font-semibold text-slate-700">Masukkan 4 Angka PIN dari Bapak/Ibu Guru</label>
                     <p class="text-[11px] text-slate-400 mt-0.5">Ketik angka PIN yang disebutkan oleh Bapak/Ibu Guru</p>
                     
                     <!-- 4-Digit Display Boxes -->
                     <div class="flex items-center justify-center gap-3 sm:gap-4 my-4">
-                        <div id="digit0" class="w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-maarif-600 bg-white shadow-xs flex items-center justify-center text-2xl sm:text-3xl font-extrabold text-slate-800 mono-font shrink-0 ring-2 ring-maarif-500/30 transition-all"></div>
-                        <div id="digit1" class="w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-slate-300 bg-slate-50/50 shadow-xs flex items-center justify-center text-2xl sm:text-3xl font-extrabold text-slate-800 mono-font shrink-0 transition-all"></div>
-                        <div id="digit2" class="w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-slate-300 bg-slate-50/50 shadow-xs flex items-center justify-center text-2xl sm:text-3xl font-extrabold text-slate-800 mono-font shrink-0 transition-all"></div>
-                        <div id="digit3" class="w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-slate-300 bg-slate-50/50 shadow-xs flex items-center justify-center text-2xl sm:text-3xl font-extrabold text-slate-800 mono-font shrink-0 transition-all"></div>
+                        <div id="digit0" class="w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-maarif-600 bg-white shadow-xs flex items-center justify-center text-2xl sm:text-3xl font-bold text-slate-800 mono-font shrink-0 ring-2 ring-maarif-500/30 transition-all"></div>
+                        <div id="digit1" class="w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-slate-300 bg-slate-50/50 shadow-xs flex items-center justify-center text-2xl sm:text-3xl font-bold text-slate-800 mono-font shrink-0 transition-all"></div>
+                        <div id="digit2" class="w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-slate-300 bg-slate-50/50 shadow-xs flex items-center justify-center text-2xl sm:text-3xl font-bold text-slate-800 mono-font shrink-0 transition-all"></div>
+                        <div id="digit3" class="w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-slate-300 bg-slate-50/50 shadow-xs flex items-center justify-center text-2xl sm:text-3xl font-bold text-slate-800 mono-font shrink-0 transition-all"></div>
                     </div>
                     <p id="pinFeedback" class="text-xs font-semibold text-rose-600 h-5"></p>
                 </div>
@@ -332,7 +309,7 @@
                             {{ $n }}
                         </button>
                     @endforeach
-                    <button type="button" onclick="clearPin()" aria-label="Hapus semua angka PIN" class="keypad-btn bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-slate-500 text-sm font-bold rounded-2xl border border-slate-200 shadow-2xs transition-all duration-150 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+                    <button type="button" onclick="clearPin()" aria-label="Hapus semua angka PIN" class="keypad-btn bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-slate-500 text-sm font-semibold rounded-2xl border border-slate-200 shadow-2xs transition-all duration-150 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
                         C
                     </button>
                     <button type="button" onclick="pressKey('0')" class="keypad-btn bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-slate-800 rounded-2xl border border-slate-200 shadow-2xs transition-all duration-150 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
@@ -354,8 +331,8 @@
                     </svg>
                 </div>
                 <div>
-                    <h4 class="text-lg font-extrabold text-slate-900 heading-font">Kehadiran Berhasil Dicatat!</h4>
-                    <p class="text-sm text-emerald-700 font-bold mt-0.5">Kamu tercatat: <strong>HADIR</strong> pada mata pelajaran ini.</p>
+                    <h4 class="text-lg font-semibold text-slate-900 heading-font">Kehadiran Berhasil Dicatat!</h4>
+                    <p class="text-sm text-emerald-700 font-semibold mt-0.5">Kamu tercatat: <strong>HADIR</strong> pada mata pelajaran ini.</p>
                     <p class="text-xs text-slate-500 mt-1">Presensi pada jam pertama otomatis mencatat kehadiran harian kamu.</p>
                 </div>
             </div>
@@ -371,7 +348,7 @@
             </div>
 
             <div class="max-w-md mx-auto space-y-1">
-                <h4 class="text-base font-bold text-slate-900 heading-font">Belum Ada Presensi Kelas yang Dibuka</h4>
+                <h4 class="text-base font-semibold text-slate-900 heading-font">Belum Ada Presensi Kelas yang Dibuka</h4>
                 <p class="text-xs text-slate-500 leading-relaxed">
                     Bapak/Ibu Guru belum membuka presensi untuk kelas <strong>{{ $student->classroom->name ?? 'kamu' }}</strong>. Halaman ini akan otomatis menampilkan kotak PIN ketika presensi dibuka.
                 </p>
@@ -386,13 +363,13 @@
                         <i data-lucide="calendar" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <h3 class="text-sm sm:text-base font-black text-slate-900 heading-font uppercase tracking-wide">
+                        <h3 class="text-sm sm:text-base font-semibold text-slate-900 heading-font uppercase tracking-wide">
                             Jadwal Pelajaran Hari Ini ({{ $todayDay }})
                         </h3>
                         <p class="text-xs text-slate-500">Kelas {{ $student->classroom->name ?? '-' }} &bull; MA Ma'arif Cilageni</p>
                     </div>
                 </div>
-                <a href="{{ route('siswa.schedule') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-emerald-800 bg-slate-100 hover:bg-slate-200/80 px-3 py-1.5 rounded-xl transition-all duration-150 active:scale-95 shadow-2xs shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
+                <a href="{{ route('siswa.schedule') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 hover:text-emerald-800 bg-slate-100 hover:bg-slate-200/80 px-3 py-1.5 rounded-xl transition-all duration-150 active:scale-95 shadow-2xs shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
                     <span>Lihat Mingguan</span>
                     <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                 </a>
@@ -413,18 +390,18 @@
                         @endphp
                         <div class="p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 {{ $matchedAttendance ? ($matchedAttendance->status === 'HADIR' ? 'bg-emerald-50/40 border-emerald-200/80' : 'bg-amber-50/40 border-amber-200/80') : 'bg-slate-50/70 border-slate-200/70 hover:bg-slate-100/80' }}">
                             <div class="flex items-center space-x-3.5 min-w-0">
-                                <span class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-800 font-extrabold mono-font text-xs shrink-0 shadow-2xs">
+                                <span class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-800 font-semibold mono-font text-xs shrink-0 shadow-2xs">
                                     {{ substr($sch->start_time, 0, 5) }} – {{ substr($sch->end_time, 0, 5) }}
                                 </span>
                                 <div class="min-w-0 flex-1">
-                                    <h4 class="text-sm font-bold text-slate-900 leading-snug break-words">{{ $sch->subject->name }}</h4>
+                                    <h4 class="text-sm font-semibold text-slate-900 leading-snug break-words">{{ $sch->subject->name }}</h4>
                                     <p class="text-xs text-slate-500 mt-0.5 break-words">{{ $sch->teacher->name }}</p>
                                 </div>
                             </div>
 
                             <div class="self-end sm:self-center shrink-0">
                                 @if($matchedAttendance)
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold {{ $matchedAttendance->status === 'HADIR' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($matchedAttendance->status === 'IZIN' ? 'bg-amber-100 text-amber-800 border border-amber-200' : ($matchedAttendance->status === 'SAKIT' ? 'bg-sky-100 text-sky-800 border border-sky-200' : 'bg-rose-100 text-rose-800 border border-rose-200')) }}">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold {{ $matchedAttendance->status === 'HADIR' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($matchedAttendance->status === 'IZIN' ? 'bg-amber-100 text-amber-800 border border-amber-200' : ($matchedAttendance->status === 'SAKIT' ? 'bg-sky-100 text-sky-800 border border-sky-200' : 'bg-rose-100 text-rose-800 border border-rose-200')) }}">
                                         @if($matchedAttendance->status === 'HADIR')
                                             <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i>
                                         @endif
@@ -450,13 +427,13 @@
                         <i data-lucide="check-square" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <h3 class="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide heading-font">
+                        <h3 class="text-sm sm:text-base font-semibold text-slate-900 uppercase tracking-wide heading-font">
                             Riwayat Kehadiran Hari Ini
                         </h3>
                         <p class="text-xs text-slate-500">Catatan kehadiran pada jam pelajaran hari ini</p>
                     </div>
                 </div>
-                <span class="text-xs font-bold text-slate-700 px-3 py-1 rounded-xl bg-slate-100 border border-slate-200/80 mono-font shrink-0">
+                <span class="text-xs font-semibold text-slate-700 px-3 py-1 rounded-xl bg-slate-100 border border-slate-200/80 mono-font shrink-0">
                     {{ $todayAttendances->count() }} Tercatat
                 </span>
             </div>
@@ -473,13 +450,13 @@
                     @foreach($todayAttendances as $att)
                         <div class="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/70 flex items-center justify-between text-xs hover:bg-slate-100/80 transition">
                             <div class="min-w-0 flex-1 pr-3">
-                                <p class="font-bold text-slate-900 text-sm leading-snug break-words">{{ $att->schedule->subject->name ?? 'Mata Pelajaran' }}</p>
+                                <p class="font-semibold text-slate-900 text-sm leading-snug break-words">{{ $att->schedule->subject->name ?? 'Mata Pelajaran' }}</p>
                                 <p class="text-xs text-slate-500 mt-0.5 break-words">
                                     {{ $att->schedule->teacher->name ?? 'Dewan Guru' }} &bull; 
-                                    <span class="mono-font text-slate-600 font-semibold">{{ $att->verified_at ? $att->verified_at->format('H:i') . ' WIB' : 'Pukul ' . substr($att->schedule->start_time ?? '', 0, 5) . ' WIB' }}</span>
+                                    <span class="mono-font text-slate-600 font-medium">{{ $att->verified_at ? $att->verified_at->format('H:i') . ' WIB' : 'Pukul ' . substr($att->schedule->start_time ?? '', 0, 5) . ' WIB' }}</span>
                                 </p>
                             </div>
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold shrink-0 {{ $att->status === 'HADIR' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($att->status === 'IZIN' ? 'bg-amber-100 text-amber-800 border border-amber-200' : ($att->status === 'SAKIT' ? 'bg-sky-100 text-sky-800 border border-sky-200' : 'bg-rose-100 text-rose-800 border border-rose-200')) }}">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold shrink-0 {{ $att->status === 'HADIR' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($att->status === 'IZIN' ? 'bg-amber-100 text-amber-800 border border-amber-200' : ($att->status === 'SAKIT' ? 'bg-sky-100 text-sky-800 border border-sky-200' : 'bg-rose-100 text-rose-800 border border-rose-200')) }}">
                                 @if($att->status === 'HADIR')
                                     <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i>
                                 @endif
@@ -503,12 +480,12 @@
     let countdownTimer = null;
     let remainingSec = 0;
 
-    const geofenceCard = document.getElementById('geofenceCard');
-    const geofenceIconBox = document.getElementById('geofenceIconBox');
-    const geofenceDot = document.getElementById('geofenceDot');
-    const geofenceTitle = document.getElementById('geofenceTitle');
-    const geofenceDesc = document.getElementById('geofenceDesc');
-    const geofenceDistance = document.getElementById('geofenceDistance');
+    const geofenceBadge = document.getElementById('geofenceBadge');
+    const geofenceBadgeDot = document.getElementById('geofenceBadgeDot');
+    const geofenceBadgePing = document.getElementById('geofenceBadgePing');
+    const geofenceBadgeText = document.getElementById('geofenceBadgeText');
+    const geofenceBadgeDist = document.getElementById('geofenceBadgeDist');
+    const gpsBadgeIcon = document.getElementById('gpsBadgeIcon');
 
     const sessionCard = document.getElementById('sessionCard');
     const outsideWarning = document.getElementById('outsideWarning');
@@ -539,15 +516,28 @@
     // Geolocation with manual refresh animation support
     function initGeolocation(isManual = false) {
         const refreshIcon = document.getElementById('gpsRefreshIcon');
-        if (isManual && refreshIcon) {
-            refreshIcon.classList.add('animate-spin');
-            setTimeout(() => refreshIcon.classList.remove('animate-spin'), 1500);
+        const badgeIcon = document.getElementById('gpsBadgeIcon');
+        if (isManual) {
+            if (refreshIcon) {
+                refreshIcon.classList.add('animate-spin');
+                setTimeout(() => refreshIcon.classList.remove('animate-spin'), 1500);
+            }
+            if (badgeIcon) {
+                badgeIcon.classList.add('animate-spin');
+                setTimeout(() => badgeIcon.classList.remove('animate-spin'), 1500);
+            }
         }
 
         if (!navigator.geolocation) {
-            if (geofenceTitle) geofenceTitle.textContent = "GPS Tidak Didukung";
-            if (geofenceDesc) geofenceDesc.textContent = "Browser perangkat Anda tidak mendukung geolokasi.";
-            if (heroGpsText) heroGpsText.textContent = "GPS Error";
+            if (geofenceBadge) {
+                geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-rose-200 hover:text-rose-100 transition-colors cursor-pointer focus:outline-none";
+            }
+            if (geofenceBadgePing) geofenceBadgePing.classList.add('hidden');
+            if (geofenceBadgeDot) {
+                geofenceBadgeDot.className = "relative inline-flex rounded-full h-2 w-2 bg-rose-400";
+            }
+            if (geofenceBadgeText) geofenceBadgeText.textContent = "GPS Tidak Didukung";
+            if (geofenceBadgeDist) geofenceBadgeDist.classList.add('hidden');
             return;
         }
 
@@ -559,33 +549,42 @@
 
         const handleError = (err) => {
             if (err.code === 1) { // PERMISSION_DENIED
-                if (geofenceIconBox) {
-                    geofenceIconBox.className = "w-11 h-11 rounded-2xl bg-red-600 border border-red-500 text-white flex items-center justify-center shrink-0 shadow-md transition-all";
+                if (geofenceBadge) {
+                    geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-rose-200 hover:text-rose-100 transition-colors cursor-pointer focus:outline-none";
                 }
-                if (geofenceTitle) {
-                    geofenceTitle.textContent = "Izin Lokasi Ditolak";
-                    geofenceTitle.className = "font-black text-white uppercase tracking-wider text-xs heading-font";
+                if (geofenceBadgePing) geofenceBadgePing.classList.add('hidden');
+                if (geofenceBadgeDot) {
+                    geofenceBadgeDot.className = "relative inline-flex rounded-full h-2 w-2 bg-rose-400";
                 }
-                if (geofenceDesc) geofenceDesc.textContent = "Harap izinkan akses lokasi (GPS) pada browser HP Anda.";
+                if (geofenceBadgeText) geofenceBadgeText.textContent = "Izin GPS Ditolak";
+                if (geofenceBadgeDist) geofenceBadgeDist.classList.add('hidden');
             } else if (err.code === 2) { // POSITION_UNAVAILABLE
-                if (geofenceIconBox) {
-                    geofenceIconBox.className = "w-11 h-11 rounded-2xl bg-amber-500 border border-amber-400 text-white flex items-center justify-center shrink-0 shadow-md animate-pulse transition-all";
+                if (geofenceBadge) {
+                    geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-amber-200 hover:text-amber-100 transition-colors cursor-pointer focus:outline-none";
                 }
-                if (geofenceTitle) {
-                    geofenceTitle.textContent = "Lokasi Tidak Terdeteksi";
-                    geofenceTitle.className = "font-black text-white uppercase tracking-wider text-xs heading-font";
+                if (geofenceBadgePing) {
+                    geofenceBadgePing.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75";
+                    geofenceBadgePing.classList.remove('hidden');
                 }
-                if (geofenceDesc) geofenceDesc.textContent = "Pastikan GPS aktif dan HP terhubung ke internet.";
+                if (geofenceBadgeDot) {
+                    geofenceBadgeDot.className = "relative inline-flex rounded-full h-2 w-2 bg-amber-400";
+                }
+                if (geofenceBadgeText) geofenceBadgeText.textContent = "Lokasi Belum Terdeteksi";
+                if (geofenceBadgeDist) geofenceBadgeDist.classList.add('hidden');
             } else if (err.code === 3) { // TIMEOUT
                 if (!currentCoords.lat) {
-                    if (geofenceIconBox) {
-                        geofenceIconBox.className = "w-11 h-11 rounded-2xl bg-amber-500 border border-amber-400 text-white flex items-center justify-center shrink-0 shadow-md animate-pulse transition-all";
+                    if (geofenceBadge) {
+                        geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-amber-200 hover:text-amber-100 transition-colors cursor-pointer focus:outline-none";
                     }
-                    if (geofenceTitle) {
-                        geofenceTitle.textContent = "Mencari Lokasi GPS...";
-                        geofenceTitle.className = "font-black text-white uppercase tracking-wider text-xs heading-font";
+                    if (geofenceBadgePing) {
+                        geofenceBadgePing.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75";
+                        geofenceBadgePing.classList.remove('hidden');
                     }
-                    if (geofenceDesc) geofenceDesc.textContent = "Sedang memeriksa posisi Anda. Harap tunggu beberapa saat...";
+                    if (geofenceBadgeDot) {
+                        geofenceBadgeDot.className = "relative inline-flex rounded-full h-2 w-2 bg-amber-400";
+                    }
+                    if (geofenceBadgeText) geofenceBadgeText.textContent = "Mencari Lokasi GPS...";
+                    if (geofenceBadgeDist) geofenceBadgeDist.classList.add('hidden');
                 }
             }
         };
@@ -632,18 +631,22 @@
     }
 
     function updateUIState(data) {
+        const distStr = Math.round(data.distance) >= 1000 
+            ? (data.distance / 1000).toFixed(1) + ' km' 
+            : Math.round(data.distance) + 'm';
+
         if (data.is_within_geofence) {
-            if (geofenceIconBox) {
-                geofenceIconBox.className = "w-11 h-11 rounded-2xl bg-emerald-500 border border-emerald-400 text-white flex items-center justify-center shrink-0 shadow-md transition-all";
+            if (geofenceBadge) {
+                geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-emerald-200 hover:text-white transition-colors cursor-pointer focus:outline-none";
             }
-            if (geofenceTitle) {
-                geofenceTitle.textContent = "Di Lingkungan Madrasah";
-                geofenceTitle.className = "font-black text-white uppercase tracking-wider text-xs heading-font";
+            if (geofenceBadgePing) geofenceBadgePing.classList.add('hidden');
+            if (geofenceBadgeDot) {
+                geofenceBadgeDot.className = "relative inline-flex rounded-full h-2 w-2 bg-emerald-400 shadow-xs shadow-emerald-400/50";
             }
-            if (geofenceDesc) geofenceDesc.textContent = "Posisi GPS valid di dalam area madrasah.";
-            if (geofenceDistance) {
-                geofenceDistance.textContent = Math.round(data.distance) + "m";
-                geofenceDistance.className = "font-mono font-black text-xs px-2.5 py-0.5 rounded-full bg-white text-emerald-900 shadow-xs border border-white";
+            if (geofenceBadgeText) geofenceBadgeText.textContent = "Di Area Madrasah";
+            if (geofenceBadgeDist) {
+                geofenceBadgeDist.textContent = `(${distStr})`;
+                geofenceBadgeDist.classList.remove('hidden');
             }
 
             if (outsideWarning) outsideWarning.classList.add('hidden');
@@ -670,17 +673,17 @@
                 if (noSessionNotice) noSessionNotice.classList.remove('hidden');
             }
         } else {
-            if (geofenceIconBox) {
-                geofenceIconBox.className = "w-11 h-11 rounded-2xl bg-red-600 border border-red-500 text-white flex items-center justify-center shrink-0 shadow-md transition-all";
+            if (geofenceBadge) {
+                geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-rose-200 hover:text-rose-100 transition-colors cursor-pointer focus:outline-none";
             }
-            if (geofenceTitle) {
-                geofenceTitle.textContent = "Di Luar Area Madrasah";
-                geofenceTitle.className = "font-black text-white uppercase tracking-wider text-xs heading-font";
+            if (geofenceBadgePing) geofenceBadgePing.classList.add('hidden');
+            if (geofenceBadgeDot) {
+                geofenceBadgeDot.className = "relative inline-flex rounded-full h-2 w-2 bg-rose-400 shadow-xs shadow-rose-400/50";
             }
-            if (geofenceDesc) geofenceDesc.textContent = "Posisi Anda berada di luar area lingkungan madrasah (maksimal 75 meter).";
-            if (geofenceDistance) {
-                geofenceDistance.textContent = Math.round(data.distance) + "m";
-                geofenceDistance.className = "font-mono font-black text-xs px-2.5 py-0.5 rounded-full bg-red-600 text-white shadow-xs border border-red-500";
+            if (geofenceBadgeText) geofenceBadgeText.textContent = "Di Luar Radius";
+            if (geofenceBadgeDist) {
+                geofenceBadgeDist.textContent = `(${distStr})`;
+                geofenceBadgeDist.classList.remove('hidden');
             }
 
             if (sessionCard) sessionCard.classList.add('hidden');
@@ -750,13 +753,13 @@
             if (!el) continue;
             if (i < enteredPin.length) {
                 el.textContent = enteredPin[i];
-                el.className = "w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-maarif-600 bg-emerald-50/60 flex items-center justify-center text-2xl sm:text-3xl font-extrabold text-emerald-950 mono-font shadow-sm shrink-0 ring-2 ring-emerald-500/20 transition-all";
+                el.className = "w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-maarif-600 bg-emerald-50/60 flex items-center justify-center text-2xl sm:text-3xl font-bold text-emerald-950 mono-font shadow-sm shrink-0 ring-2 ring-emerald-500/20 transition-all";
             } else if (i === enteredPin.length) {
                 el.textContent = "";
-                el.className = "w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-maarif-600 bg-white shadow-xs flex items-center justify-center text-2xl sm:text-3xl font-extrabold text-slate-800 mono-font shrink-0 ring-2 ring-maarif-500/30 transition-all";
+                el.className = "w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-maarif-600 bg-white shadow-xs flex items-center justify-center text-2xl sm:text-3xl font-bold text-slate-800 mono-font shrink-0 ring-2 ring-maarif-500/30 transition-all";
             } else {
                 el.textContent = "";
-                el.className = "w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-slate-300 bg-slate-50/50 shadow-xs flex items-center justify-center text-2xl sm:text-3xl font-extrabold text-slate-800 mono-font shrink-0 transition-all";
+                el.className = "w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-slate-300 bg-slate-50/50 shadow-xs flex items-center justify-center text-2xl sm:text-3xl font-bold text-slate-800 mono-font shrink-0 transition-all";
             }
         }
     }
@@ -828,6 +831,10 @@
         initGeolocation();
         updatePinBoxes();
         setInterval(checkServerStatus, 4000);
+    });
+
+    window.addEventListener('dev-location-changed', () => {
+        initGeolocation(true);
     });
 </script>
 @endpush

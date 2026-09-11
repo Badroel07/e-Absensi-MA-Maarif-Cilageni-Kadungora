@@ -6,7 +6,7 @@
 
 @theme {
     --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-    --font-heading: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    --font-heading: 'Inter', ui-sans-serif, system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
 
     --color-maarif-50: #f0fdf4;
@@ -53,5 +53,141 @@
 
     button, a, input, select, textarea, [role="button"] {
         -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Alpine cloak — hides x-cloak elements until Alpine is ready */
+    [x-cloak] { display: none !important; }
+}
+
+@layer components {
+    /* ─── SKELETON LOADING ─────────────────────────────────────────── */
+    /* Base skeleton block — neutral shimmer, respects prefers-reduced-motion */
+    .skeleton {
+        display: block;
+        background-color: #e2e8f0; /* slate-200 */
+        background-image: linear-gradient(
+            90deg,
+            rgba(226, 232, 240, 0) 0%,
+            rgba(203, 213, 225, 0.7) 50%, /* slate-300 */
+            rgba(226, 232, 240, 0) 100%
+        );
+        background-size: 200% 100%;
+        background-repeat: no-repeat;
+        border-radius: 0.375rem;
+        animation: skeleton-shimmer 1.6s ease-in-out infinite;
+    }
+
+    /* Dark variant for cards on dark backgrounds (e.g. hero KPI) */
+    .skeleton-dark {
+        background-color: rgba(255, 255, 255, 0.12);
+        background-image: linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.18) 50%,
+            rgba(255, 255, 255, 0) 100%
+        );
+        background-size: 200% 100%;
+        background-repeat: no-repeat;
+        border-radius: 0.375rem;
+        animation: skeleton-shimmer 1.6s ease-in-out infinite;
+    }
+
+    /* Shaped variants — explicit (avoids @apply cyclic in Tailwind v4) */
+    .skeleton-text {
+        display: block;
+        height: 0.75rem;
+        width: 100%;
+        border-radius: 0.375rem;
+        background-color: #e2e8f0;
+        background-image: linear-gradient(
+            90deg,
+            rgba(226, 232, 240, 0) 0%,
+            rgba(203, 213, 225, 0.7) 50%,
+            rgba(226, 232, 240, 0) 100%
+        );
+        background-size: 200% 100%;
+        background-repeat: no-repeat;
+        animation: skeleton-shimmer 1.6s ease-in-out infinite;
+    }
+
+    .skeleton-circle {
+        display: block;
+        border-radius: 9999px;
+        background-color: #e2e8f0;
+        background-image: linear-gradient(
+            90deg,
+            rgba(226, 232, 240, 0) 0%,
+            rgba(203, 213, 225, 0.7) 50%,
+            rgba(226, 232, 240, 0) 100%
+        );
+        background-size: 200% 100%;
+        background-repeat: no-repeat;
+        animation: skeleton-shimmer 1.6s ease-in-out infinite;
+    }
+
+    .skeleton-rect {
+        display: block;
+        width: 100%;
+        height: 6rem;
+        border-radius: 0.75rem;
+        background-color: #e2e8f0;
+        background-image: linear-gradient(
+            90deg,
+            rgba(226, 232, 240, 0) 0%,
+            rgba(203, 213, 225, 0.7) 50%,
+            rgba(226, 232, 240, 0) 100%
+        );
+        background-size: 200% 100%;
+        background-repeat: no-repeat;
+        animation: skeleton-shimmer 1.6s ease-in-out infinite;
+    }
+
+    /* Auto-hide skeletons after page is interactive (progressive enhancement) */
+    .skeleton-auto-hide {
+        animation: skeleton-shimmer 1.6s ease-in-out infinite, skeleton-fade-out 400ms ease-out 1.2s forwards;
+    }
+
+    @keyframes skeleton-shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    @keyframes skeleton-fade-out {
+        to { opacity: 0; visibility: hidden; }
+    }
+
+    /* Respect reduced motion preferences */
+    @media (prefers-reduced-motion: reduce) {
+        .skeleton,
+        .skeleton-dark,
+        .skeleton-auto-hide {
+            animation: none;
+            background-image: none;
+        }
+    }
+
+    /* ─── BUTTON LOADING STATE ─────────────────────────────────────── */
+    .btn-loading {
+        position: relative;
+        color: transparent !important;
+        pointer-events: none;
+    }
+    .btn-loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 1rem;
+        height: 1rem;
+        margin-top: -0.5rem;
+        margin-left: -0.5rem;
+        border: 2px solid currentColor;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: btn-spin 0.7s linear infinite;
+        color: white;
+    }
+    @keyframes btn-spin {
+        to { transform: rotate(360deg); }
     }
 }

@@ -38,7 +38,7 @@
 
     {{-- ── 1. PAGE TITLE ────────────────────────────── --}}
     <div>
-        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 heading-font tracking-tight">
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 heading-font tracking-tight">
             Jadwal Mengajar
         </h1>
         <p class="text-xs sm:text-sm text-slate-500 mt-1">
@@ -57,16 +57,16 @@
                 {{-- Day Section Header Bar --}}
                 <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-2xl {{ $isToday ? 'bg-emerald-700 text-white shadow-xs' : 'bg-slate-100 text-slate-700' }} flex items-center justify-center font-black text-sm shrink-0">
+                        <div class="w-10 h-10 rounded-2xl {{ $isToday ? 'bg-emerald-700 text-white shadow-xs' : 'bg-slate-100 text-slate-700' }} flex items-center justify-center font-bold text-sm shrink-0">
                             <i data-lucide="calendar-days" class="w-5 h-5"></i>
                         </div>
                         <div>
                             <div class="flex items-center gap-2.5">
-                                <h2 class="text-base font-black text-slate-900 heading-font uppercase tracking-wider">
+                                <h2 class="text-base font-bold text-slate-900 heading-font uppercase tracking-wider">
                                     {{ $day }}
                                 </h2>
                                 @if($isToday)
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
                                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
                                         Hari Ini
                                     </span>
@@ -86,15 +86,15 @@
                             
                             {{-- Left: Sesi Badge + Subject High Contrast + Classroom Info --}}
                             <div class="flex items-start sm:items-center space-x-3.5 min-w-0 flex-1">
-                                <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-black mono-font text-xs flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-emerald-700 group-hover:text-white group-hover:border-emerald-700 transition">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold mono-font text-xs flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-emerald-700 group-hover:text-white group-hover:border-emerald-700 transition">
                                     {{ str_pad($idx + 1, 2, '0', STR_PAD_LEFT) }}
                                 </div>
                                 <div class="min-w-0 flex-1 space-y-1">
-                                    <h3 class="text-base sm:text-lg font-black text-slate-950 heading-font leading-snug tracking-tight break-words group-hover:text-emerald-900 transition">
+                                    <h3 class="text-base sm:text-lg font-semibold text-slate-900 heading-font leading-snug tracking-tight break-words group-hover:text-emerald-900 transition">
                                         {{ $sch->subject->name ?? 'Mata Pelajaran' }}
                                     </h3>
                                     <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-emerald-50 border border-emerald-200/80 text-emerald-900 font-extrabold text-[11px] shadow-2xs">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-emerald-50 border border-emerald-200/80 text-emerald-900 font-semibold text-[11px] shadow-2xs">
                                             <i data-lucide="door-closed" class="w-3.5 h-3.5 text-emerald-700"></i>
                                             <span>Kelas {{ $sch->classroom->name ?? '-' }}</span>
                                         </span>
@@ -109,10 +109,10 @@
 
                             {{-- Right: High Contrast Time Pill --}}
                             <div class="flex items-center justify-start sm:justify-end shrink-0 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                                <div class="px-3.5 py-2 rounded-xl bg-slate-900 text-white font-extrabold mono-font text-xs sm:text-sm shadow-xs flex items-center gap-2 tracking-wide">
+                                <div class="px-3.5 py-2 rounded-xl bg-slate-900 text-white font-semibold mono-font text-xs sm:text-sm shadow-xs flex items-center gap-2 tracking-wide">
                                     <i data-lucide="clock" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                     <span class="text-white">{{ substr($sch->start_time, 0, 5) }} – {{ substr($sch->end_time, 0, 5) }}</span>
-                                    <span class="text-[10px] text-slate-400 uppercase font-black tracking-wider">WIB</span>
+                                    <span class="text-[10px] text-slate-400 uppercase font-semibold tracking-wider">WIB</span>
                                 </div>
                             </div>
                         </div>

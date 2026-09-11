@@ -11,15 +11,30 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @php
-        $fontsManifest = @json_decode(@file_get_contents(public_path('build/manifest.json')), true);
-        $fontsFile = $fontsManifest['_fonts-CrJqFIz4.css']['file'] ?? null;
+        $fontsFile = null;
+        $fontsManifestPath = public_path('build/fonts-manifest.json');
+        if (file_exists($fontsManifestPath)) {
+            $fm = @json_decode(@file_get_contents($fontsManifestPath), true);
+            $fontsFile = $fm['style']['file'] ?? null;
+        }
+        if (!$fontsFile) {
+            $manifest = @json_decode(@file_get_contents(public_path('build/manifest.json')), true);
+            if (is_array($manifest)) {
+                foreach ($manifest as $key => $meta) {
+                    if (str_starts_with($key, '_fonts') && str_ends_with($key, '.css')) {
+                        $fontsFile = $meta['file'] ?? null;
+                        break;
+                    }
+                }
+            }
+        }
     @endphp
     @if($fontsFile)
         <link rel="stylesheet" href="{{ asset('build/' . $fontsFile) }}">
     @endif
     <style>
         .mono-font { font-family: 'JetBrains Mono', monospace; }
-        .heading-font { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .heading-font { font-family: 'Inter', system-ui, sans-serif; }
         @keyframes scale-up {
             0% { transform: scale(0.9); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
@@ -36,14 +51,14 @@
         <div class="flex items-center space-x-4.5">
             <img src="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" alt="Logo MA Ma'arif Cilageni" class="w-16 h-16 object-contain shrink-0 drop-shadow-xl">
             <div>
-                <span class="text-xs font-bold uppercase tracking-widest text-emerald-400">Madrasah Aliyah (Setingkat SMA)</span>
-                <h1 class="text-2xl font-black text-white heading-font tracking-tight">MA Ma'arif Cilageni Kadungora</h1>
+                <span class="text-xs font-semibold uppercase tracking-widest text-emerald-400">Madrasah Aliyah (Setingkat SMA)</span>
+                <h1 class="text-2xl font-bold text-white heading-font tracking-tight">MA Ma'arif Cilageni Kadungora</h1>
                 <p class="text-xs text-slate-400">Layar Presensi Mandiri Dewan Guru & Karyawan</p>
             </div>
         </div>
 
         <div class="text-right">
-            <div id="liveClock" class="text-4xl font-extrabold mono-font text-emerald-400 tracking-wider">
+            <div id="liveClock" class="text-4xl font-bold mono-font text-emerald-400 tracking-wider">
                 --:--:--
             </div>
             <div class="text-sm font-medium text-slate-400">
@@ -64,9 +79,9 @@
 
             <!-- 20-Second Refresh Progress Bar -->
             <div class="w-full mt-5">
-                <div class="flex items-center justify-between text-xs font-bold text-slate-700 mb-1.5 mono-font">
+                <div class="flex items-center justify-between text-xs font-semibold text-slate-700 mb-1.5 mono-font">
                     <span>KODE QR PRESENSI (Berganti Otomatis)</span>
-                    <span>Berganti dalam: <span id="countdownText" class="text-emerald-700 font-extrabold">{{ $remainingSeconds }}s</span></span>
+                    <span>Berganti dalam: <span id="countdownText" class="text-emerald-700 font-bold">{{ $remainingSeconds }}s</span></span>
                 </div>
                 <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
                     <div id="countdownBar" class="h-full bg-emerald-600 transition-all duration-1000 ease-linear rounded-full" style="width: {{ ($remainingSeconds / 20) * 100 }}%"></div>
@@ -83,20 +98,20 @@
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                     </svg>
-                    <h3 class="text-base font-bold text-white heading-font">Petunjuk Presensi Guru</h3>
+                    <h3 class="text-base font-semibold text-white heading-font">Petunjuk Presensi Guru</h3>
                 </div>
 
                 <ol class="space-y-2 text-xs text-slate-300">
                     <li class="flex items-start space-x-2.5">
-                        <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">1</span>
+                        <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold text-[10px] flex items-center justify-center shrink-0 mt-0.5">1</span>
                         <span>Buka menu <strong>Pindai QR</strong> pada aplikasi HP Bapak/Ibu Guru.</span>
                     </li>
                     <li class="flex items-start space-x-2.5">
-                        <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">2</span>
+                        <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold text-[10px] flex items-center justify-center shrink-0 mt-0.5">2</span>
                         <span>Arahkan kamera HP ke kode QR di layar ini.</span>
                     </li>
                     <li class="flex items-start space-x-2.5">
-                        <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">3</span>
+                        <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold text-[10px] flex items-center justify-center shrink-0 mt-0.5">3</span>
                         <span>Layar presensi akan otomatis menyambut kedatangan Bapak/Ibu Guru.</span>
                     </li>
                 </ol>
@@ -105,7 +120,7 @@
             <!-- Live Feed: Guru Terakhir Presensi Hari Ini -->
             <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 backdrop-blur shadow-xl space-y-2.5">
                 <div class="flex items-center justify-between pb-2 border-b border-slate-800/80 text-xs">
-                    <span class="font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <span class="font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                         Aktivitas Presensi Terkini
                     </span>
@@ -117,9 +132,9 @@
                         <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950/60 border border-slate-800/60">
                             <div class="flex items-center space-x-2.5 min-w-0">
                                 @if($att->user && $att->user->profile_photo_url)
-                                    <img src="{{ $att->user->profile_photo_url }}" alt="{{ $att->user->name }}" class="w-7 h-7 rounded-lg object-cover shrink-0 border border-slate-700">
+                                    <img src="{{ $att->user->profile_photo_url }}" loading="lazy" decoding="async" alt="{{ $att->user->name }}" class="w-7 h-7 rounded-lg object-cover shrink-0 border border-slate-700">
                                 @else
-                                    <div class="w-7 h-7 rounded-lg {{ $att->check_out_time ? 'bg-sky-500/20 text-sky-400 border border-sky-400/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-400/30' }} font-bold text-xs flex items-center justify-center shrink-0">
+                                    <div class="w-7 h-7 rounded-lg {{ $att->check_out_time ? 'bg-sky-500/20 text-sky-400 border border-sky-400/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-400/30' }} font-semibold text-xs flex items-center justify-center shrink-0">
                                         {{ substr($att->user->name ?? 'G', 0, 1) }}
                                     </div>
                                 @endif
@@ -127,14 +142,14 @@
                                     <p class="font-semibold text-slate-200 truncate">{{ $att->user->name ?? 'Dewan Guru' }}</p>
                                     <p class="text-[10px] text-slate-400 font-mono">
                                         @if($att->check_out_time)
-                                            Pulang: {{ substr($att->check_out_time, 0, 5) }} WIB
+                                             Pulang: {{ substr($att->check_out_time, 0, 5) }} WIB
                                         @else
                                             Masuk: {{ substr($att->check_in_time, 0, 5) }} WIB ({{ $att->check_in_status ?? 'HADIR' }})
                                         @endif
                                     </p>
                                 </div>
                             </div>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 {{ $att->check_out_time ? 'bg-sky-500/20 text-sky-300 border border-sky-400/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30' }}">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 {{ $att->check_out_time ? 'bg-sky-500/20 text-sky-300 border border-sky-400/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30' }}">
                                 {{ $att->check_out_time ? 'SUDAH PULANG' : 'HADIR' }}
                             </span>
                         </div>
@@ -195,22 +210,22 @@
 
             <!-- Badge Type: Presensi Masuk vs Kepulangan -->
             <div class="mt-4">
-                <span id="modalBadgeType" class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-emerald-500/20 border border-emerald-400/40 text-emerald-300">
+                <span id="modalBadgeType" class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-widest bg-emerald-500/20 border border-emerald-400/40 text-emerald-300">
                     PRESENSI KEDATANGAN TERVERIFIKASI
                 </span>
             </div>
 
             <!-- Greeting Headline -->
-            <h2 id="modalGreetingTitle" class="text-3xl sm:text-4xl font-black text-white heading-font mt-3 tracking-tight">
+            <h2 id="modalGreetingTitle" class="text-3xl sm:text-4xl font-bold text-white heading-font mt-3 tracking-tight">
                 Selamat Datang!
             </h2>
 
             <!-- Teacher Name -->
             <div class="my-2 max-w-md">
-                <p id="modalTeacherName" class="text-xl sm:text-2xl font-black text-emerald-300 heading-font drop-shadow-sm">
+                <p id="modalTeacherName" class="text-xl sm:text-2xl font-bold text-emerald-300 heading-font drop-shadow-sm">
                     Ust. H. Ahmad Dahlan, S.Pd.I
                 </p>
-                <p id="modalTimeAndStatus" class="text-xs font-mono font-semibold text-slate-300 mt-1">
+                <p id="modalTimeAndStatus" class="text-xs font-mono font-medium text-slate-300 mt-1">
                     Pukul 06:45:12 WIB &bull; Status: Tepat Waktu
                 </p>
             </div>
@@ -226,7 +241,7 @@
             <div class="w-full max-w-xs mt-6">
                 <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1.5 font-medium">
                     <span>Otomatis kembali ke layar QR</span>
-                    <span id="modalTimerCountdown" class="font-mono text-emerald-400 font-bold">7s</span>
+                    <span id="modalTimerCountdown" class="font-mono text-emerald-400 font-semibold">7s</span>
                 </div>
                 <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
                     <div id="modalTimerBar" class="h-full bg-emerald-500 rounded-full transition-all duration-100 ease-linear" style="width: 100%"></div>
@@ -316,20 +331,20 @@
             if (isCheckIn) {
                 greetingCard.className = "relative w-full max-w-lg bg-slate-900 border-2 border-emerald-500/80 rounded-3xl p-8 shadow-2xl shadow-emerald-500/25 text-center overflow-hidden flex flex-col items-center animate-scale-up";
                 modalIconRing.className = "w-24 h-24 rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white flex items-center justify-center shadow-xl shadow-emerald-500/30 border-4 border-white/20";
-                modalBadgeType.className = "px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-emerald-500/20 border border-emerald-400/40 text-emerald-300";
+                modalBadgeType.className = "px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-widest bg-emerald-500/20 border border-emerald-400/40 text-emerald-300";
                 modalBadgeType.textContent = "PRESENSI KEDATANGAN TERVERIFIKASI";
                 modalGreetingTitle.textContent = "Selamat Datang!";
-                modalGreetingTitle.className = "text-3xl sm:text-4xl font-black text-white heading-font mt-3 tracking-tight";
-                modalTeacherName.className = "text-xl sm:text-2xl font-black text-emerald-300 heading-font drop-shadow-sm";
+                modalGreetingTitle.className = "text-3xl sm:text-4xl font-bold text-white heading-font mt-3 tracking-tight";
+                modalTeacherName.className = "text-xl sm:text-2xl font-bold text-emerald-300 heading-font drop-shadow-sm";
                 modalTimerBar.className = "h-full bg-emerald-500 rounded-full transition-all duration-100 ease-linear";
             } else {
                 greetingCard.className = "relative w-full max-w-lg bg-slate-900 border-2 border-sky-500/80 rounded-3xl p-8 shadow-2xl shadow-sky-500/25 text-center overflow-hidden flex flex-col items-center animate-scale-up";
                 modalIconRing.className = "w-24 h-24 rounded-3xl bg-gradient-to-br from-sky-500 to-indigo-600 text-white flex items-center justify-center shadow-xl shadow-sky-500/30 border-4 border-white/20";
-                modalBadgeType.className = "px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-sky-500/20 border border-sky-400/40 text-sky-300";
+                modalBadgeType.className = "px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-widest bg-sky-500/20 border border-sky-400/40 text-sky-300";
                 modalBadgeType.textContent = "PRESENSI KEPULANGAN TERVERIFIKASI";
                 modalGreetingTitle.textContent = "Selamat Pulang!";
-                modalGreetingTitle.className = "text-3xl sm:text-4xl font-black text-white heading-font mt-3 tracking-tight";
-                modalTeacherName.className = "text-xl sm:text-2xl font-black text-sky-300 heading-font drop-shadow-sm";
+                modalGreetingTitle.className = "text-3xl sm:text-4xl font-bold text-white heading-font mt-3 tracking-tight";
+                modalTeacherName.className = "text-xl sm:text-2xl font-bold text-sky-300 heading-font drop-shadow-sm";
                 modalTimerBar.className = "h-full bg-sky-500 rounded-full transition-all duration-100 ease-linear";
             }
 
@@ -460,7 +475,7 @@
                 html += `
                     <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950/60 border border-slate-800/60">
                         <div class="flex items-center space-x-2.5 min-w-0">
-                            <div class="w-7 h-7 rounded-lg ${avatarColor} border font-bold text-xs flex items-center justify-center shrink-0">
+                            <div class="w-7 h-7 rounded-lg ${avatarColor} border font-semibold text-xs flex items-center justify-center shrink-0">
                                 ${initial}
                             </div>
                             <div class="min-w-0">
@@ -468,7 +483,7 @@
                                 <p class="text-[10px] text-slate-400 font-mono">${timeText}</p>
                             </div>
                         </div>
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${badgeColor} border">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${badgeColor} border">
                             ${badgeText}
                         </span>
                     </div>

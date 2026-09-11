@@ -15,20 +15,22 @@ Sistem ini memadukan estetika **Madrasah Modern, Bersih, dan Terstruktur** denga
 
 ## 2. Arsitektur Tipografi (Font Stacks)
 
-Sistem menggunakan tri-font system yang saling melengkapi:
+Sistem menggunakan **dual-font system** (hanya 2 kombinasi font family) yang saling melengkapi:
 
 | Kategori Font | Family | Loaded Weights | Utility Class | Peran & Tujuan |
 |---|---|---|---|---|
-| **Primary Sans (UI & Body)** | `Inter`, system-ui, sans-serif | 400, 500, 600, 700 | `font-sans` (Default) | Teks isi, deskripsi, form input, tabel, navigasi, dan copy umum dengan keterbacaan tinggi pada layar kecil. |
-| **Heading & Display** | `Plus Jakarta Sans`, sans-serif | 600, 700, 800, 900 | `.heading-font` / `font-heading` | Judul halaman, greeting nama siswa/guru, nama mata pelajaran, kartu hero, dan judul modal. |
+| **Sans (UI, Body & Heading)** | `Inter`, system-ui, sans-serif | 400, 500, 600, 700, 800, 900 | `font-sans` (Default), `.heading-font` / `font-heading` / `font-display` | Teks isi, deskripsi, form input, tabel, navigasi, judul halaman, greeting nama siswa/guru, nama mata pelajaran, kartu hero, dan judul modal. Heading menggunakan `Inter` dengan weight 700–900 + `tracking-tight` untuk hierarki tegas tanpa menambah family baru. |
 | **Monospace (Data & Angka)** | `JetBrains Mono`, monospace | 500, 600, 700, 800 | `.mono-font` / `font-mono` | Jam digital aktif, PIN presensi 4-digit, NISN/NIP, countdown timer, koordinat GPS, dan tag jam pelajaran. |
 
-### Konfigurasi Google Fonts:
+> **Aturan keras**: Hanya 2 font family yang diizinkan di seluruh aplikasi — `Inter` (sans) dan `JetBrains Mono` (mono). `Plus Jakarta Sans` tidak lagi digunakan (sebelumnya redundan dengan `Inter` karena keduanya sans-serif).
+
+### Konfigurasi Google Fonts (hanya 2 family):
 ```html
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
 ```
+Bunny Fonts (vite.config.js) juga hanya load 2 family yang sama via `laravel-vite-plugin/fonts`.
 
 ---
 
@@ -54,16 +56,16 @@ Skala tipografi terstandarisasi untuk menjamin konsistensi ritme vertikal dan hi
 
 ## 4. Weightscale (Skala Ketebalan Font)
 
-Seluruh bobot font yang digunakan **wajib terdaftar dan di-load** untuk mencegah *faux-bold* (peniruan ketebalan artifisial oleh browser yang membuat teks buram):
+Seluruh bobot font yang digunakan **wajib terdaftar dan di-load** untuk mencegah *faux-bold* (peniruan ketebalan artifisial oleh browser yang membuat teks buram). Sistem mengadopsi prinsip ketebalan modern berimbang:
 
 | Utility Tailwind | Numeric Weight | Font Family Terkait | Kasus Penggunaan Ideal |
 |---|---|---|---|
-| `font-normal` | **400** | `Inter` | Teks paragraf panjang, catatan bantuan, deskripsi umum. |
-| `font-medium` | **500** | `Inter`, `JetBrains Mono` | Label sekunder, hari & tanggal, keterangan status non-kritis. |
-| `font-semibold` | **600** | `Inter`, `Plus Jakarta Sans`, `JetBrains Mono` | Item jadwal pelajaran, badge status, filter tab, sub-heading kartu. |
-| `font-bold` | **700** | `Inter`, `Plus Jakarta Sans`, `JetBrains Mono` | Tombol CTA, judul kartu modul, angka statistik, jam digital. |
-| `font-extrabold` | **800** | `Plus Jakarta Sans`, `JetBrains Mono` | Judul halaman utama, badge prioritas tinggi, PIN display box. |
-| `font-black` | **900** | `Plus Jakarta Sans` | Hero display greeting (nama siswa/guru pada hero card utama). |
+| `font-normal` | **400** | `Inter` | Teks paragraf panjang, catatan bantuan, deskripsi umum, cell metadata tabel. |
+| `font-medium` | **500** | `Inter`, `JetBrains Mono` | Label form input, navigasi sidebar & bottom nav non-aktif, hari & tanggal, keterangan status non-kritis. |
+| `font-semibold` | **600** | `Inter`, `JetBrains Mono` | **Standar Komponen UI Utama**: Item menu aktif, seluruh badge status presensi, table headers (`th`), nama entitas di baris tabel, tombol aksi reguler/tabel, sub-heading kartu modul. |
+| `font-bold` | **700** | `Inter`, `JetBrains Mono` | Judul utama halaman (`h1`), judul besar modal dialog, angka statistik/KPI, jam digital aktif. |
+| `font-extrabold` | **800** | `Inter`, `JetBrains Mono` | *Khusus Display Terbatas*: Angka hitungan mundur (countdown timer) besar, layar Kiosk terminal. Dilarang pada badge, teks 10px-12px, atau baris tabel. |
+| `font-black` | **900** | `Inter` | *Strictly Restricted*: Hanya untuk digit display PIN raksasa layar penuh (jika diperlukan). Dilarang total pada seluruh teks UI, badge, tombol, heading biasa, dan tabel. |
 
 ---
 
@@ -107,16 +109,16 @@ Seluruh bobot font yang digunakan **wajib terdaftar dan di-load** untuk mencegah
 
 ## 7. Anti-Patterns (Larangan Mutlak)
 
-1. **Dilarang Menggunakan Faux-Bold**: Jangan gunakan bobot font yang tidak diload di Google Fonts (misal font-light 300 pada Plus Jakarta Sans atau font-thin).
+1. **Dilarang Menggunakan Faux-Bold**: Jangan gunakan bobot font yang tidak diload di Google Fonts (misal font-light 300 pada Inter atau JetBrains Mono).
 2. **Dilarang Arbitrary Font Sizes Tanpa Standar**: Hindari penggunaan sembarangan seperti `text-[13px]` atau `text-[15px]`. Selalu gunakan skala token terdaftar (`text-2xs`, `text-xs+`, `text-xs`, `text-sm`, `text-base`).
-3. **Dilarang Font Gado-Gado**: Jangan memasukkan font di luar ketiga font resmi (`Inter`, `Plus Jakarta Sans`, `JetBrains Mono`). Font serif generik dilarang keras di antarmuka sistem absensi ini.
+3. **Dilarang Font Gado-Gado**: Jangan memasukkan font di luar kedua font resmi (`Inter`, `JetBrains Mono`). Font tambahan seperti `Plus Jakarta Sans` atau serif generik dilarang keras di antarmuka sistem absensi ini.
 4. **Dilarang Memotong Tanggal & Data**: Gunakan `whitespace-nowrap` pada string tanggal resmi dan pastikan tidak terpotong elipsis (`...`).
 
 ---
 
 ## 8. Standar Desain Komponen Button (Modal Button System as Global Standard)
 
-> **Filosofi**: Standar tombol mengadopsi gaya tombol aksi interaktif pada **Modal Konfirmasi & Form Modal (`confirm-dialog`)**. Desain ini menonjolkan sudut melengkung modern (*smooth rounded corners*), elevasi bayangan berkarakter (*colored ambient glow*), umpan balik sentuhan fisik (*tactile spring compression* `active:scale-[0.98]`), serta keterbacaan tipografi berbobot tegas (`font-bold`).
+> **Filosofi**: Standar tombol mengadopsi gaya tombol aksi interaktif pada **Modal Konfirmasi & Form Modal (`confirm-dialog`)**. Desain ini menonjolkan sudut melengkung modern (*smooth rounded corners*), elevasi bayangan berkarakter (*colored ambient glow*), umpan balik sentuhan fisik (*tactile spring compression* `active:scale-[0.98]`), serta keterbacaan tipografi berbobot profesional dan bersih (`font-semibold`).
 
 ### A. Anatomi & Formula Dasar (Core Button Tokens)
 
@@ -124,7 +126,7 @@ Setiap tombol di platform Sistem Absensi Ma'arif **wajib** memenuhi formula beri
 
 ```
 [Layout & Alignment]  inline-flex items-center justify-center gap-2 select-none cursor-pointer
-[Tipografi & Berat]    font-bold tracking-tight
+[Tipografi & Berat]    font-semibold tracking-tight
 [Radius Sudut]        rounded-xl sm:rounded-2xl (Standar/Large) | rounded-lg (Small)
 [Transisi & Taktil]   transition-all duration-150 active:scale-[0.98]
 [Aksesibilitas]       focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
@@ -137,8 +139,8 @@ Setiap tombol di platform Sistem Absensi Ma'arif **wajib** memenuhi formula beri
 
 | Ukuran | Utility Classes | Line-height & Teks | Tinggi Min | Penggunaan Utama |
 |---|---|---|---|---|
-| **Large (`lg`)** | `py-3 px-5 sm:px-6 text-sm sm:text-base rounded-xl sm:rounded-2xl gap-2.5 min-h-[48px]` | `text-sm sm:text-base font-bold` | `48px` | Tombol CTA Hero, Modal Submit/Confirm, Halaman Login, Tombol Presensi Utama Mobile. |
-| **Medium / Standar (`md`)** | `py-2.5 px-4 text-xs sm:text-sm rounded-xl gap-2 min-h-[42px]` | `text-xs sm:text-sm font-bold` | `42px` | Header Action ("+ Tambah Siswa"), Form Submit Halaman Admin, Modal Cancel, Filter Trigger. |
+| **Large (`lg`)** | `py-3 px-5 sm:px-6 text-sm sm:text-base rounded-xl sm:rounded-2xl gap-2.5 min-h-[48px]` | `text-sm sm:text-base font-semibold` | `48px` | Tombol CTA Hero, Modal Submit/Confirm, Halaman Login, Tombol Presensi Utama Mobile. |
+| **Medium / Standar (`md`)** | `py-2.5 px-4 text-xs sm:text-sm rounded-xl gap-2 min-h-[42px]` | `text-xs sm:text-sm font-semibold` | `42px` | Header Action ("+ Tambah Siswa"), Form Submit Halaman Admin, Modal Cancel, Filter Trigger. |
 | **Small / Kompak (`sm`)** | `py-1.5 px-3 text-xs rounded-lg sm:rounded-xl gap-1.5 min-h-[34px]` | `text-xs font-semibold` | `34px` | Aksi Baris Tabel (Edit/Detail), Tag Filter Cepat, Pill Action pada card ringkas. |
 | **Icon Only (`icon`)** | `p-2 sm:p-2.5 rounded-xl sm:rounded-2xl flex items-center justify-center min-w-[38px] min-h-[38px]` | N/A | `38px` | Close Button Modal (`&times;` / `x`), Refresh GPS, Delete Icon Baris Tabel. |
 
