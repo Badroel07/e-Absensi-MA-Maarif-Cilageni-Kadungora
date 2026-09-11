@@ -323,9 +323,12 @@
     }
 
     function setSignerPreset(title, name, nip) {
-        document.getElementById('signer_title').value = title;
-        document.getElementById('signer_name').value = name;
-        document.getElementById('signer_nip').value = nip;
+        const titleEl = document.getElementById('signer_title');
+        if (titleEl) titleEl.value = title;
+        const nameEl = document.getElementById('signer_name');
+        if (nameEl) nameEl.value = name;
+        const nipEl = document.getElementById('signer_nip');
+        if (nipEl) nipEl.value = nip;
     }
 
     const modalPdfEl = document.getElementById('pdfSignatoryModal');

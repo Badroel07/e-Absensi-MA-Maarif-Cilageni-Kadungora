@@ -227,33 +227,47 @@
 @push('scripts')
 <script>
     function openAddModal() { 
-        document.getElementById('modalAddMapel').classList.remove('hidden'); 
-        document.getElementById('modalAddMapel').querySelector('input[name="code"]').focus();
+        const m = document.getElementById('modalAddMapel');
+        if (m) {
+            m.classList.remove('hidden'); 
+            const inp = m.querySelector('input[name="code"]');
+            if (inp) inp.focus();
+        }
     }
     function closeAddModal() { 
-        document.getElementById('modalAddMapel').classList.add('hidden'); 
+        const m = document.getElementById('modalAddMapel');
+        if (m) m.classList.add('hidden'); 
     }
 
     function openEditModal(subject) {
-        document.getElementById('formEditMapel').action = '/admin/mapel/' + subject.id;
-        document.getElementById('editMapelCode').value = subject.code;
-        document.getElementById('editMapelName').value = subject.name;
+        const form = document.getElementById('formEditMapel');
+        if (form) form.action = '/admin/mapel/' + subject.id;
+        const codeEl = document.getElementById('editMapelCode');
+        if (codeEl) codeEl.value = subject.code;
+        const nameEl = document.getElementById('editMapelName');
+        if (nameEl) nameEl.value = subject.name;
 
-        document.getElementById('modalEditMapel').classList.remove('hidden');
-        document.getElementById('editMapelName').focus();
+        const m = document.getElementById('modalEditMapel');
+        if (m) {
+            m.classList.remove('hidden');
+            if (nameEl) nameEl.focus();
+        }
     }
     function closeEditModal() {
-        document.getElementById('modalEditMapel').classList.add('hidden');
+        const m = document.getElementById('modalEditMapel');
+        if (m) m.classList.add('hidden');
     }
 
     // Close modal on backdrop click & ESC key
     ['modalAddMapel', 'modalEditMapel'].forEach(id => {
         const el = document.getElementById(id);
-        el.addEventListener('click', function (e) {
-            if (e.target === el) {
-                el.classList.add('hidden');
-            }
-        });
+        if (el) {
+            el.addEventListener('click', function (e) {
+                if (e.target === el) {
+                    el.classList.add('hidden');
+                }
+            });
+        }
     });
 
     document.addEventListener('keydown', function(e) {

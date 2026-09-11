@@ -436,6 +436,9 @@
     // Location Mode Switcher
     function setDevLocationMode(mode) {
         localStorage.setItem('dev_mock_location_mode', mode);
+        try {
+            sessionStorage.removeItem('maarif_geo_cache');
+        } catch (e) {}
         updateDevLocationUI();
 
         // Dispatch reactive event for dashboards
@@ -443,6 +446,9 @@
 
         if (typeof window.initGeolocation === 'function') {
             window.initGeolocation(true);
+        }
+        if (typeof window.initScanGeolocation === 'function') {
+            window.initScanGeolocation(true);
         }
     }
 

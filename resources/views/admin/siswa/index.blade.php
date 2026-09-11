@@ -568,28 +568,46 @@
     }
 
     function openAddModal() {
-        document.getElementById('modalAddSiswa').classList.remove('hidden');
-        document.getElementById('modalAddSiswa').querySelector('input[name="identity_number"]').focus();
+        const modal = document.getElementById('modalAddSiswa');
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        const input = modal.querySelector('input[name="identity_number"]');
+        if (input) input.focus();
     }
     function closeAddModal() {
-        document.getElementById('modalAddSiswa').classList.add('hidden');
+        const modal = document.getElementById('modalAddSiswa');
+        if (modal) modal.classList.add('hidden');
     }
 
     function openEditModal(student) {
+        if (!student) return;
         const form = document.getElementById('formEditSiswa');
-        form.action = '/admin/siswa/' + student.id;
+        if (form) form.action = '/admin/siswa/' + student.id;
 
-        document.getElementById('editSiswaNisn').value        = student.identity_number;
-        document.getElementById('editSiswaName').value        = student.name;
-        document.getElementById('editSiswaEmail').value       = student.email || '';
-        document.getElementById('editSiswaClassroomId').value = student.classroom_id;
-        document.getElementById('editSiswaBirthDate').value   = student.birth_date;
-        document.getElementById('editSiswaPhone').value       = student.phone_number || '';
+        const nisn = document.getElementById('editSiswaNisn');
+        if (nisn) nisn.value = student.identity_number || '';
+
+        const name = document.getElementById('editSiswaName');
+        if (name) name.value = student.name || '';
+
+        const email = document.getElementById('editSiswaEmail');
+        if (email) email.value = student.email || '';
+
+        const cls = document.getElementById('editSiswaClassroomId');
+        if (cls) cls.value = student.classroom_id || '';
+
+        const bdate = document.getElementById('editSiswaBirthDate');
+        if (bdate) bdate.value = student.birth_date || '';
+
+        const phone = document.getElementById('editSiswaPhone');
+        if (phone) phone.value = student.phone_number || '';
         
+        const statusActive = document.getElementById('editSiswaStatusActive');
+        const statusInactive = document.getElementById('editSiswaStatusInactive');
         if (student.is_active == 1) {
-            document.getElementById('editSiswaStatusActive').checked = true;
+            if (statusActive) statusActive.checked = true;
         } else {
-            document.getElementById('editSiswaStatusInactive').checked = true;
+            if (statusInactive) statusInactive.checked = true;
         }
 
         const previewImg  = document.getElementById('editSiswaPreviewImg');
@@ -602,34 +620,44 @@
         if (removeCheck) removeCheck.checked = false;
 
         if (student.profile_photo_url) {
-            previewImg.src = student.profile_photo_url;
-            previewImg.classList.remove('hidden');
-            fallback.classList.add('hidden');
-            removeBox.classList.remove('hidden');
+            if (previewImg) {
+                previewImg.src = student.profile_photo_url;
+                previewImg.classList.remove('hidden');
+            }
+            if (fallback) fallback.classList.add('hidden');
+            if (removeBox) removeBox.classList.remove('hidden');
         } else {
-            previewImg.src = '';
-            previewImg.classList.add('hidden');
-            fallback.textContent = student.name ? student.name.charAt(0).toUpperCase() : 'S';
-            fallback.classList.remove('hidden');
-            removeBox.classList.add('hidden');
+            if (previewImg) {
+                previewImg.src = '';
+                previewImg.classList.add('hidden');
+            }
+            if (fallback) {
+                fallback.textContent = student.name ? student.name.charAt(0).toUpperCase() : 'S';
+                fallback.classList.remove('hidden');
+            }
+            if (removeBox) removeBox.classList.add('hidden');
         }
 
-        document.getElementById('modalEditSiswa').classList.remove('hidden');
-        document.getElementById('editSiswaName').focus();
+        const modal = document.getElementById('modalEditSiswa');
+        if (modal) modal.classList.remove('hidden');
+        if (name) name.focus();
     }
 
     function closeEditModal() {
-        document.getElementById('modalEditSiswa').classList.add('hidden');
+        const modal = document.getElementById('modalEditSiswa');
+        if (modal) modal.classList.add('hidden');
     }
 
     // Close modal on backdrop click & ESC key
     ['modalAddSiswa', 'modalEditSiswa'].forEach(id => {
         const el = document.getElementById(id);
-        el.addEventListener('click', function (e) {
-            if (e.target === el) {
-                el.classList.add('hidden');
-            }
-        });
+        if (el) {
+            el.addEventListener('click', function (e) {
+                if (e.target === el) {
+                    el.classList.add('hidden');
+                }
+            });
+        }
     });
 
     document.addEventListener('keydown', function(e) {

@@ -18,6 +18,7 @@
 
     {{-- Critical above-the-fold: Vite injects CSS synchronously, JS with defer --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://unpkg.com/html5-qrcode" defer></script>
 
     {{-- LCP hint: tell browser to fetch the logo early (rendered in sidebar/header) --}}
     <link rel="preload" as="image" href="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" fetchpriority="high">

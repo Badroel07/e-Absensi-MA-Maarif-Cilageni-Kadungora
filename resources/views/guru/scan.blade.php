@@ -183,15 +183,65 @@
 @push('scripts')
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <script>
+(function() {
+    'use strict';
+
+    const GEO_CACHE_KEY = 'maarif_geo_cache';
+    const GEO_CACHE_TTL = 120000; // 2 minutes
+
+    function getCachedGeofence() {
+        try {
+            const raw = sessionStorage.getItem(GEO_CACHE_KEY);
+            if (!raw) return null;
+            const data = JSON.parse(raw);
+            if (Date.now() - data.timestamp < GEO_CACHE_TTL) {
+                return data;
+            }
+            sessionStorage.removeItem(GEO_CACHE_KEY);
+        } catch(e) {}
+        return null;
+    }
+
+    function setCachedGeofence(coords, serverData) {
+        try {
+            sessionStorage.setItem(GEO_CACHE_KEY, JSON.stringify({
+                coords: { lat: coords.lat, lng: coords.lng },
+                serverData: serverData,
+                timestamp: Date.now()
+            }));
+        } catch(e) {}
+    }
+
     let currentMode = 'datang';
-    let html5QrCode = null;
+    window.html5QrCode = window.html5QrCode || null;
     let userCoords = { lat: null, lng: null };
     let isWithinGeofence = null;
     let geofenceDistance = null;
+    let activeScanWatchId = null;
+    let scanGpsRetryTimeout = null;
+    let lastScanGeoAttempt = 0;
+
     const scanGeofenceIconBox = document.getElementById('scanGeofenceIconBox');
     const scanGeofenceTitle = document.getElementById('scanGeofenceTitle');
     const scanGeofenceDistance = document.getElementById('scanGeofenceDistance');
     const scanGeofenceDesc = document.getElementById('scanGeofenceDesc');
+
+    function renderScanGeofence(data) {
+        isWithinGeofence = (data.is_within_geofence !== undefined) ? data.is_within_geofence : Boolean(data.within);
+        geofenceDistance = data.distance;
+        if (isWithinGeofence) {
+            if (scanGeofenceIconBox) scanGeofenceIconBox.className = "w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0";
+            if (scanGeofenceTitle) { scanGeofenceTitle.textContent = "Di lingkungan madrasah"; scanGeofenceTitle.className = "text-xs font-semibold text-emerald-700"; }
+            if (scanGeofenceDesc) scanGeofenceDesc.textContent = "Radius " + (data.radius || 75) + " m — siap presensi.";
+            if (scanGeofenceDistance) { scanGeofenceDistance.textContent = Math.round(data.distance || 0) + " m"; scanGeofenceDistance.className = "mono-font text-xs px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700"; }
+        } else {
+            if (scanGeofenceIconBox) scanGeofenceIconBox.className = "w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0";
+            if (scanGeofenceTitle) { scanGeofenceTitle.textContent = "Di luar area madrasah"; scanGeofenceTitle.className = "text-xs font-semibold text-rose-700"; }
+            if (scanGeofenceDesc) scanGeofenceDesc.textContent = "Di luar " + (data.radius || 75) + " m — presensi ditolak.";
+            if (scanGeofenceDistance) { scanGeofenceDistance.textContent = Math.round(data.distance || 0) + " m"; scanGeofenceDistance.className = "mono-font text-xs px-1.5 py-0.5 rounded-md bg-rose-50 text-rose-700"; }
+        }
+    }
+
     function setMode(mode) {
         currentMode = mode;
         const btnDatang = document.getElementById('btnModeDatang');
@@ -211,9 +261,6 @@
             if (hint) hint.textContent = "Pulang: sistem kunci jika masih ada sesi kelas belum disimpan.";
         }
     }
-    let activeScanWatchId = null;
-    let scanGpsRetryTimeout = null;
-    let lastScanGeoAttempt = 0;
 
     function initScanGeolocation(isManual = false) {
         const now = Date.now();
@@ -228,6 +275,14 @@
             setTimeout(() => refreshIcon.classList.remove('animate-spin'), 1500);
         }
 
+        // Check sessionStorage cache for instant display
+        const cached = getCachedGeofence();
+        if (cached && cached.coords && cached.coords.lat) {
+            userCoords.lat = cached.coords.lat;
+            userCoords.lng = cached.coords.lng;
+            renderScanGeofence(cached.serverData);
+        }
+
         if (!navigator.geolocation) {
             if (scanGeofenceTitle) scanGeofenceTitle.textContent = "Geolocation tidak didukung";
             if (scanGeofenceDesc) scanGeofenceDesc.textContent = "Peramban tidak mendukung akses lokasi.";
@@ -239,10 +294,11 @@
             scanGpsRetryTimeout = null;
         }
 
-        isWithinGeofence = null;
-
-        if (scanGeofenceTitle && !userCoords.lat) scanGeofenceTitle.textContent = "Mendeteksi lokasi...";
-        if (scanGeofenceDesc && !userCoords.lat) scanGeofenceDesc.textContent = "Sedang mencari sinyal GPS...";
+        if (!cached) {
+            isWithinGeofence = null;
+            if (scanGeofenceTitle && !userCoords.lat) scanGeofenceTitle.textContent = "Mendeteksi lokasi...";
+            if (scanGeofenceDesc && !userCoords.lat) scanGeofenceDesc.textContent = "Sedang mencari sinyal GPS...";
+        }
 
         const handleScanPosition = async (pos) => {
             if (scanGpsRetryTimeout) {
@@ -262,19 +318,8 @@
                     body: JSON.stringify({ latitude: userCoords.lat, longitude: userCoords.lng })
                 });
                 const data = await res.json();
-                isWithinGeofence = data.within;
-                geofenceDistance = data.distance;
-                if (data.within) {
-                    if (scanGeofenceIconBox) scanGeofenceIconBox.className = "w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0";
-                    if (scanGeofenceTitle) { scanGeofenceTitle.textContent = "Di lingkungan madrasah"; scanGeofenceTitle.className = "text-xs font-semibold text-emerald-700"; }
-                    if (scanGeofenceDesc) scanGeofenceDesc.textContent = "Radius " + data.radius + " m — siap presensi.";
-                    if (scanGeofenceDistance) { scanGeofenceDistance.textContent = Math.round(data.distance) + " m"; scanGeofenceDistance.className = "mono-font text-xs px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700"; }
-                } else {
-                    if (scanGeofenceIconBox) scanGeofenceIconBox.className = "w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0";
-                    if (scanGeofenceTitle) { scanGeofenceTitle.textContent = "Di luar area madrasah"; scanGeofenceTitle.className = "text-xs font-semibold text-rose-700"; }
-                    if (scanGeofenceDesc) scanGeofenceDesc.textContent = "Di luar " + data.radius + " m — presensi ditolak.";
-                    if (scanGeofenceDistance) { scanGeofenceDistance.textContent = Math.round(data.distance) + " m"; scanGeofenceDistance.className = "mono-font text-xs px-1.5 py-0.5 rounded-md bg-rose-50 text-rose-700"; }
-                }
+                setCachedGeofence(userCoords, data);
+                renderScanGeofence(data);
             } catch (e) {
                 console.warn("Gagal cek geofence:", e);
             }
@@ -333,14 +378,126 @@
             console.warn("Gagal memulai watchPosition:", e);
         }
     }
+
     function setScanLineActive(active){ const line=document.getElementById('scanLine'); if(!line) return; if(active){line.classList.remove('opacity-0');line.classList.add('scan-line')} else {line.classList.add('opacity-0');line.classList.remove('scan-line')} }
-    function startCamera(){
-        document.getElementById('scannerPlaceholder').classList.add('hidden');
-        setScanLineActive(true);
-        if(!html5QrCode) html5QrCode=new Html5Qrcode("reader");
-        const config={fps:10,qrbox:{width:250,height:250}};
-        html5QrCode.start({facingMode:"environment"},config,(decodedText)=>{ setScanLineActive(false); html5QrCode.stop().then(()=>sendScanToken(decodedText)); },()=>{}).catch(async(err)=>{ setScanLineActive(false); if(typeof window.showAlertDialog==='function'){ await window.showAlertDialog({title:'Akses Kamera Gagal',message:'Tidak dapat mengakses kamera: '+err,type:'danger',icon:'alert-triangle'});} else alert("Tidak dapat mengakses kamera: "+err); document.getElementById('scannerPlaceholder').classList.remove('hidden'); });
+
+    function stopScannerCleanly() {
+        setScanLineActive(false);
+        if (window.html5QrCode) {
+            try {
+                if (window.html5QrCode.isScanning) {
+                    window.html5QrCode.stop().catch(() => {});
+                }
+                if (typeof window.html5QrCode.clear === 'function') {
+                    window.html5QrCode.clear();
+                }
+            } catch(e) {}
+            window.html5QrCode = null;
+        }
+        if (activeScanWatchId !== null) {
+            navigator.geolocation.clearWatch(activeScanWatchId);
+            activeScanWatchId = null;
+        }
+        if (scanGpsRetryTimeout) {
+            clearTimeout(scanGpsRetryTimeout);
+            scanGpsRetryTimeout = null;
+        }
     }
+
+    function startCamera() {
+        const placeholder = document.getElementById('scannerPlaceholder');
+        if (placeholder) placeholder.classList.add('hidden');
+        setScanLineActive(true);
+
+        const launchScanner = () => {
+            const readerEl = document.getElementById('reader');
+            if (!readerEl) return;
+
+            // If an active scanner instance already exists, clear it first
+            if (window.html5QrCode) {
+                try {
+                    if (window.html5QrCode.isScanning) {
+                        window.html5QrCode.stop().catch(() => {}).finally(() => {
+                            try { window.html5QrCode.clear(); } catch(e) {}
+                            window.html5QrCode = null;
+                            mountNewScanner();
+                        });
+                        return;
+                    } else {
+                        try { window.html5QrCode.clear(); } catch(e) {}
+                        window.html5QrCode = null;
+                    }
+                } catch(e) {
+                    window.html5QrCode = null;
+                }
+            }
+            mountNewScanner();
+        };
+
+        const mountNewScanner = () => {
+            const readerEl = document.getElementById('reader');
+            if (!readerEl) return;
+
+            try {
+                window.html5QrCode = new Html5Qrcode("reader");
+                const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+                window.html5QrCode.start(
+                    { facingMode: "environment" },
+                    config,
+                    (decodedText) => {
+                        setScanLineActive(false);
+                        stopScannerCleanly();
+                        sendScanToken(decodedText);
+                    },
+                    () => {}
+                ).catch(async (err) => {
+                    setScanLineActive(false);
+                    if (placeholder) placeholder.classList.remove('hidden');
+                    const errMsg = (err && err.message) ? err.message : String(err);
+                    if (typeof window.showAlertDialog === 'function') {
+                        await window.showAlertDialog({
+                            title: 'Akses Kamera Gagal',
+                            message: 'Tidak dapat mengakses kamera: ' + errMsg + '. Pastikan izin kamera telah diberikan pada peramban.',
+                            type: 'danger',
+                            icon: 'alert-triangle'
+                        });
+                    } else {
+                        alert("Tidak dapat mengakses kamera: " + errMsg);
+                    }
+                });
+            } catch(err) {
+                setScanLineActive(false);
+                if (placeholder) placeholder.classList.remove('hidden');
+                console.error('[Scanner] Inisialisasi gagal:', err);
+            }
+        };
+
+        if (typeof Html5Qrcode === 'undefined') {
+            let waitTries = 0;
+            const waitTimer = setInterval(() => {
+                waitTries++;
+                if (typeof Html5Qrcode !== 'undefined') {
+                    clearInterval(waitTimer);
+                    launchScanner();
+                } else if (waitTries > 30) {
+                    clearInterval(waitTimer);
+                    setScanLineActive(false);
+                    if (placeholder) placeholder.classList.remove('hidden');
+                    if (typeof window.showAlertDialog === 'function') {
+                        window.showAlertDialog({
+                            title: 'Pustaka Kamera Belum Siap',
+                            message: 'Modul pemindai QR memerlukan koneksi internet untuk memuat komponen. Silakan segarkan halaman atau periksa jaringan Anda.',
+                            type: 'danger',
+                            icon: 'alert-circle'
+                        });
+                    }
+                }
+            }, 100);
+        } else {
+            launchScanner();
+        }
+    }
+
     async function sendScanToken(token){
         window.triggerHaptic([100,50,100]);
         if(!userCoords.lat || !userCoords.lng || isWithinGeofence !== true){
@@ -363,10 +520,33 @@
         try{
             const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content,'Accept':'application/json'},body:JSON.stringify({qr_token:token.trim(),latitude:userCoords.lat,longitude:userCoords.lng})});
             const data=await res.json();
-            if(res.ok&&data.success){ if(typeof window.showAlertDialog==='function'){ await window.showAlertDialog({title:'Presensi Berhasil',message:data.message,type:'success',confirmText:'Lanjutkan',icon:'check-circle-2'});} else alert(data.message); window.location.href="{{ route('guru.dashboard') }}"; }
-            else { if(data.code==='TEACHING_COMPLETION_LOCKED') showLockModal(data); else { if(typeof window.showAlertDialog==='function'){ await window.showAlertDialog({title:'Presensi Gagal',message:data.message||'Kode QR tidak valid atau sudah berganti. Pindai ulang.',type:'danger',icon:'alert-circle'});} else alert("Gagal: "+(data.message||'Kode QR tidak valid.')); startCamera(); } }
-        }catch(err){ if(typeof window.showAlertDialog==='function'){ await window.showAlertDialog({title:'Kesalahan Jaringan',message:'Terjadi kesalahan jaringan: '+err,type:'danger',icon:'alert-circle'});} else alert("Kesalahan jaringan: "+err); startCamera(); }
+            if(res.ok&&data.success){
+                stopScannerCleanly();
+                if(typeof window.showAlertDialog==='function'){
+                    await window.showAlertDialog({title:'Presensi Berhasil',message:data.message,type:'success',confirmText:'Lanjutkan',icon:'check-circle-2'});
+                } else alert(data.message);
+                if (window.MaarifSPA && typeof window.MaarifSPA.navigate === 'function') {
+                    window.MaarifSPA.navigate("{{ route('guru.dashboard') }}");
+                } else {
+                    window.location.href="{{ route('guru.dashboard') }}";
+                }
+            } else {
+                if(data.code==='TEACHING_COMPLETION_LOCKED') showLockModal(data);
+                else {
+                    if(typeof window.showAlertDialog==='function'){
+                        await window.showAlertDialog({title:'Presensi Gagal',message:data.message||'Kode QR tidak valid atau sudah berganti. Pindai ulang.',type:'danger',icon:'alert-circle'});
+                    } else alert("Gagal: "+(data.message||'Kode QR tidak valid.'));
+                    startCamera();
+                }
+            }
+        }catch(err){
+            if(typeof window.showAlertDialog==='function'){
+                await window.showAlertDialog({title:'Kesalahan Jaringan',message:'Terjadi kesalahan jaringan: '+err,type:'danger',icon:'alert-circle'});
+            } else alert("Kesalahan jaringan: "+err);
+            startCamera();
+        }
     }
+
     function submitManualToken(e){
         e.preventDefault();
         const token=document.getElementById('manualToken').value;
@@ -388,39 +568,87 @@
         }
         document.getElementById('scannerPlaceholder').classList.add('hidden');
         setScanLineActive(false);
-        if(html5QrCode){ try{html5QrCode.stop()}catch(_){} }
+        stopScannerCleanly();
         sendScanToken(token);
     }
-    function showLockModal(data){ document.getElementById('modalLockMessage').textContent=data.message; const listEl=document.getElementById('modalLockList'); listEl.innerHTML=''; if(data.pending_schedules) data.pending_schedules.forEach(item=>{ const p=document.createElement('p'); p.className='font-semibold text-rose-700'; p.textContent='• '+item; listEl.appendChild(p); }); document.getElementById('modalLock').classList.remove('hidden'); }
-    window.addEventListener('DOMContentLoaded', () => {
+
+    function showLockModal(data){
+        document.getElementById('modalLockMessage').textContent=data.message;
+        const listEl=document.getElementById('modalLockList');
+        listEl.innerHTML='';
+        if(data.pending_schedules) data.pending_schedules.forEach(item=>{
+            const p=document.createElement('p');
+            p.className='font-semibold text-rose-700';
+            p.textContent='• '+item;
+            listEl.appendChild(p);
+        });
+        document.getElementById('modalLock').classList.remove('hidden');
+    }
+
+    function closeLockModal() {
+        const m = document.getElementById('modalLock');
+        if (m) m.classList.add('hidden');
+    }
+
+    function initScanView() {
         initScanGeolocation();
         startCamera();
+    }
 
-        // Auto re-acquire GPS when user returns to scanner
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-                initScanGeolocation(false);
-            }
-        });
+    // Initialize immediately if DOM is already ready (SPA navigation), or wait for DOMContentLoaded (initial load)
+    if (document.readyState === 'loading') {
+        window.addEventListener('DOMContentLoaded', initScanView, { once: true });
+    } else {
+        initScanView();
+    }
 
-        window.addEventListener('focus', () => {
+    // Auto re-acquire GPS when user returns to scanner
+    const onVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
             initScanGeolocation(false);
-        });
-
-        // Permissions API: immediately re-run when user grants permission in browser prompt
-        if (navigator.permissions && navigator.permissions.query) {
-            navigator.permissions.query({ name: 'geolocation' }).then((permissionStatus) => {
-                permissionStatus.onchange = () => {
-                    if (permissionStatus.state === 'granted') {
-                        initScanGeolocation(true);
-                    }
-                };
-            }).catch(() => {});
         }
-    });
-
-    window.addEventListener('dev-location-changed', () => {
+    };
+    const onFocus = () => {
+        initScanGeolocation(false);
+    };
+    const onDevLocationChanged = () => {
         initScanGeolocation(true);
-    });
+    };
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    window.addEventListener('focus', onFocus);
+    window.addEventListener('dev-location-changed', onDevLocationChanged);
+
+    // Permissions API: immediately re-run when user grants permission in browser prompt
+    if (navigator.permissions && navigator.permissions.query) {
+        navigator.permissions.query({ name: 'geolocation' }).then((permissionStatus) => {
+            permissionStatus.onchange = () => {
+                if (permissionStatus.state === 'granted') {
+                    initScanGeolocation(true);
+                }
+            };
+        }).catch(() => {});
+    }
+
+    // Export functions to window for inline HTML handlers
+    window.setMode = setMode;
+    window.initScanGeolocation = initScanGeolocation;
+    window.startCamera = startCamera;
+    window.submitManualToken = submitManualToken;
+    window.closeLockModal = closeLockModal;
+
+    // Clean up scanner and GPS listeners on SPA unload
+    const cleanupScan = () => {
+        stopScannerCleanly();
+        document.removeEventListener('visibilitychange', onVisibilityChange);
+        window.removeEventListener('focus', onFocus);
+        window.removeEventListener('dev-location-changed', onDevLocationChanged);
+    };
+
+    if (window.MaarifSPA && typeof window.MaarifSPA.onPageUnload === 'function') {
+        window.MaarifSPA.onPageUnload(cleanupScan);
+    }
+    window.addEventListener('app:before-page-unload', cleanupScan, { once: true });
+})();
 </script>
 @endpush

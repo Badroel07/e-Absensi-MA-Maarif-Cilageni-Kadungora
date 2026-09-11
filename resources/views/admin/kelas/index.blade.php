@@ -253,34 +253,49 @@
 @push('scripts')
 <script>
     function openAddModal() {
-        document.getElementById('modalAddKelas').classList.remove('hidden');
-        document.getElementById('modalAddKelas').querySelector('input[name="name"]').focus();
+        const m = document.getElementById('modalAddKelas');
+        if (m) {
+            m.classList.remove('hidden');
+            const inp = m.querySelector('input[name="name"]');
+            if (inp) inp.focus();
+        }
     }
     function closeAddModal() {
-        document.getElementById('modalAddKelas').classList.add('hidden');
+        const m = document.getElementById('modalAddKelas');
+        if (m) m.classList.add('hidden');
     }
 
     function openEditModal(classroom) {
-        document.getElementById('formEditKelas').action = '/admin/kelas/' + classroom.id;
-        document.getElementById('editKelasName').value = classroom.name;
-        document.getElementById('editKelasGradeLevel').value = classroom.grade_level;
-        document.getElementById('editKelasAcademicYear').value = classroom.academic_year;
+        const form = document.getElementById('formEditKelas');
+        if (form) form.action = '/admin/kelas/' + classroom.id;
+        const nameEl = document.getElementById('editKelasName');
+        if (nameEl) nameEl.value = classroom.name;
+        const gradeEl = document.getElementById('editKelasGradeLevel');
+        if (gradeEl) gradeEl.value = classroom.grade_level;
+        const yearEl = document.getElementById('editKelasAcademicYear');
+        if (yearEl) yearEl.value = classroom.academic_year;
 
-        document.getElementById('modalEditKelas').classList.remove('hidden');
-        document.getElementById('editKelasName').focus();
+        const m = document.getElementById('modalEditKelas');
+        if (m) {
+            m.classList.remove('hidden');
+            if (nameEl) nameEl.focus();
+        }
     }
     function closeEditModal() {
-        document.getElementById('modalEditKelas').classList.add('hidden');
+        const m = document.getElementById('modalEditKelas');
+        if (m) m.classList.add('hidden');
     }
 
     // Close modal on backdrop click & ESC key
     ['modalAddKelas', 'modalEditKelas'].forEach(id => {
         const el = document.getElementById(id);
-        el.addEventListener('click', function (e) {
-            if (e.target === el) {
-                el.classList.add('hidden');
-            }
-        });
+        if (el) {
+            el.addEventListener('click', function (e) {
+                if (e.target === el) {
+                    el.classList.add('hidden');
+                }
+            });
+        }
     });
 
     document.addEventListener('keydown', function(e) {

@@ -382,24 +382,42 @@
 @push('scripts')
 <script>
     function openEditModal(data) {
-        document.getElementById('modalStudentName').textContent = data.student_name;
-        document.getElementById('modalNisn').textContent = data.nisn;
-        document.getElementById('modalSubject').textContent = data.subject_name + ' (Kelas ' + data.class_name + ')';
-        document.getElementById('modalCurrentStatus').textContent = data.current_status;
-        document.getElementById('correctionForm').action = data.update_url;
+        if (!data) return;
+        const studentName = document.getElementById('modalStudentName');
+        if (studentName) studentName.textContent = data.student_name || '';
+
+        const nisn = document.getElementById('modalNisn');
+        if (nisn) nisn.textContent = data.nisn || '';
+
+        const subj = document.getElementById('modalSubject');
+        if (subj) subj.textContent = (data.subject_name || '') + (data.class_name ? ' (Kelas ' + data.class_name + ')' : '');
+
+        const curStatus = document.getElementById('modalCurrentStatus');
+        if (curStatus) curStatus.textContent = data.current_status || '';
+
+        const form = document.getElementById('correctionForm');
+        if (form && data.update_url) form.action = data.update_url;
 
         const status = data.current_status;
-        document.getElementById('radioHadir').checked = (status === 'HADIR');
-        document.getElementById('radioIzin').checked = (status === 'IZIN');
-        document.getElementById('radioSakit').checked = (status === 'SAKIT');
-        document.getElementById('radioAlpa').checked = (status === 'ALPA');
+        const rHadir = document.getElementById('radioHadir');
+        const rIzin = document.getElementById('radioIzin');
+        const rSakit = document.getElementById('radioSakit');
+        const rAlpa = document.getElementById('radioAlpa');
+        if (rHadir) rHadir.checked = (status === 'HADIR');
+        if (rIzin) rIzin.checked = (status === 'IZIN');
+        if (rSakit) rSakit.checked = (status === 'SAKIT');
+        if (rAlpa) rAlpa.checked = (status === 'ALPA');
 
-        document.getElementById('modalReason').value = data.notes || '';
-        document.getElementById('correctionModal').classList.remove('hidden');
+        const reason = document.getElementById('modalReason');
+        if (reason) reason.value = data.notes || '';
+
+        const modal = document.getElementById('correctionModal');
+        if (modal) modal.classList.remove('hidden');
     }
 
     function closeEditModal() {
-        document.getElementById('correctionModal').classList.add('hidden');
+        const modal = document.getElementById('correctionModal');
+        if (modal) modal.classList.add('hidden');
     }
 
     const modalSiswa = document.getElementById('correctionModal');

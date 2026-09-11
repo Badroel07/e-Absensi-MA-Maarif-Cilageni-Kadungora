@@ -350,17 +350,29 @@
 @push('scripts')
 <script>
     function openEditGuruModal(data) {
-        document.getElementById('modalGuruName').innerText = data.name;
-        document.getElementById('formEditGuruPresensi').action = '/admin/presensi-guru/' + data.id;
-        document.getElementById('editGuruStatus').value = data.status;
-        document.getElementById('editGuruCheckIn').value = data.check_in_time;
-        document.getElementById('editGuruCheckOut').value = data.check_out_time;
+        if (!data) return;
+        const nameEl = document.getElementById('modalGuruName');
+        if (nameEl) nameEl.innerText = data.name || '';
 
-        document.getElementById('modalEditGuruPresensi').classList.remove('hidden');
+        const form = document.getElementById('formEditGuruPresensi');
+        if (form) form.action = '/admin/presensi-guru/' + data.id;
+
+        const status = document.getElementById('editGuruStatus');
+        if (status) status.value = data.status || '';
+
+        const checkIn = document.getElementById('editGuruCheckIn');
+        if (checkIn) checkIn.value = data.check_in_time || '';
+
+        const checkOut = document.getElementById('editGuruCheckOut');
+        if (checkOut) checkOut.value = data.check_out_time || '';
+
+        const modal = document.getElementById('modalEditGuruPresensi');
+        if (modal) modal.classList.remove('hidden');
     }
 
     function closeEditGuruModal() {
-        document.getElementById('modalEditGuruPresensi').classList.add('hidden');
+        const modal = document.getElementById('modalEditGuruPresensi');
+        if (modal) modal.classList.add('hidden');
     }
 
     // Backdrop dismissal & ESC key

@@ -519,27 +519,43 @@
     }
 
     function openAddModal() {
-        document.getElementById('modalAddGuru').classList.remove('hidden');
-        document.getElementById('modalAddGuru').querySelector('input[name="identity_number"]').focus();
+        const modal = document.getElementById('modalAddGuru');
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        const input = modal.querySelector('input[name="identity_number"]');
+        if (input) input.focus();
     }
     function closeAddModal() {
-        document.getElementById('modalAddGuru').classList.add('hidden');
+        const modal = document.getElementById('modalAddGuru');
+        if (modal) modal.classList.add('hidden');
     }
 
     function openEditModal(teacher) {
+        if (!teacher) return;
         const form = document.getElementById('formEditGuru');
-        form.action = '/admin/guru/' + teacher.id;
+        if (form) form.action = '/admin/guru/' + teacher.id;
 
-        document.getElementById('editGuruNip').value        = teacher.identity_number;
-        document.getElementById('editGuruName').value       = teacher.name;
-        document.getElementById('editGuruEmail').value      = teacher.email || '';
-        document.getElementById('editGuruBirthDate').value  = teacher.birth_date;
-        document.getElementById('editGuruPhone').value      = teacher.phone_number || '';
+        const nip = document.getElementById('editGuruNip');
+        if (nip) nip.value = teacher.identity_number || '';
+
+        const name = document.getElementById('editGuruName');
+        if (name) name.value = teacher.name || '';
+
+        const email = document.getElementById('editGuruEmail');
+        if (email) email.value = teacher.email || '';
+
+        const bdate = document.getElementById('editGuruBirthDate');
+        if (bdate) bdate.value = teacher.birth_date || '';
+
+        const phone = document.getElementById('editGuruPhone');
+        if (phone) phone.value = teacher.phone_number || '';
         
+        const statusActive = document.getElementById('editGuruStatusActive');
+        const statusInactive = document.getElementById('editGuruStatusInactive');
         if (teacher.is_active == 1) {
-            document.getElementById('editGuruStatusActive').checked = true;
+            if (statusActive) statusActive.checked = true;
         } else {
-            document.getElementById('editGuruStatusInactive').checked = true;
+            if (statusInactive) statusInactive.checked = true;
         }
 
         const previewImg  = document.getElementById('editGuruPreviewImg');
@@ -552,34 +568,44 @@
         if (removeCheck) removeCheck.checked = false;
 
         if (teacher.profile_photo_url) {
-            previewImg.src = teacher.profile_photo_url;
-            previewImg.classList.remove('hidden');
-            fallback.classList.add('hidden');
-            removeBox.classList.remove('hidden');
+            if (previewImg) {
+                previewImg.src = teacher.profile_photo_url;
+                previewImg.classList.remove('hidden');
+            }
+            if (fallback) fallback.classList.add('hidden');
+            if (removeBox) removeBox.classList.remove('hidden');
         } else {
-            previewImg.src = '';
-            previewImg.classList.add('hidden');
-            fallback.textContent = teacher.name ? teacher.name.charAt(0).toUpperCase() : 'G';
-            fallback.classList.remove('hidden');
-            removeBox.classList.add('hidden');
+            if (previewImg) {
+                previewImg.src = '';
+                previewImg.classList.add('hidden');
+            }
+            if (fallback) {
+                fallback.textContent = teacher.name ? teacher.name.charAt(0).toUpperCase() : 'G';
+                fallback.classList.remove('hidden');
+            }
+            if (removeBox) removeBox.classList.add('hidden');
         }
 
-        document.getElementById('modalEditGuru').classList.remove('hidden');
-        document.getElementById('editGuruName').focus();
+        const modal = document.getElementById('modalEditGuru');
+        if (modal) modal.classList.remove('hidden');
+        if (name) name.focus();
     }
 
     function closeEditModal() {
-        document.getElementById('modalEditGuru').classList.add('hidden');
+        const modal = document.getElementById('modalEditGuru');
+        if (modal) modal.classList.add('hidden');
     }
 
     // Close modal on backdrop click & ESC key
     ['modalAddGuru', 'modalEditGuru'].forEach(id => {
         const el = document.getElementById(id);
-        el.addEventListener('click', function (e) {
-            if (e.target === el) {
-                el.classList.add('hidden');
-            }
-        });
+        if (el) {
+            el.addEventListener('click', function (e) {
+                if (e.target === el) {
+                    el.classList.add('hidden');
+                }
+            });
+        }
     });
 
     document.addEventListener('keydown', function(e) {

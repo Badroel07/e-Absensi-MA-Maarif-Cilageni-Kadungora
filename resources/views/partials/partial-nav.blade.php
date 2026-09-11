@@ -82,17 +82,63 @@
         pageIntervals.clear();
     }
 
-    function cleanupPageMedia() {
+    // Track page-scoped event listeners on window and document
+    const pageScopedListeners = [];
+    const nativeWindowAddEventListener = window.addEventListener.bind(window);
+    const nativeDocAddEventListener = document.addEventListener.bind(document);
+
+    let isTrackingPageListeners = false;
+
+    window.addEventListener = function(type, listener, options) {
+        if (isTrackingPageListeners) {
+            pageScopedListeners.push({ target: window, type, listener, options });
+        }
+        return nativeWindowAddEventListener(type, listener, options);
+    };
+
+    document.addEventListener = function(type, listener, options) {
+        if (isTrackingPageListeners) {
+            pageScopedListeners.push({ target: document, type, listener, options });
+        }
+        return nativeDocAddEventListener(type, listener, options);
+    };
+
+    function clearPageEventListeners() {
+        while (pageScopedListeners.length > 0) {
+            const item = pageScopedListeners.pop();
+            try {
+                if (item.target === window) {
+                    window.removeEventListener(item.type, item.listener, item.options);
+                } else if (item.target === document) {
+                    document.removeEventListener(item.type, item.listener, item.options);
+                }
+            } catch(e) {}
+        }
+    }
+
+    async function cleanupPageMedia() {
         try {
+            if (window.html5QrCode) {
+                try {
+                    if (window.html5QrCode.isScanning) {
+                        await window.html5QrCode.stop().catch(() => {});
+                    }
+                    if (typeof window.html5QrCode.clear === 'function') {
+                        window.html5QrCode.clear();
+                    }
+                } catch(e) {}
+                window.html5QrCode = null;
+            }
+
             const videos = document.querySelectorAll('video');
             videos.forEach(v => {
                 if (v.srcObject && typeof v.srcObject.getTracks === 'function') {
-                    v.srcObject.getTracks().forEach(track => track.stop());
+                    v.srcObject.getTracks().forEach(track => {
+                        try { track.stop(); } catch(e) {}
+                    });
+                    v.srcObject = null;
                 }
             });
-            if (typeof window.html5QrCode !== 'undefined' && window.html5QrCode && typeof window.html5QrCode.stop === 'function') {
-                window.html5QrCode.stop().catch(() => {});
-            }
         } catch(e) {}
     }
 
@@ -101,6 +147,7 @@
             try { cb(); } catch(e) { console.error('[MaarifSPA] Unload callback error:', e); }
         });
         pageUnloadCallbacks.clear();
+        clearPageEventListeners();
     }
 
     function triggerPageLoad(url) {
@@ -206,25 +253,92 @@
         }
     }
 
-    function executeScriptSafely(scriptEl) {
+    const loadedExternalScripts = new Set();
+    document.querySelectorAll('script[src]').forEach(s => {
+        if (s.src) loadedExternalScripts.add(s.src);
+    });
+
+    function loadExternalScript(scriptEl) {
+        const src = scriptEl.src;
+        if (!src) return Promise.resolve();
+
+        if (loadedExternalScripts.has(src)) {
+            return Promise.resolve();
+        }
+
+        const existingTag = document.querySelector(`script[src="${src}"]`);
+        if (existingTag) {
+            if (existingTag.dataset.loaded === 'true') {
+                loadedExternalScripts.add(src);
+                return Promise.resolve();
+            }
+            return new Promise((resolve) => {
+                existingTag.addEventListener('load', () => {
+                    loadedExternalScripts.add(src);
+                    resolve();
+                }, { once: true });
+                existingTag.addEventListener('error', () => {
+                    resolve();
+                }, { once: true });
+            });
+        }
+
+        return new Promise((resolve) => {
+            const newScript = document.createElement('script');
+            Array.from(scriptEl.attributes).forEach(attr => {
+                newScript.setAttribute(attr.name, attr.value);
+            });
+            newScript.dataset.loaded = 'false';
+
+            newScript.onload = () => {
+                newScript.dataset.loaded = 'true';
+                loadedExternalScripts.add(src);
+                resolve();
+            };
+
+            newScript.onerror = (e) => {
+                console.warn('[MaarifSPA] Failed to load external script:', src, e);
+                newScript.dataset.loaded = 'error';
+                resolve();
+            };
+
+            document.head.appendChild(newScript);
+        });
+    }
+
+    function executeInlineScript(scriptEl) {
         const newScript = document.createElement('script');
         Array.from(scriptEl.attributes).forEach(attr => {
-            newScript.setAttribute(attr.name, attr.value);
+            if (attr.name !== 'src') newScript.setAttribute(attr.name, attr.value);
         });
-
-        if (scriptEl.src) {
-            document.head.appendChild(newScript);
-        } else {
-            const rawCode = scriptEl.textContent || '';
-            const sanitizedCode = rawCode.replace(/(^|[;\r\n])\s*(?:const|let)\s+/g, '$1var ');
-            newScript.textContent = sanitizedCode;
+        const rawCode = scriptEl.textContent || '';
+        try {
+            // If the script is already wrapped in a self-executing function/IIFE, execute it directly
+            if (/^\s*\(?\s*(?:!|\+|-|~)?\s*function\s*\(/.test(rawCode)) {
+                newScript.textContent = rawCode;
+            } else {
+                const sanitizedCode = rawCode.replace(/(^|[;\r\n])\s*(?:const|let)\s+/g, '$1var ');
+                newScript.textContent = sanitizedCode;
+            }
             document.body.appendChild(newScript);
             newScript.remove();
+        } catch(err) {
+            console.warn('[MaarifSPA] Inline script execution failed:', err);
+        }
+    }
+
+    async function executeScriptsSequentially(scriptElements) {
+        for (const script of scriptElements) {
+            if (script.src) {
+                await loadExternalScript(script);
+            } else {
+                executeInlineScript(script);
+            }
         }
     }
 
     // Apply DOM updates from newly parsed document
-    function applyDocumentUpdates(newDoc, targetUrl, options = {}) {
+    async function applyDocumentUpdates(newDoc, targetUrl, options = {}) {
         const mainContent = document.getElementById('main-content');
         const newMain = newDoc.getElementById('main-content');
         if (!newMain) return false;
@@ -301,16 +415,19 @@
             curThemeColor.remove();
         }
 
-        // 9. Update and Execute Page-Specific Scripts
+        // 9. Update and Execute Page-Specific Scripts sequentially (awaiting external dependencies)
+        const scriptsToExecute = [];
         const newPageScripts = newDoc.getElementById('page-scripts-container');
         if (newPageScripts) {
-            const scripts = newPageScripts.querySelectorAll('script');
-            scripts.forEach(script => executeScriptSafely(script));
+            newPageScripts.querySelectorAll('script').forEach(s => scriptsToExecute.push(s));
         }
 
         if (mainContent) {
-            const inlineScripts = mainContent.querySelectorAll('script');
-            inlineScripts.forEach(script => executeScriptSafely(script));
+            mainContent.querySelectorAll('script').forEach(s => scriptsToExecute.push(s));
+        }
+
+        if (scriptsToExecute.length > 0) {
+            await executeScriptsSequentially(scriptsToExecute);
         }
 
         // 10. Reinitialize Lucide Icons
@@ -373,19 +490,19 @@
     }
 
     // ── PERFORM SMOOTH DOCUMENT UPDATE (Scoped in-DOM crossfade, never covers header/bottom bar) ──
-    function performDocumentUpdate(newDoc, targetUrl, options = {}) {
+    async function performDocumentUpdate(newDoc, targetUrl, options = {}) {
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const mainContent = document.getElementById('main-content');
 
         if (!mainContent || options.isLiveSearch || prefersReducedMotion) {
-            return applyDocumentUpdates(newDoc, targetUrl, options);
+            return await applyDocumentUpdates(newDoc, targetUrl, options);
         }
 
         // Clean GPU-accelerated enter animation strictly scoped inside #main-content
         mainContent.classList.remove('spa-content-enter');
         void mainContent.offsetWidth; // Force reflow so animation restarts cleanly
 
-        applyDocumentUpdates(newDoc, targetUrl, options);
+        await applyDocumentUpdates(newDoc, targetUrl, options);
 
         mainContent.classList.add('spa-content-enter');
         setTimeout(() => {
@@ -1360,7 +1477,7 @@
         }
 
         window.dispatchEvent(new CustomEvent('app:before-page-unload', { detail: { targetUrl } }));
-        cleanupPageMedia();
+        await cleanupPageMedia();
         clearPageIntervals();
         triggerPageUnload();
 
@@ -1414,7 +1531,7 @@
                 return;
             }
 
-            performDocumentUpdate(newDoc, responseUrl, options);
+            await performDocumentUpdate(newDoc, responseUrl, options);
 
             if (pushState) {
                 window.history.pushState({ spa: true, url: responseUrl }, newDoc.title, responseUrl);
@@ -1523,7 +1640,7 @@
 
                 if (newDoc.getElementById('main-content')) {
                     const isSuccess = response.ok && !newDoc.querySelector('.is-invalid, [aria-invalid="true"]');
-                    performDocumentUpdate(newDoc, response.url || window.location.href, {
+                    await performDocumentUpdate(newDoc, response.url || window.location.href, {
                         closeModals: isSuccess
                     });
 
@@ -1572,17 +1689,17 @@
     }
 
     document.addEventListener('mouseenter', function(e) {
-        const a = e.target.closest('a');
+        const a = (e.target && typeof e.target.closest === 'function') ? e.target.closest('a') : null;
         if (a) schedulePrefetch(a);
     }, true);
 
     document.addEventListener('focusin', function(e) {
-        const a = e.target.closest('a');
+        const a = (e.target && typeof e.target.closest === 'function') ? e.target.closest('a') : null;
         if (a) schedulePrefetch(a);
     }, true);
 
     document.addEventListener('touchstart', function(e) {
-        const a = e.target.closest('a');
+        const a = (e.target && typeof e.target.closest === 'function') ? e.target.closest('a') : null;
         if (a) schedulePrefetch(a);
     }, { passive: true, capture: true });
 
@@ -1592,7 +1709,7 @@
         if (e.button !== 0) return;
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
-        const anchor = e.target.closest('a');
+        const anchor = (e.target && typeof e.target.closest === 'function') ? e.target.closest('a') : null;
         if (!anchor) return;
 
         // Let confirm dialog handler manage links with data-confirm
@@ -1703,6 +1820,9 @@
 
     window.MaarifSPA = spaApi;
     window.MaarifNav = spaApi; // Backward compatibility
+
+    // Enable page-scoped event listener tracking for all subsequently loaded scripts
+    isTrackingPageListeners = true;
 
 })();
 </script>

@@ -375,35 +375,55 @@
 @push('scripts')
 <script>
     function openAddModal() { 
-        document.getElementById('modalAddJadwal').classList.remove('hidden'); 
+        const modal = document.getElementById('modalAddJadwal');
+        if (modal) modal.classList.remove('hidden'); 
     }
     function closeAddModal() { 
-        document.getElementById('modalAddJadwal').classList.add('hidden'); 
+        const modal = document.getElementById('modalAddJadwal');
+        if (modal) modal.classList.add('hidden'); 
     }
 
     function openEditModal(schedule) {
-        document.getElementById('formEditJadwal').action = '/admin/jadwal/' + schedule.id;
-        document.getElementById('editJadwalDay').value = schedule.day_of_week;
-        document.getElementById('editJadwalClassroom').value = schedule.classroom_id;
-        document.getElementById('editJadwalSubject').value = schedule.subject_id;
-        document.getElementById('editJadwalTeacher').value = schedule.teacher_id;
-        document.getElementById('editJadwalStartTime').value = schedule.start_time;
-        document.getElementById('editJadwalEndTime').value = schedule.end_time;
+        if (!schedule) return;
+        const form = document.getElementById('formEditJadwal');
+        if (form) form.action = '/admin/jadwal/' + schedule.id;
 
-        document.getElementById('modalEditJadwal').classList.remove('hidden');
+        const day = document.getElementById('editJadwalDay');
+        if (day) day.value = schedule.day_of_week;
+
+        const cls = document.getElementById('editJadwalClassroom');
+        if (cls) cls.value = schedule.classroom_id;
+
+        const sub = document.getElementById('editJadwalSubject');
+        if (sub) sub.value = schedule.subject_id;
+
+        const tch = document.getElementById('editJadwalTeacher');
+        if (tch) tch.value = schedule.teacher_id;
+
+        const start = document.getElementById('editJadwalStartTime');
+        if (start) start.value = schedule.start_time;
+
+        const end = document.getElementById('editJadwalEndTime');
+        if (end) end.value = schedule.end_time;
+
+        const modal = document.getElementById('modalEditJadwal');
+        if (modal) modal.classList.remove('hidden');
     }
-    function closeEditModal() {
-        document.getElementById('modalEditJadwal').classList.add('hidden');
+    function closeEditModal() { 
+        const modal = document.getElementById('modalEditJadwal');
+        if (modal) modal.classList.add('hidden'); 
     }
 
     // Close modal on backdrop click & ESC key
     ['modalAddJadwal', 'modalEditJadwal'].forEach(id => {
         const el = document.getElementById(id);
-        el.addEventListener('click', function (e) {
-            if (e.target === el) {
-                el.classList.add('hidden');
-            }
-        });
+        if (el) {
+            el.addEventListener('click', function (e) {
+                if (e.target === el) {
+                    el.classList.add('hidden');
+                }
+            });
+        }
     });
 
     document.addEventListener('keydown', function(e) {
