@@ -224,7 +224,7 @@ test('TC-GUR-CHKIN-005: Check-in — ditolak jika QR token tidak valid atau keda
     ]);
 });
 
-test('TC-GUR-CHKIN-006: Check-in — idempoten jika sudah melakukan check-in pada hari yang sama', function () {
+test('TC-GUR-CHKIN-006: Check-in — ditolak 422 jika sudah melakukan check-in pada hari yang sama (no kiosk replay)', function () {
     DailyAttendance::create([
         'user_id' => $this->guru->id,
         'attendance_date' => Carbon::today(),
@@ -241,10 +241,10 @@ test('TC-GUR-CHKIN-006: Check-in — idempoten jika sudah melakukan check-in pad
         'longitude' => 107.900000,
     ]);
 
-    $response->assertStatus(200);
+    $response->assertStatus(422);
     $response->assertJson([
-        'success' => true,
-        'already_checked_in' => true,
+        'success' => false,
+        'code' => 'ALREADY_CHECKED_IN',
     ]);
 });
 

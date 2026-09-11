@@ -62,6 +62,7 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(f
     Route::get('/scan', [TeacherController::class, 'scan'])->name('scan');
     Route::post('/scan/check-in', [TeacherController::class, 'processCheckIn'])->name('checkin');
     Route::post('/scan/check-out', [TeacherController::class, 'processCheckOut'])->name('checkout');
+    Route::post('/scan/auto', [TeacherController::class, 'autoAttend'])->name('auto');
     Route::post('/sessions/{schedule}/open', [TeacherController::class, 'openSession'])->name('session.open');
     Route::get('/sessions/{session}', [TeacherController::class, 'showSession'])->name('session.show');
     Route::get('/sessions/{session}/status', [TeacherController::class, 'sessionStatus'])->name('session.status');

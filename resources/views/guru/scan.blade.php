@@ -42,22 +42,13 @@
         {{-- Kartu utama: mode toggle + viewfinder --}}
         <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
 
-            {{-- Mode toggle di atas viewfinder --}}
+            {{-- Auto mode — no manual toggle --}}
             <div class="px-4 pt-4 pb-3">
-                <p class="text-xs font-semibold text-slate-500 mb-2">Pilih mode presensi</p>
-                <div class="p-1 rounded-xl bg-slate-100 flex gap-1">
-                    <button type="button" id="btnModeDatang" onclick="setMode('datang')"
-                        class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-150 bg-maarif-700 text-white shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600 cursor-pointer min-h-[44px]"
-                        aria-pressed="true">
-                        Masuk
-                    </button>
-                    <button type="button" id="btnModePulang" onclick="setMode('pulang')"
-                        class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-150 text-slate-500 hover:text-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 cursor-pointer min-h-[44px]"
-                        aria-pressed="false">
-                        Pulang
-                    </button>
+                <div class="flex items-center gap-2 text-xs font-semibold text-emerald-700">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Mode Otomatis — Masuk / Pulang menyesuaikan sendiri
                 </div>
-                <p id="modeHint" class="text-xs text-slate-400 mt-2">Masuk: catat kedatangan. Pulang: hanya setelah kelas hari ini disimpan.</p>
+                <p class="text-xs text-slate-400 mt-1">Scan pertama hari ini = Masuk. Scan setelah semua kelas selesai = Pulang. Tidak perlu pilih manual.</p>
             </div>
 
             <div class="border-t border-slate-100 mx-4"></div>
@@ -212,7 +203,6 @@
         } catch(e) {}
     }
 
-    let currentMode = 'datang';
     window.html5QrCode = window.html5QrCode || null;
     let userCoords = { lat: null, lng: null };
     let isWithinGeofence = null;
@@ -239,26 +229,6 @@
             if (scanGeofenceTitle) { scanGeofenceTitle.textContent = "Di luar area madrasah"; scanGeofenceTitle.className = "text-xs font-semibold text-rose-700"; }
             if (scanGeofenceDesc) scanGeofenceDesc.textContent = "Di luar " + (data.radius || 75) + " m — presensi ditolak.";
             if (scanGeofenceDistance) { scanGeofenceDistance.textContent = Math.round(data.distance || 0) + " m"; scanGeofenceDistance.className = "mono-font text-xs px-1.5 py-0.5 rounded-md bg-rose-50 text-rose-700"; }
-        }
-    }
-
-    function setMode(mode) {
-        currentMode = mode;
-        const btnDatang = document.getElementById('btnModeDatang');
-        const btnPulang = document.getElementById('btnModePulang');
-        const hint = document.getElementById('modeHint');
-        if (mode === 'datang') {
-            btnDatang.className = "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-150 bg-maarif-700 text-white shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600 cursor-pointer min-h-[44px]";
-            btnDatang.setAttribute('aria-pressed','true');
-            btnPulang.className = "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-150 text-slate-500 hover:text-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 cursor-pointer min-h-[44px]";
-            btnPulang.setAttribute('aria-pressed','false');
-            if (hint) hint.textContent = "Masuk: catat kedatangan. Pulang: hanya setelah kelas hari ini disimpan.";
-        } else {
-            btnPulang.className = "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-150 bg-slate-800 text-white shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 cursor-pointer min-h-[44px]";
-            btnPulang.setAttribute('aria-pressed','true');
-            btnDatang.className = "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-150 text-slate-500 hover:text-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 cursor-pointer min-h-[44px]";
-            btnDatang.setAttribute('aria-pressed','false');
-            if (hint) hint.textContent = "Pulang: sistem kunci jika masih ada sesi kelas belum disimpan.";
         }
     }
 
@@ -516,7 +486,7 @@
             startCamera();
             return;
         }
-        const endpoint=(currentMode==='datang')?"{{ route('guru.checkin', [], false) }}":"{{ route('guru.checkout', [], false) }}";
+        const endpoint="{{ route('guru.auto', [], false) }}";
         try{
             const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content,'Accept':'application/json'},body:JSON.stringify({qr_token:token.trim(),latitude:userCoords.lat,longitude:userCoords.lng})});
             const data=await res.json();
@@ -532,7 +502,11 @@
                 }
             } else {
                 if(data.code==='TEACHING_COMPLETION_LOCKED') showLockModal(data);
-                else {
+                else if(data.code==='ALREADY_CHECKED_IN' || data.code==='ALREADY_CHECKED_OUT'){
+                    if(typeof window.showAlertDialog==='function'){
+                        await window.showAlertDialog({title:'Sudah Tercatat',message:data.message,type:'warning',icon:'check-circle-2'});
+                    } else alert(data.message);
+                } else {
                     if(typeof window.showAlertDialog==='function'){
                         await window.showAlertDialog({title:'Presensi Gagal',message:data.message||'Kode QR tidak valid atau sudah berganti. Pindai ulang.',type:'danger',icon:'alert-circle'});
                     } else alert("Gagal: "+(data.message||'Kode QR tidak valid.'));
@@ -631,7 +605,6 @@
     }
 
     // Export functions to window for inline HTML handlers
-    window.setMode = setMode;
     window.initScanGeolocation = initScanGeolocation;
     window.startCamera = startCamera;
     window.submitManualToken = submitManualToken;

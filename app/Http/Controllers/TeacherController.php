@@ -108,6 +108,33 @@ class TeacherController extends Controller
         return redirect()->route('guru.dashboard')->with('success', $result['message']);
     }
 
+    public function autoAttend(Request $request): JsonResponse|RedirectResponse
+    {
+        $request->validate([
+            'qr_token' => ['required', 'string'],
+            'latitude' => ['nullable', 'numeric'],
+            'longitude' => ['nullable', 'numeric'],
+        ]);
+
+        $teacher = Auth::user();
+        $result = $this->attendanceService->autoAttend(
+            $teacher,
+            $request->qr_token,
+            $request->latitude ? (float) $request->latitude : null,
+            $request->longitude ? (float) $request->longitude : null
+        );
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json($result, $result['success'] ? 200 : 422);
+        }
+
+        if (! $result['success']) {
+            return back()->with('error', $result['message']);
+        }
+
+        return redirect()->route('guru.dashboard')->with('success', $result['message']);
+    }
+
     public function openSession(Request $request, ClassSchedule $schedule): RedirectResponse
     {
         $request->validate([

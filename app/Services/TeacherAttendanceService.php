@@ -176,22 +176,11 @@ class TeacherAttendanceService
         ]);
 
         if ($daily->check_in_time) {
-            Cache::put('kiosk_latest_event', [
-                'id' => (string) Str::uuid(),
-                'type' => 'check_in',
-                'teacher_name' => $teacher->name,
-                'time' => substr($daily->check_in_time, 0, 5),
-                'status' => $daily->check_in_status ?? 'HADIR',
-                'title' => 'Selamat Datang Kembali!',
-                'message' => 'Presensi masuk telah tercatat sebelumnya pada pukul '.substr($daily->check_in_time, 0, 5).' WIB. Selamat mendidik di MA Ma\'arif Cilageni!',
-                'timestamp_ms' => $now->getTimestampMs(),
-            ], 120);
-
             return [
-                'success' => true,
-                'already_checked_in' => true,
+                'success' => false,
+                'code' => 'ALREADY_CHECKED_IN',
                 'check_in_time' => $daily->check_in_time,
-                'message' => 'Bapak/Ibu Guru sudah melakukan presensi masuk hari ini pada pukul '.substr($daily->check_in_time, 0, 5).' WIB.',
+                'message' => 'Bapak/Ibu Guru sudah melakukan presensi masuk hari ini pada pukul '.substr($daily->check_in_time, 0, 5).' WIB. Tidak dapat melakukan presensi masuk dua kali.',
             ];
         }
 
@@ -284,6 +273,15 @@ class TeacherAttendanceService
             ];
         }
 
+        if (! empty($daily->check_out_time)) {
+            return [
+                'success' => false,
+                'code' => 'ALREADY_CHECKED_OUT',
+                'check_out_time' => $daily->check_out_time,
+                'message' => 'Bapak/Ibu Guru sudah melakukan presensi pulang hari ini pada pukul '.substr($daily->check_out_time, 0, 5).' WIB.',
+            ];
+        }
+
         $now = Carbon::now();
         $daily->check_out_time = $now->format('H:i:s');
         $daily->check_out_status = 'TEPAT_WAKTU';
@@ -309,6 +307,78 @@ class TeacherAttendanceService
             'check_out_time' => $daily->check_out_time,
             'message' => 'Presensi pulang berhasil dicatat pada '.$now->format('H:i:s').' WIB. Seluruh jadwal mengajar hari ini telah tuntas.',
         ];
+    }
+
+    /**
+     * Single auto endpoint: determines masuk vs pulang automatically.
+     * - !hasCheckedIn -> checkIn
+     * - hasCheckedIn && pending not empty -> TEACHING_COMPLETION_LOCKED
+     * - hasCheckedIn && check_out null -> checkOut
+     * - already checked out -> ALREADY_CHECKED_OUT
+     */
+    public function autoAttend(User $teacher, string $qrToken, ?float $lat = null, ?float $lng = null): array
+    {
+        if ($lat === null || $lng === null) {
+            return [
+                'success' => false,
+                'code' => 'GEOFENCE_REQUIRED',
+                'message' => 'Presensi ditolak. Lokasi GPS tidak terdeteksi. Harap aktifkan GPS dan izinkan akses lokasi pada peramban HP Bapak/Ibu Guru.',
+            ];
+        }
+
+        $geofence = $this->checkGeofence($lat, $lng);
+        if (! $geofence['is_within_geofence']) {
+            $distance = $geofence['distance'] ?? 0;
+            $radius = $geofence['radius'] ?? 75;
+
+            return [
+                'success' => false,
+                'code' => 'OUTSIDE_GEOFENCE',
+                'distance' => $distance,
+                'radius' => $radius,
+                'message' => "Presensi ditolak. Anda berada di luar area madrasah (Jarak: {$distance} meter, Batas Maksimal: {$radius} meter).",
+            ];
+        }
+
+        if (! $this->kioskService->validateToken($qrToken)) {
+            return [
+                'success' => false,
+                'code' => 'INVALID_QR_TOKEN',
+                'message' => 'Kode QR telah berganti atau kedaluwarsa. Silakan arahkan kamera ke Layar Presensi Madrasah untuk memindai kode QR terbaru.',
+            ];
+        }
+
+        $daily = $this->getTodayDailyAttendance($teacher);
+
+        // Scan pertama hari itu -> otomatis Masuk
+        if (! $daily || ! $daily->check_in_time) {
+            return $this->checkIn($teacher, $qrToken, $lat, $lng);
+        }
+
+        // Sudah pulang -> tolak
+        if (! empty($daily->check_out_time)) {
+            return [
+                'success' => false,
+                'code' => 'ALREADY_CHECKED_OUT',
+                'check_out_time' => $daily->check_out_time,
+                'message' => 'Bapak/Ibu Guru sudah menyelesaikan presensi pulang hari ini pada pukul '.substr($daily->check_out_time, 0, 5).' WIB.',
+            ];
+        }
+
+        // Sudah masuk tapi masih ada kelas belum LOCKED -> kunci pulang
+        $pendingSchedules = $this->getPendingSchedulesToday($teacher, Carbon::today());
+        if ($pendingSchedules->isNotEmpty()) {
+            $scheduleNames = $pendingSchedules->map(fn ($s) => ($s->subject->name ?? 'Mapel').' ('.($s->classroom->name ?? 'Kelas').')')->values()->all();
+
+            return [
+                'success' => false,
+                'code' => 'TEACHING_COMPLETION_LOCKED',
+                'pending_schedules' => $scheduleNames,
+                'message' => 'Presensi Pulang Terkunci: Masih ada '.count($scheduleNames).' jadwal kelas yang belum tuntas dikonfirmasi keterangannya: '.implode(', ', $scheduleNames).'. Silakan selesaikan sesi dan konfirmasi keterangan kehadiran siswa terlebih dahulu.',
+            ];
+        }
+
+        return $this->checkOut($teacher, $qrToken, $lat, $lng);
     }
 
     /**
