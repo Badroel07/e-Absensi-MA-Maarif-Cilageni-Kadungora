@@ -217,14 +217,14 @@
         </div>
     </main>
 
-    <!-- Audio Unlock Floating Button (autoplay policy) -->
-    <button id="audioUnlockBtn" type="button" class="fixed bottom-5 right-5 z-40 hidden items-center gap-2 px-4 py-2.5 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold shadow-lg shadow-amber-500/20 active:scale-95 transition-all cursor-pointer">
+    <!-- Audio Unlock Button — permanent until user taps once (browser autoplay policy) -->
+    <button id="audioUnlockBtn" type="button" class="fixed bottom-5 right-5 z-40 flex items-center gap-2 px-4 py-2.5 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold shadow-lg shadow-amber-500/20 active:scale-95 transition-all cursor-pointer">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14"/></svg>
-        Aktifkan Suara Sambutan
+        Aktifkan Suara
     </button>
-    <div id="audioStatusPill" class="fixed bottom-5 left-5 z-40 hidden items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-[11px] font-medium text-slate-300">
-        <span id="audioStatusDot" class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span id="audioStatusText">Suara Aktif</span>
+    <div id="audioStatusPill" class="fixed bottom-5 left-5 z-40 hidden items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-600 text-white text-[11px] font-bold shadow">
+        <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+        Suara Aktif
     </div>
 
     <!-- Footer System Status -->
@@ -352,16 +352,11 @@
 
         function updateAudioUi() {
             const ctx = kioskAudioCtx;
-            // Ready if context exists and is running (audioUnlocked flag is just helper for first blip)
             const isReady = ctx && ctx.state === 'running';
-            const wasUnlockedBefore = (() => { try { return localStorage.getItem('kiosk_audio_unlocked') === '1'; } catch(e){ return false; } })();
-            // Show button only when still blocked, hide otherwise. If never created, keep hidden until we try.
             if (audioUnlockBtn) {
-                const shouldShowButton = !isReady;
-                // Don't flash button on first load before we even tried auto-unlock
-                const show = shouldShowButton && (kioskAudioCtx !== null || wasUnlockedBefore || Date.now() - pageLoadMs > 1200);
-                audioUnlockBtn.classList.toggle('hidden', !show);
-                audioUnlockBtn.classList.toggle('flex', show);
+                // Permanent button until audio is running, then hide and show pill
+                audioUnlockBtn.classList.toggle('hidden', !!isReady);
+                audioUnlockBtn.classList.toggle('flex', !isReady);
             }
             if (audioStatusPill) {
                 audioStatusPill.classList.toggle('hidden', !isReady);
@@ -398,8 +393,7 @@
             }
         }
 
-        const pageLoadMs = Date.now();
-        // Try unlock on any user gesture — anywhere on the page (so button is not mandatory)
+        // Button is the explicit way; also any tap anywhere unlocks
         ['click', 'touchstart', 'keydown'].forEach(evt => {
             document.addEventListener(evt, () => { if (kioskAudioCtx?.state !== 'running') unlockAudio(); }, { once: false, passive: true });
         });
@@ -410,17 +404,9 @@
                 if (ok) playGreetingChime(true);
             });
         }
-        // Auto-attempt silent unlock shortly after load (will succeed if browser already has engagement)
-        setTimeout(async () => {
-            try {
-                const wasUnlockedBefore = (() => { try { return localStorage.getItem('kiosk_audio_unlocked') === '1'; } catch(e){ return false; } })();
-                if (wasUnlockedBefore || kioskAudioCtx === null) {
-                    await unlockAudio();
-                }
-            } catch(e) {}
-            updateAudioUi();
-        }, 800);
-        // Also poll context state in case browser auto-suspends
+        // Restore state if previously unlocked — keep pill visible
+        try { if (localStorage.getItem('kiosk_audio_unlocked') === '1' && !kioskAudioCtx) { getAudioCtx(); } } catch(e) {}
+        setTimeout(updateAudioUi, 300);
         setInterval(updateAudioUi, 2000);
 
         // Synchronize with simulated server time
