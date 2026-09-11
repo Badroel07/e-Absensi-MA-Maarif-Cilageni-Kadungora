@@ -377,9 +377,9 @@
 
 <script>
 (function () {
-    const el = document.getElementById('liveDashClock');
-    if (!el) return;
     function tick() {
+        const el = document.getElementById('liveDashClock');
+        if (!el) return;
         const now = window.getServerNow ? window.getServerNow() : new Date();
         const hh = String(now.getHours()).padStart(2, '0');
         const mm = String(now.getMinutes()).padStart(2, '0');
@@ -387,7 +387,10 @@
         el.textContent = `${hh}:${mm}:${ss}`;
     }
     tick();
-    setInterval(tick, 1000);
+    const clockTimer = setInterval(tick, 1000);
+    if (window.MaarifSPA && typeof window.MaarifSPA.onPageUnload === 'function') {
+        window.MaarifSPA.onPageUnload(() => clearInterval(clockTimer));
+    }
 })();
 </script>
 @endsection

@@ -201,9 +201,9 @@ test('TC-EDGE-007: QR Token expired saat scan — window-1 masih diterima, windo
 
     $this->actingAs($this->guru);
 
-    // Window - 1 (within 40s tolerance)
+    // Window - 1 (within 10s tolerance)
     $nowTs = Carbon::now()->timestamp;
-    $prevWindow = (int) floor($nowTs / 20) - 1;
+    $prevWindow = (int) floor($nowTs / 10) - 1;
     $secret = config('app.key') ?: (env('APP_KEY') ?: 'maarif-secret-kiosk-key-2026');
     $tokenPrev = hash_hmac('sha256', $prevWindow.':kiosk-ruang-guru-ma-maarif', $secret);
 
@@ -214,8 +214,8 @@ test('TC-EDGE-007: QR Token expired saat scan — window-1 masih diterima, windo
     ]);
     $resPrev->assertStatus(200);
 
-    // Window - 2 (exceeds 40s tolerance)
-    $expiredWindow = (int) floor($nowTs / 20) - 2;
+    // Window - 2 (exceeds tolerance)
+    $expiredWindow = (int) floor($nowTs / 10) - 2;
     $tokenExpired = hash_hmac('sha256', $expiredWindow.':kiosk-ruang-guru-ma-maarif', $secret);
 
     $resExpired = $this->postJson('/guru/scan/check-out', [

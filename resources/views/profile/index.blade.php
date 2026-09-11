@@ -282,7 +282,7 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    function initProfilePhotoHandler() {
         const photoInput = document.getElementById('photo-input');
         const previewImg = document.getElementById('preview-avatar-img');
         const fallbackAvatar = document.getElementById('fallback-avatar');
@@ -358,6 +358,12 @@
                 });
             }
         }
-    });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initProfilePhotoHandler, { once: true });
+    } else {
+        initProfilePhotoHandler();
+    }
 </script>
 @endsection

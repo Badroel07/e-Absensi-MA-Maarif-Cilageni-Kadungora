@@ -124,10 +124,6 @@
 <script>
     let remainingSeconds = {{ $session->remaining_seconds }};
     const totalDurationSeconds = {{ $session->duration_minutes * 60 }};
-    const timerText = document.getElementById('timerText');
-    const timerBar = document.getElementById('timerBar');
-    const verifiedCounter = document.getElementById('verifiedCounter');
-    const listContainer = document.getElementById('studentListContainer');
 
     function formatTime(sec) {
         const m = Math.floor(sec / 60);
@@ -136,18 +132,20 @@
     }
 
     function updateTimerUI() {
+        const timerText = document.getElementById('timerText');
+        const timerBar = document.getElementById('timerBar');
         if (remainingSeconds <= 0) {
-            timerText.textContent = "00:00 (Waktu Habis)";
-            timerBar.style.width = "0%";
+            if (timerText) timerText.textContent = "00:00 (Waktu Habis)";
+            if (timerBar) timerBar.style.width = "0%";
             return;
         }
-        timerText.textContent = formatTime(remainingSeconds);
+        if (timerText) timerText.textContent = formatTime(remainingSeconds);
         const pct = Math.max(0, (remainingSeconds / totalDurationSeconds) * 100);
-        timerBar.style.width = pct + "%";
+        if (timerBar) timerBar.style.width = pct + "%";
     }
 
     // Tick countdown
-    setInterval(() => {
+    const countdownInterval = setInterval(() => {
         if (remainingSeconds > 0) {
             remainingSeconds--;
             updateTimerUI();
@@ -168,9 +166,13 @@
             const res = await fetch("{{ route('guru.session.status', $session) }}");
             if (res.ok) {
                 const data = await res.json();
-                verifiedCounter.textContent = data.verified_count;
+                const verifiedCounter = document.getElementById('verifiedCounter');
+                if (verifiedCounter) {
+                    verifiedCounter.textContent = data.verified_count;
+                }
 
-                if (data.verified_students && data.verified_students.length > 0) {
+                const listContainer = document.getElementById('studentListContainer');
+                if (data.verified_students && data.verified_students.length > 0 && listContainer) {
                     listContainer.innerHTML = '';
                     data.verified_students.forEach(st => {
                         const item = document.createElement('div');
@@ -198,6 +200,16 @@
         } catch(e) {}
     }
 
-    setInterval(pollStatus, 2500);
+    const livePollingInterval = setInterval(pollStatus, 2500);
+
+    function cleanupLiveSession() {
+        if (countdownInterval) clearInterval(countdownInterval);
+        if (livePollingInterval) clearInterval(livePollingInterval);
+    }
+
+    if (window.MaarifSPA && typeof window.MaarifSPA.onPageUnload === 'function') {
+        window.MaarifSPA.onPageUnload(cleanupLiveSession);
+    }
+    window.addEventListener('app:before-page-unload', cleanupLiveSession, { once: true });
 </script>
 @endpush
