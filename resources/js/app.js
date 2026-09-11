@@ -27,6 +27,8 @@ document.addEventListener('DOMContentLoaded', initLucide);
 // Re-initialize after partial navigation / dynamic inserts
 window.reinitLucideIcons = initLucide;
 
+
+
 // ─── Form auto-loading helper ──────────────────────────────────────
 // Submit any form with [data-loading-form] to add loading state to its
 // submit button(s). Prevents double-submit and gives visual feedback.
@@ -46,6 +48,30 @@ document.addEventListener('submit', (event) => {
         btn.classList.add('btn-loading');
     });
 }, true);
+
+// ─── Native date inputs: click-anywhere-to-open ─────────────────────
+// Clicking a facade date input only focuses it on desktop Chrome — the
+// calendar popup does not open by itself. Open it explicitly via
+// showPicker() for any click inside a [data-date-wrap] container.
+// Safe when the native indicator was the click target: the duplicate
+// call throws InvalidStateError and is ignored.
+document.addEventListener('click', (event) => {
+    const wrap = event.target instanceof Element
+        ? event.target.closest('[data-date-wrap]')
+        : null;
+    if (!wrap) return;
+    const input = wrap.querySelector('input[type="date"]');
+    if (!input) return;
+    try {
+        input.showPicker();
+    } catch (e) {
+        try {
+            input.focus({ preventScroll: true });
+        } catch (err) {
+            // Non-critical
+        }
+    }
+});
 
 // Expose for inline Alpine usage if needed
 window.appLoading = {

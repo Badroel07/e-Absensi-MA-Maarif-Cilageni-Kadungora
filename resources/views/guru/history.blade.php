@@ -152,7 +152,7 @@
         </div>
 
         {{-- Search & Date Filter --}}
-        <form method="GET" action="{{ route('guru.history') }}" data-loading-form class="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-2 border-t border-slate-100 text-xs">
+        <form method="GET" action="{{ route('guru.history') }}" data-loading-form class="grid grid-cols-1 sm:grid-cols-12 sm:items-end gap-3 pt-2 border-t border-slate-100 text-xs">
             @if($selectedStatus)
                 <input type="hidden" name="status" value="{{ $selectedStatus }}">
             @endif
@@ -170,27 +170,35 @@
                 </div>
             </div>
 
-            {{-- Dari Tanggal --}}
+            {{-- Dari Tanggal (facade: native input transparent full-cover + custom calendar icon) --}}
             <div class="sm:col-span-3 flex flex-col gap-1">
                 <label class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider pl-0.5">Dari Tanggal</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div class="relative w-full pl-4 pr-10 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 text-xs transition focus-within:bg-white focus-within:ring-2 focus-within:ring-maarif-600 flex items-center min-h-[42px] cursor-pointer" data-date-wrap>
+                    <span data-date-label class="mono-font font-semibold {{ $startDate ? 'text-slate-800' : 'text-slate-400' }}">
+                        {{ $startDate ? \Carbon\Carbon::parse($startDate)->format('d/m/Y') : 'dd/mm/yyyy' }}
+                    </span>
+                    <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400">
                         <i data-lucide="calendar" class="w-4 h-4"></i>
                     </span>
-                    <input type="date" name="start_date" value="{{ $startDate }}"
-                           class="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-slate-800 mono-font font-semibold focus:outline-none focus:ring-2 focus:ring-maarif-600 transition text-xs [&::-webkit-calendar-picker-indicator]:opacity-50 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:mr-1">
+                    <input type="date" name="start_date" value="{{ $startDate }}" aria-label="Dari Tanggal"
+                           onchange="updateDateLabel(this)"
+                           class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                 </div>
             </div>
 
-            {{-- Sampai Tanggal --}}
+            {{-- Sampai Tanggal (facade: native input transparent full-cover + custom calendar icon) --}}
             <div class="sm:col-span-3 flex flex-col gap-1">
                 <label class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider pl-0.5">Sampai Tanggal</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div class="relative w-full pl-4 pr-10 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 text-xs transition focus-within:bg-white focus-within:ring-2 focus-within:ring-maarif-600 flex items-center min-h-[42px] cursor-pointer" data-date-wrap>
+                    <span data-date-label class="mono-font font-semibold {{ $endDate ? 'text-slate-800' : 'text-slate-400' }}">
+                        {{ $endDate ? \Carbon\Carbon::parse($endDate)->format('d/m/Y') : 'dd/mm/yyyy' }}
+                    </span>
+                    <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400">
                         <i data-lucide="calendar" class="w-4 h-4"></i>
                     </span>
-                    <input type="date" name="end_date" value="{{ $endDate }}"
-                           class="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-slate-800 mono-font font-semibold focus:outline-none focus:ring-2 focus:ring-maarif-600 transition text-xs [&::-webkit-calendar-picker-indicator]:opacity-50 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:mr-1">
+                    <input type="date" name="end_date" value="{{ $endDate }}" aria-label="Sampai Tanggal"
+                           onchange="updateDateLabel(this)"
+                           class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                 </div>
             </div>
 
@@ -475,4 +483,24 @@
 
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    function updateDateLabel(input) {
+        var wrap = input.closest('div.relative');
+        var label = wrap ? wrap.querySelector('[data-date-label]') : null;
+        if (!label) return;
+        if (input.value) {
+            var parts = input.value.split('-');
+            label.textContent = parts[2] + '/' + parts[1] + '/' + parts[0];
+            label.classList.remove('text-slate-400');
+            label.classList.add('text-slate-800');
+        } else {
+            label.textContent = 'dd/mm/yyyy';
+            label.classList.remove('text-slate-800');
+            label.classList.add('text-slate-400');
+        }
+    }
+</script>
+@endpush
 
