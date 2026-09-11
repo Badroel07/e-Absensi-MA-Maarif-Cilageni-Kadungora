@@ -15,22 +15,22 @@ Sistem ini memadukan estetika **Madrasah Modern, Bersih, dan Terstruktur** denga
 
 ## 2. Arsitektur Tipografi (Font Stacks)
 
-Sistem menggunakan **dual-font system** (hanya 2 kombinasi font family) yang saling melengkapi:
+Sistem menggunakan **single-font system** berbasis **`Inter`** murni di seluruh aplikasi, dengan fitur OpenType Tabular Numbers (`tnum`) untuk penyajian angka dan data tabular:
 
-| Kategori Font | Family | Loaded Weights | Utility Class | Peran & Tujuan |
+| Kategori Elemen | Family | Loaded Weights | Utility Class | Peran & Fitur Tipografi |
 |---|---|---|---|---|
-| **Sans (UI, Body & Heading)** | `Inter`, system-ui, sans-serif | 400, 500, 600, 700, 800, 900 | `font-sans` (Default), `.heading-font` / `font-heading` / `font-display` | Teks isi, deskripsi, form input, tabel, navigasi, judul halaman, greeting nama siswa/guru, nama mata pelajaran, kartu hero, dan judul modal. Heading menggunakan `Inter` dengan weight 700–900 + `tracking-tight` untuk hierarki tegas tanpa menambah family baru. |
-| **Monospace (Data & Angka)** | `JetBrains Mono`, monospace | 500, 600, 700, 800 | `.mono-font` / `font-mono` | Jam digital aktif, PIN presensi 4-digit, NISN/NIP, countdown timer, koordinat GPS, dan tag jam pelajaran. |
+| **UI, Body & Heading** | `Inter`, system-ui, sans-serif | 400, 500, 600, 700, 800, 900 | `font-sans` (Default), `.heading-font` / `font-heading` | Teks isi, deskripsi, form input, tabel, navigasi, judul halaman, greeting nama siswa/guru, nama mata pelajaran, kartu hero, dan judul modal. Heading menggunakan `Inter` dengan weight 700–900 + `tracking-tight` untuk hierarki tegas. |
+| **Data, Angka & Jam (Tabular)** | `Inter`, system-ui, sans-serif | 400, 500, 600, 700, 800 | `.mono-font` / `font-mono` | Jam digital aktif, PIN presensi 4-digit, NISN/NIP, countdown timer, koordinat GPS, dan tag jam pelajaran. Menggunakan `font-feature-settings: 'tnum', 'zero'` agar angka berlebar tetap (*monospaced tabular numbers*) tanpa perlu font monospace terpisah. |
 
-> **Aturan keras**: Hanya 2 font family yang diizinkan di seluruh aplikasi — `Inter` (sans) dan `JetBrains Mono` (mono). `Plus Jakarta Sans` tidak lagi digunakan (sebelumnya redundan dengan `Inter` karena keduanya sans-serif).
+> **Aturan keras**: Hanya 1 font family yang diizinkan di seluruh aplikasi — **`Inter`**. Font eksternal lain (`JetBrains Mono`, `Plus Jakarta Sans`, serif) dilarang.
 
-### Konfigurasi Google Fonts (hanya 2 family):
+### Konfigurasi Google Fonts (Single Family):
 ```html
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 ```
-Bunny Fonts (vite.config.js) juga hanya load 2 family yang sama via `laravel-vite-plugin/fonts`.
+Bunny Fonts (vite.config.js) juga hanya memuat family `Inter` via `laravel-vite-plugin/fonts`.
 
 ---
 
@@ -61,10 +61,10 @@ Seluruh bobot font yang digunakan **wajib terdaftar dan di-load** untuk mencegah
 | Utility Tailwind | Numeric Weight | Font Family Terkait | Kasus Penggunaan Ideal |
 |---|---|---|---|
 | `font-normal` | **400** | `Inter` | Teks paragraf panjang, catatan bantuan, deskripsi umum, cell metadata tabel. |
-| `font-medium` | **500** | `Inter`, `JetBrains Mono` | Label form input, navigasi sidebar & bottom nav non-aktif, hari & tanggal, keterangan status non-kritis. |
-| `font-semibold` | **600** | `Inter`, `JetBrains Mono` | **Standar Komponen UI Utama**: Item menu aktif, seluruh badge status presensi, table headers (`th`), nama entitas di baris tabel, tombol aksi reguler/tabel, sub-heading kartu modul. |
-| `font-bold` | **700** | `Inter`, `JetBrains Mono` | Judul utama halaman (`h1`), judul besar modal dialog, angka statistik/KPI, jam digital aktif. |
-| `font-extrabold` | **800** | `Inter`, `JetBrains Mono` | *Khusus Display Terbatas*: Angka hitungan mundur (countdown timer) besar, layar Kiosk terminal. Dilarang pada badge, teks 10px-12px, atau baris tabel. |
+| `font-medium` | **500** | `Inter` | Label form input, navigasi sidebar & bottom nav non-aktif, hari & tanggal, keterangan status non-kritis. |
+| `font-semibold` | **600** | `Inter` | **Standar Komponen UI Utama**: Item menu aktif, seluruh badge status presensi, table headers (`th`), nama entitas di baris tabel, tombol aksi reguler/tabel, sub-heading kartu modul. |
+| `font-bold` | **700** | `Inter` | Judul utama halaman (`h1`), judul besar modal dialog, angka statistik/KPI, jam digital aktif. |
+| `font-extrabold` | **800** | `Inter` | *Khusus Display Terbatas*: Angka hitungan mundur (countdown timer) besar, layar Kiosk terminal. Dilarang pada badge, teks 10px-12px, atau baris tabel. |
 | `font-black` | **900** | `Inter` | *Strictly Restricted*: Hanya untuk digit display PIN raksasa layar penuh (jika diperlukan). Dilarang total pada seluruh teks UI, badge, tombol, heading biasa, dan tabel. |
 
 ---
@@ -109,9 +109,9 @@ Seluruh bobot font yang digunakan **wajib terdaftar dan di-load** untuk mencegah
 
 ## 7. Anti-Patterns (Larangan Mutlak)
 
-1. **Dilarang Menggunakan Faux-Bold**: Jangan gunakan bobot font yang tidak diload di Google Fonts (misal font-light 300 pada Inter atau JetBrains Mono).
+1. **Dilarang Menggunakan Faux-Bold**: Jangan gunakan bobot font yang tidak diload di Google Fonts (misal font-light 300 pada Inter).
 2. **Dilarang Arbitrary Font Sizes Tanpa Standar**: Hindari penggunaan sembarangan seperti `text-[13px]` atau `text-[15px]`. Selalu gunakan skala token terdaftar (`text-2xs`, `text-xs+`, `text-xs`, `text-sm`, `text-base`).
-3. **Dilarang Font Gado-Gado**: Jangan memasukkan font di luar kedua font resmi (`Inter`, `JetBrains Mono`). Font tambahan seperti `Plus Jakarta Sans` atau serif generik dilarang keras di antarmuka sistem absensi ini.
+3. **Dilarang Font Gado-Gado**: Jangan memasukkan font di luar font resmi tunggal (**`Inter`**). Seluruh varian font lain seperti `JetBrains Mono`, `Plus Jakarta Sans`, atau serif generik dilarang keras di antarmuka sistem absensi ini. Untuk angka dan jam, gunakan kelas `.mono-font` / `font-mono` yang telah dikonfigurasi dengan OpenType tabular numbers `tnum`.
 4. **Dilarang Memotong Tanggal & Data**: Gunakan `whitespace-nowrap` pada string tanggal resmi dan pastikan tidak terpotong elipsis (`...`).
 
 ---
@@ -300,3 +300,100 @@ Untuk tombol yang memiliki icon, ikuti standar proporsi berikut:
 3. **Dilarang Mengabaikan Cursor Pointer**: Selalu sertakan `cursor-pointer` untuk konsistensi di browser desktop (dan `disabled:cursor-not-allowed` saat terkunci).
 4. **Dilarang Shadow Hitam Pekat Sembarangan**: Gunakan colored ambient shadow dengan saturasi warna tombol (`shadow-maarif-700/25`, `shadow-rose-600/25`, `shadow-amber-600/25`), bukan `shadow-2xl` hitam kusam.
 5. **Dilarang Menghilangkan Label Teks Tanpa `aria-label` / `title`**: Pada icon-only button, wajib sertakan `title="..."` dan `aria-label="..."` untuk pembaca layar dan tooltip mouse.
+
+---
+
+## 9. Aturan Khusus Desain Mobile, Dashboard, Profil & Jadwal (Clean UI Guidelines)
+
+> **Prinsip Utama**: *"Less Clutter, Pure Typography, High Intent."*
+> Mengeliminasi elemen dekoratif semu (pill lonjong tak berguna, border bertumpuk, ring tebal, teks helper klise, pod status bengkak) agar antarmuka fokus pada data esensial, hierarki visual bersih, dan kecepatan aksi pengguna.
+
+### A. Filosofi Anti-Pill & Anti-Bullet Dot
+1. **Bukan Segalanya Harus Jadi Pill**:
+   - Dilarang membungkus setiap label, peran, atau status non-kritis dengan bentuk pill lonjong (`rounded-full px-2.5 py-0.5` dengan background tajam/berwarna).
+   - Untuk data pelengkap (seperti peran: `Peran: Guru`, status akun: `Aktif Terverifikasi`, atau label kelas: `Kelas X`), gunakan teks biasa dengan bobot proporsional (`text-xs text-slate-500` atau `text-slate-600 font-medium`) didampingi icon netral berukuran pas (`text-slate-400 w-3.5 h-3.5`).
+2. **Eliminasi Pemisah Dot (`&bull;` / `•`)**:
+   - Dilarang menyelipkan bullet dot sebagai pemisah antarteks jika tidak memiliki fungsi semantik yang krusial. Gunakan spasi natural atau pemisah vertikal halus agar tipografi tetap bersih dan tidak terpotong-potong.
+
+---
+
+### B. Kartu Profil & Pengelolaan Avatar (Profile & Identity Container)
+1. **Avatar Bersih Tanpa Ring & Border Tebal**:
+   - Avatar dilarang menggunakan ring tebal maupun border tajam (`no ring-4 ring-slate-100`, `no border-2 border-white`). Avatar harus menyatu harmonis dengan latar kartu profil tanpa ilusi stiker timbul.
+2. **Single Trigger untuk Foto Profil**:
+   - Tombol penggantian foto terpusat pada tombol kamera di sudut avatar.
+   - Dilarang membuat tombol duplikat terpisah seperti "Unggah Foto / Ganti Foto" di bawah avatar. Satu aksi, satu trigger.
+3. **Tanpa Teks Helper Format yang Klise**:
+   - Hapus teks keterangan format statis seperti `"Format JPG, PNG, WEBP — Maks. 2 MB"` dari UI publik profil. Seluruh validasi ukuran dan format berkas ditangani oleh notifikasi client-side dan server-side secara interaktif.
+4. **Pemisah Baris Data Samar & Rapi**:
+   - Gunakan `divide-y divide-slate-200/30` untuk memisahkan daftar rincian identitas akun. Dilarang menggunakan baris bergantian warna (*zebra striping*) atau border tebal yang memecah konsentrasi.
+5. **Anti-Redundansi Data Identitas**:
+   - Jika suatu data (misal alamat email) sudah ditampilkan di area header kartu utama, jangan tampilkan kembali baris email tersebut pada tabel rincian identitas.
+   - Jangan menyertakan baris identitas ganda seperti "Tipe Pengguna" jika "Peran: Guru" sudah dicantumkan.
+6. **Icon Header Kartu Bersih & Unboxed (Bare Icons)**:
+   - Icon header modul profil (seperti `key-round` pada Perbarui Kata Sandi dan `log-out` pada Keluar dari Sesi) dilarang dibungkus wadah kotak/pod (`no w-11 h-11 rounded-2xl bg-* border`). Tampilkan murni sebagai icon tipografi yang menyatu dengan judul (`w-5 h-5 text-emerald-700` atau `w-5 h-5 text-rose-600`).
+
+---
+
+### C. Dashboard Guru & Siswa (Mobile Hero & Indicators)
+1. **Hapus Badge Role di Profile Card**:
+   - Pada kartu profil hero mobile dashboard (baik Guru maupun Siswa), jangan menambahkan badge role dekoratif seperti `"Dewan Guru"`. Nama lengkap dan NIP/NISN sudah mendefinisikan identitas pengguna secara jelas.
+2. **Indikator Geofence GPS Seragam & Linear**:
+   - Dilarang menggunakan modul/pod geofence berukuran besar dengan background tebal yang memakan ruang vertikal mobile secara berlebihan.
+   - Gunakan indikator linear ringkas dan interaktif tepat di bawah baris NIP/NISN (`geofenceBadge` dengan ping dot berkedip + jarak meter + icon refresh berputar). Format indikator GPS guru dan siswa wajib identik dan seragam.
+3. **Accordion Panduan / Petunjuk Bersih**:
+   - Hapus badge dekoratif tak penting pada accordion petunjuk (seperti badge `"Petunjuk Alur"` pada guru atau `"3 Langkah Alur"` pada siswa).
+   - Selaraskan ikon panduan menggunakan ikon netral yang konsisten: wajib gunakan ikon `info` (`data-lucide="info"`), bukan ikon tanda tanya `help-circle`.
+4. **Hero Profil & Greeting Unboxed (Anti-Boxed Hero Profile)**:
+   - Dilarang membungkus section greeting / profil dashboard ke dalam card/container boks (`no bg-gradient rounded-3xl p-5 border shadow-xl`).
+   - Tampilkan identitas profil secara *unboxed* langsung pada surface halaman dengan garis bawah pemisah halus (`pb-6 border-b border-slate-200/80`), mengintegrasikan avatar bersih, nama pengguna, metadata NIP/NISN (tanpa bullet dot), indikator GPS linear interaktif, dan jam digital aktif (`.liveClockTicker`) dengan tipografi tabular Inter.
+
+---
+
+### D. Halaman Jadwal Pelajaran (Schedule Interface)
+1. **Header Hari Bersih**:
+   - Dilarang memasang icon kalender (`calendar-days`) di samping nama hari.
+   - Dilarang memasang badge pill `"Hari Ini"` pada header hari. Indikator aktif harus berfokus langsung pada slot jam sesi mengajar yang sedang berlangsung.
+2. **Nomor Sesi Mapel Tanpa Kotak**:
+   - Nomor urut jam pelajaran tampil sebagai angka murni dengan font monospace (`font-mono text-sm font-semibold`), tanpa dibungkus kotak background (`bg-slate-100`) maupun border bujur sangkar.
+3. **Keterangan Kelas Tanpa Background**:
+   - Tampilkan informasi kelas sebagai teks biasa (contoh: `Kelas X-A`) didampingi icon pintu/kelas netral (`door-closed text-slate-400`), tanpa badge background berwarna hijau atau abu-abu.
+4. **Rentang Waktu Rata Kanan & Tanpa Background Gelap**:
+   - Teks rentang jam mengajar diletakkan di sisi kanan (`justify-end`).
+   - Dilarang memberi background hitam atau kotak pill gelap pada teks jam. Waktu ditampilkan sebagai teks murni.
+5. **Realtime Emerald Highlight untuk Sesi Aktif**:
+   - Jika hari ini dan waktu sekarang masuk ke dalam range jam jadwal mengajar (`$isCurrentSlot`), angka nomor sesi dan teks rentang jam otomatis aktif menyala dengan warna hijau emerald (`text-emerald-700` dan `text-emerald-600 font-bold`).
+   - Ketika berada di luar jam pelajaran aktif, teks jam kembali menjadi warna netral (`text-slate-400 font-medium`).
+6. **Penyelarasan Baseline Label Waktu (WIB)**:
+   - Teks keterangan zona waktu `WIB` dilarang mengambang (*floating*) atau memiliki offset vertikal yang tidak wajar dari angka jam.
+   - Gunakan `leading-none text-[11px]` dengan perataan baseline/center yang sejajar persis dengan angka jam (`text-xs font-mono`).
+7. **Section Hari Tanpa Wrapper Card (Anti-Nested Cards)**:
+   - Dilarang membungkus section per hari ke dalam card kontainer besar (`bg-white rounded-3xl p-5 border shadow`) yang mengakibatkan kartu item jadwal bersarang di dalam kartu (*nested card-in-card anti-pattern*).
+   - Section hari cukup ditandai dengan header nama hari yang bersih dan garis pemisah halus (`border-b border-slate-200/70`), dengan card item pelajaran langsung mengalir bebas di bawahnya.
+
+---
+
+### E. Navigasi & Mobile Headerbar
+1. **Larangan Tombol Logout di Mobile Headerbar**:
+   - Dilarang menempatkan tombol logout pada bar navigasi atas mobile (`mobile headerbar`).
+   - Tombol logout hanya diperkenankan berada di dalam halaman Pengaturan Akun / Profil dan di dalam Drawer Menu Sidebar Navigasi.
+2. **Tombol Kembali (Back Button) Telanjang Tanpa Bungkus**:
+   - Dilarang membungkus tombol kembali (`arrow-left`) dengan card, kotak border, maupun latar belakang bujur sangkar abu-abu (`no bg-slate-50 border border-slate-200 rounded-2xl`).
+   - Tombol kembali harus tampil murni sebagai tautan icon telanjang (`text-slate-400 hover:text-slate-700 active:text-slate-900 transition-colors p-1 -ml-1 cursor-pointer`) yang mengalir harmonis tepat di samping teks judul halaman.
+
+---
+
+### F. Riwayat Sesi & Status Kehadiran (Session History & Status Rules)
+1. **Dilarang Membungkus Status 'Selesai' dan 'Tercatat' (Anti-Boxed Status/Counter)**:
+   - Dilarang membungkus indikator counter header seperti `"X Tercatat"` dengan border atau latar belakang abu-abu/badge (`no px-3 py-1 rounded-xl bg-slate-50 border`). Tampilkan murni sebagai teks monospace bersih (`mono-font text-xs font-semibold text-slate-500`).
+   - Dilarang membungkus status `"Selesai"` pada baris riwayat kelas dengan capsule pill, border, atau badge latar hijau (`no px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200`). Status selesai ditampilkan murni sebagai teks tipografi berbobot tegas (`text-xs font-semibold text-emerald-700`) didampingi ikon centang hijau (`check-circle-2 text-emerald-600 w-4 h-4`).
+   - Status fungsional lain (seperti *Sesi Aktif* dan *Perlu Konfirmasi*) juga wajib tampil bersih tanpa pembungkus pill tebal berlebihan.
+   - Angka rekapitulasi kehadiran (Hadir / Izin / Alpa) ditampilkan dalam font tabular Inter (`.mono-font` / `font-mono`) terpisah dengan karakter garis miring netral (`/`), tanpa menggunakan bullet dot (`&bull;`).
+2. **Dilarang Menggunakan Garis Vertikal Berwarna pada Card (Anti-Vertical Accent Stripe)**:
+   - Dilarang memberikan garis vertikal berwarna di sisi kartu riwayat sesi, log kehadiran, maupun kartu list lainnya (`no border-l-4 border-l-emerald-500`, `no border-l-4 border-l-amber-500`, `no border-l-4 border-l-rose-500`).
+   - Kartu harus bersih dengan border netral seragam di seluruh sisinya (`border border-slate-200/80 bg-white hover:border-slate-300`).
+   - Pembedaan status harus dikomunikasikan secara natural lewat tipografi status, ikon semantik (`check-circle-2`, `loader-2`, `alert-circle`), dan warna teks status yang jelas—bukan melalui garis border tebal samping yang membuat visual tampak berantakan dan klise.
+3. **Dilarang Membungkus Icon dengan Kotak/Container Semu (Anti-Boxed Icon Containers)**:
+   - Dilarang membungkus icon dekoratif atau icon metriks dalam wadah bujur sangkar / rounded box buatan (`no w-8 h-8 rounded-xl bg-slate-100`, `no w-9 h-9 rounded-2xl bg-emerald-50 border`, `no w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center`).
+   - Tampilkan icon secara murni (*bare icon*) dengan proporsi ukuran dan warna yang tepat (`w-5 h-5 text-slate-400`, `w-5 h-5 text-emerald-600`, `w-8 h-8 text-slate-300`).
+   - Icon menyatu natural dengan tipografi di sekitarnya tanpa kesan stiker tempel atau pod berlapis-lapis.

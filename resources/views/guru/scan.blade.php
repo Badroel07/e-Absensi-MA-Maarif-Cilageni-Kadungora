@@ -12,162 +12,261 @@
 </style>
 @endpush
 
+@section('page-title', 'Pindai QR Presensi')
+
 @section('content')
-<div class="max-w-[860px] mx-auto space-y-4">
+<div class="max-w-4xl mx-auto space-y-5 pb-10">
 
-    {{-- Header: sederhana --}}
-    <div>
-        <h1 class="text-xl sm:text-2xl font-bold text-slate-900 heading-font tracking-tight leading-none">Pemindai QR Presensi</h1>
-        <p class="text-xs text-slate-500 mt-1">Arahkan kamera ke QR di Layar Presensi Madrasah.</p>
-    </div>
-
-    {{-- Status presensi hari ini --}}
-    @if(isset($hasCheckedIn))
-    <div class="flex flex-wrap items-center gap-2">
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-semibold {{ $hasCheckedIn ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-amber-50 border-amber-200 text-amber-800' }}">
-            <span class="w-1.5 h-1.5 rounded-full {{ $hasCheckedIn ? 'bg-emerald-500' : 'bg-amber-400' }}"></span>
-            {{ $hasCheckedIn ? 'Sudah masuk' : 'Belum masuk' }}
-        </span>
-        @if(isset($pendingSchedules) && $pendingSchedules->count() > 0)
-            <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-xs font-semibold">{{ $pendingSchedules->count() }} kelas belum disimpan</span>
-        @endif
-        @if(isset($dailyAttendance) && $dailyAttendance)
-            <span class="mono-font text-xs text-slate-400">{{ substr($dailyAttendance->check_in_time ?? '--:--',0,5) }} WIB @if($dailyAttendance->check_out_time) &middot; {{ substr($dailyAttendance->check_out_time,0,5) }} WIB @endif</span>
-        @endif
-    </div>
-    @endif
-
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 items-start">
-
-        {{-- Kartu utama: mode toggle + viewfinder --}}
-        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-
-            {{-- Auto mode — no manual toggle --}}
-            <div class="px-4 pt-4 pb-3">
-                <div class="flex items-center gap-2 text-xs font-semibold text-emerald-700">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Mode Otomatis — Masuk / Pulang menyesuaikan sendiri
-                </div>
-                <p class="text-xs text-slate-400 mt-1">Scan pertama hari ini = Masuk. Scan setelah semua kelas selesai = Pulang. Tidak perlu pilih manual.</p>
-            </div>
-
-            <div class="border-t border-slate-100 mx-4"></div>
-
-            {{-- Viewfinder --}}
-            <div class="p-4">
-                <div class="relative aspect-square w-full bg-slate-900 rounded-xl overflow-hidden">
-                    <div id="reader" class="absolute inset-0"></div>
-                    <div class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-white/10"></div>
-                    {{-- Maarif-green corner brackets --}}
-                    <div class="pointer-events-none absolute inset-4">
-                        <span class="absolute left-0 top-0 w-8 h-8 border-l-[3px] border-t-[3px] border-maarif-500 rounded-tl-lg"></span>
-                        <span class="absolute right-0 top-0 w-8 h-8 border-r-[3px] border-t-[3px] border-maarif-500 rounded-tr-lg"></span>
-                        <span class="absolute left-0 bottom-0 w-8 h-8 border-l-[3px] border-b-[3px] border-maarif-500 rounded-bl-lg"></span>
-                        <span class="absolute right-0 bottom-0 w-8 h-8 border-r-[3px] border-b-[3px] border-maarif-500 rounded-br-lg"></span>
-                    </div>
-                    <div id="scanReticle" class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[52%] h-[52%] flex items-center justify-center">
-                        <span class="absolute w-px h-3 bg-white/25 left-1/2 -translate-x-1/2"></span>
-                        <span class="absolute h-px w-3 bg-white/25 top-1/2 -translate-y-1/2"></span>
-                    </div>
-                    <div id="scanLine" class="pointer-events-none absolute left-[12%] right-[12%] top-[14%] h-px bg-gradient-to-r from-transparent via-maarif-500 to-transparent opacity-0"></div>
-                    {{-- Placeholder saat kamera belum aktif --}}
-                    <div id="scannerPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-900">
-                        <div class="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center text-white/60">
-                            <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                        </div>
-                        <div class="text-center px-6">
-                            <p class="text-sm font-semibold text-white heading-font">Kamera belum aktif</p>
-                            <p class="text-xs text-slate-400 mt-1">Izinkan akses kamera &amp; lokasi</p>
-                        </div>
-                        <button type="button" onclick="startCamera()"
-                            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white text-sm font-semibold shadow-md shadow-maarif-700/40 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 min-h-[44px]">
-                            Aktifkan Kamera
-                        </button>
-                    </div>
-                </div>
-                {{-- Bawah viewfinder --}}
-                <div class="mt-3 flex items-center justify-between gap-3">
-                    <span class="text-xs text-slate-400">Tahan QR di dalam bingkai 1–2 detik</span>
-                    <button type="button" onclick="startCamera()"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 transition-all active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600 min-h-[34px]">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                        Mulai ulang
-                    </button>
-                </div>
-            </div>
+    {{-- ── 1. HEADER HALAMAN (Pure Typography, Unboxed) ── --}}
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/70">
+        <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 heading-font tracking-tight leading-tight">
+                Pemindai QR Presensi
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
+                Arahkan kamera ke kode QR dinamis di Layar Presensi Madrasah
+            </p>
         </div>
 
-        {{-- Kolom kanan: GPS + manual --}}
-        <div class="space-y-3">
+        {{-- Status Kehadiran Hari Ini (Clean Editorial, Anti-Pill, Pure Typography & Monospace) --}}
+        @if(isset($hasCheckedIn))
+            <div class="flex items-center gap-2.5 sm:gap-3 flex-wrap text-xs">
+                <div class="inline-flex items-center gap-1.5 font-semibold {{ $hasCheckedIn ? 'text-emerald-700' : 'text-amber-700' }}">
+                    <span class="w-2 h-2 rounded-full {{ $hasCheckedIn ? 'bg-emerald-500' : 'bg-amber-500' }}"></span>
+                    <span>{{ $hasCheckedIn ? 'Sudah Presensi Masuk' : 'Belum Presensi Masuk' }}</span>
+                </div>
 
-            {{-- GPS / Verifikasi Posisi --}}
-            <div id="scanGeofenceCard" class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-                <div class="p-4 flex gap-3 items-start">
-                    <div id="scanGeofenceIconBox" class="w-9 h-9 rounded-xl bg-slate-800 text-white flex items-center justify-center shrink-0">
-                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="m11.54 22.351.07.04.028.016a.76.76 0 0 0 .723 0l.028-.015.071-.041a16.975 16.975 0 0 0 1.144-.742 19.58 19.58 0 0 0 2.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 0 0-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 0 0 2.682 2.282 16.975 16.975 0 0 0 1.145.742ZM12 13.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd"/></svg>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <div class="flex flex-wrap items-center gap-2">
-                            <span id="scanGeofenceTitle" class="text-xs font-semibold text-slate-700">Mendeteksi lokasi...</span>
-                            <span id="scanGeofenceDistance" class="mono-font text-xs px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500">-- m</span>
-                        </div>
-                        <p id="scanGeofenceDesc" class="text-xs text-slate-400 leading-relaxed mt-0.5">Izinkan GPS di peramban.</p>
-                    </div>
-                </div>
-                <div class="px-4 pb-4">
-                    <button type="button" onclick="initScanGeolocation(true)"
-                        class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 transition-all active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 min-h-[38px]">
-                        <svg id="scanGpsRefreshIcon" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                        Perbarui GPS
-                    </button>
-                </div>
+                @if(isset($dailyAttendance) && $dailyAttendance?->check_in_time)
+                    <span class="text-slate-300">/</span>
+                    <span class="mono-font text-slate-600 font-medium">
+                        {{ substr($dailyAttendance->check_in_time, 0, 5) }} WIB
+                        @if($dailyAttendance->check_out_time)
+                            &rarr; {{ substr($dailyAttendance->check_out_time, 0, 5) }} WIB
+                        @endif
+                    </span>
+                @endif
+
+                @if(isset($pendingSchedules) && $pendingSchedules->count() > 0)
+                    <span class="text-slate-300">/</span>
+                    <span class="mono-font text-amber-700 font-semibold">
+                        {{ $pendingSchedules->count() }} Kelas Mengajar Aktif
+                    </span>
+                @endif
             </div>
-
-            {{-- Kode manual (cadangan) --}}
-            <details class="group bg-white rounded-2xl border border-slate-200 overflow-hidden">
-                <summary class="list-none flex items-center justify-between px-4 py-3 cursor-pointer select-none hover:bg-slate-50 transition-colors">
-                    <span class="text-xs font-semibold text-slate-700">Kode manual (cadangan)</span>
-                    <svg class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                </summary>
-                <div class="px-4 pb-4 pt-1 border-t border-slate-100">
-                    <p class="text-xs text-slate-400 mb-3">Salin kode dari Layar Presensi. Token berganti tiap 20 detik.</p>
-                    <form id="formManual" onsubmit="submitManualToken(event)" class="flex gap-2">
-                        <input type="text" id="manualToken" placeholder="Tempel kode..." autocomplete="off" inputmode="text"
-                            class="flex-1 min-w-0 px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none mono-font placeholder:text-slate-300 bg-slate-50 focus:bg-white transition-colors">
-                        <button type="submit" id="btnSubmitManual"
-                            class="shrink-0 px-4 py-2.5 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-semibold text-xs shadow-sm transition-all active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600 min-h-[42px]">
-                            Kirim
-                        </button>
-                    </form>
-                </div>
-            </details>
-
-        </div>
+        @endif
     </div>
 
-    {{-- Modal: presensi pulang tertahan --}}
-    <div id="modalLock" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 hidden">
-        <div class="w-full max-w-sm bg-white rounded-2xl p-6 shadow-xl space-y-4 border border-rose-200">
-            <div class="w-11 h-11 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center mx-auto">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+    {{-- ── 2. KONDISI SUDAH PULANG VS GRID PEMINDAI ── --}}
+    @if(isset($dailyAttendance) && $dailyAttendance?->check_out_time)
+        {{-- Tampilan saat Guru Sudah Selesai Presensi Pulang --}}
+        <div class="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/80 shadow-xs text-center space-y-5 max-w-2xl mx-auto my-4">
+            <i data-lucide="check-circle-2" class="w-12 h-12 sm:w-14 sm:h-14 text-emerald-600 mx-auto"></i>
+            
+            <div class="space-y-2">
+                <h2 class="text-lg sm:text-2xl font-bold text-slate-900 heading-font tracking-tight">
+                    Anda Sudah Boleh Pulang
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-lg mx-auto">
+                    Alhamdulillah, seluruh rangkaian tugas mengajar dan presensi harian Bapak/Ibu Guru hari ini telah selesai dan tercatat lengkap di sistem. Silakan beristirahat dan hati-hati di perjalanan.
+                </p>
             </div>
-            <div class="text-center">
-                <h3 class="text-base font-semibold text-slate-900 heading-font">Presensi pulang tertahan</h3>
-                <p id="modalLockMessage" class="text-xs text-slate-500 mt-1.5 leading-relaxed">Masih ada kelas mengajar yang belum dicatat kehadirannya.</p>
+
+            {{-- Ringkasan Waktu Hadir & Pulang --}}
+            <div class="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200/70 max-w-md mx-auto text-left text-xs">
+                <div>
+                    <span class="text-slate-500 font-medium text-[11px] block">Presensi Masuk:</span>
+                    <span class="mono-font font-bold text-emerald-700 text-sm mt-0.5 block">
+                        {{ substr($dailyAttendance->check_in_time ?? '--:--', 0, 5) }} WIB
+                    </span>
+                </div>
+                <div>
+                    <span class="text-slate-500 font-medium text-[11px] block">Presensi Pulang:</span>
+                    <span class="mono-font font-bold text-emerald-700 text-sm mt-0.5 block">
+                        {{ substr($dailyAttendance->check_out_time, 0, 5) }} WIB
+                    </span>
+                </div>
             </div>
-            <div id="modalLockList" class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-700 space-y-1 max-h-36 overflow-y-auto"></div>
-            <div class="flex items-center gap-2.5">
-                <button type="button" onclick="closeLockModal()"
-                    class="flex-1 py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-semibold text-xs transition-all active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 min-h-[44px]">
-                    Tutup
-                </button>
+
+            <div class="pt-3 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <a href="{{ route('guru.dashboard') }}"
-                    class="flex-1 py-3 px-4 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-semibold text-xs inline-flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600 min-h-[44px]">
-                    Ke Beranda
+                    class="w-full sm:w-auto min-h-[44px] px-6 py-3 rounded-2xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white text-xs sm:text-sm font-semibold inline-flex items-center justify-center gap-2 shadow-md shadow-maarif-700/25 transition-all duration-150 active:scale-[0.98] cursor-pointer">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                    <span>Kembali ke Dashboard</span>
+                </a>
+                <a href="{{ route('guru.history') }}"
+                    class="w-full sm:w-auto min-h-[44px] px-6 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 text-xs sm:text-sm font-semibold inline-flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] cursor-pointer">
+                    <i data-lucide="history" class="w-4 h-4"></i>
+                    <span>Lihat Riwayat Presensi</span>
                 </a>
             </div>
         </div>
-    </div>
+    @else
+        {{-- ── GRID UTAMA PEMINDAI QR (Kamera Viewfinder + Info GPS & Manual Token) ── --}}
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+            {{-- KOLOM KIRI: Scanner Viewfinder (lg:col-span-7) --}}
+            <div class="lg:col-span-7 bg-white rounded-3xl p-4 sm:p-6 border border-slate-200/80 shadow-xs space-y-4">
+                
+                {{-- Mode Info Banner (Otomatis Masuk/Pulang) --}}
+                <div class="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200/70 text-xs">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="relative flex h-2 w-2 shrink-0">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <span class="font-semibold text-slate-800 truncate">Deteksi Mode Otomatis</span>
+                    </div>
+                    <span class="mono-font text-[11px] text-slate-500 shrink-0 font-medium">
+                        {{ $hasCheckedIn ? 'Siap Pulang' : 'Siap Masuk' }}
+                    </span>
+                </div>
+
+                {{-- Camera Viewfinder Container --}}
+                <div class="relative w-full aspect-[4/3] sm:aspect-square max-h-[380px] sm:max-h-[420px] bg-slate-950 rounded-2xl overflow-hidden shadow-inner flex items-center justify-center">
+                    <div id="reader" class="absolute inset-0"></div>
+                    
+                    {{-- Border Rim --}}
+                    <div class="pointer-events-none absolute inset-0 ring-1 ring-white/10 rounded-2xl"></div>
+
+                    {{-- Targeting Corner Brackets (Maarif Brand Emerald) --}}
+                    <div class="pointer-events-none absolute inset-6 sm:inset-8">
+                        <span class="absolute left-0 top-0 w-7 h-7 sm:w-8 sm:h-8 border-l-[3px] border-t-[3px] border-emerald-400 rounded-tl-xl"></span>
+                        <span class="absolute right-0 top-0 w-7 h-7 sm:w-8 sm:h-8 border-r-[3px] border-t-[3px] border-emerald-400 rounded-tr-xl"></span>
+                        <span class="absolute left-0 bottom-0 w-7 h-7 sm:w-8 sm:h-8 border-l-[3px] border-b-[3px] border-emerald-400 rounded-bl-xl"></span>
+                        <span class="absolute right-0 bottom-0 w-7 h-7 sm:w-8 sm:h-8 border-r-[3px] border-b-[3px] border-emerald-400 rounded-br-xl"></span>
+                    </div>
+
+                    {{-- Center Reticle --}}
+                    <div id="scanReticle" class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center opacity-60">
+                        <span class="absolute w-px h-4 bg-white/40 left-1/2 -translate-x-1/2"></span>
+                        <span class="absolute h-px w-4 bg-white/40 top-1/2 -translate-y-1/2"></span>
+                    </div>
+
+                    {{-- Laser Scan Line --}}
+                    <div id="scanLine" class="pointer-events-none absolute left-[15%] right-[15%] top-[18%] h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-0"></div>
+
+                    {{-- Inactive Placeholder State --}}
+                    <div id="scannerPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-950/95 p-6 text-center">
+                        <div class="w-14 h-14 rounded-2xl bg-white/10 text-white/70 flex items-center justify-center shadow-inner">
+                            <i data-lucide="camera" class="w-7 h-7"></i>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="text-sm font-semibold text-white heading-font">Kamera Pemindai Belum Aktif</p>
+                            <p class="text-xs text-slate-400 max-w-xs">Berikan izin akses kamera dan lokasi untuk memindai QR code</p>
+                        </div>
+                        <button type="button" onclick="startCamera()"
+                            class="mt-1 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white text-xs sm:text-sm font-semibold shadow-md shadow-maarif-700/30 transition-all duration-150 active:scale-[0.98] cursor-pointer min-h-[44px]">
+                            <i data-lucide="video" class="w-4 h-4"></i>
+                            <span>Aktifkan Kamera</span>
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Bottom Viewfinder Control Bar --}}
+                <div class="flex items-center justify-between gap-3 text-xs pt-1">
+                    <span class="text-slate-400 flex items-center gap-1.5">
+                        <i data-lucide="scan" class="w-3.5 h-3.5 text-slate-400"></i>
+                        <span>Tahan QR di tengah bingkai</span>
+                    </span>
+                    <button type="button" onclick="startCamera()"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200/80 text-slate-600 hover:text-slate-900 hover:bg-slate-50 active:scale-[0.98] font-semibold text-xs transition-all cursor-pointer">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                        <span>Mulai Ulang Kamera</span>
+                    </button>
+                </div>
+            </div>
+
+            {{-- KOLOM KANAN: Status Geofence & Input Manual (lg:col-span-5) --}}
+            <div class="lg:col-span-5 space-y-4">
+                
+                {{-- 1. Kartu Evaluasi Lokasi GPS / Geofence --}}
+                <div id="scanGeofenceCard" class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-3.5">
+                    <div class="flex items-start gap-3.5">
+                        <div id="scanGeofenceIconBox" class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                            <i data-lucide="map-pin" class="w-5 h-5"></i>
+                        </div>
+                        <div class="min-w-0 flex-1 space-y-1">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <span id="scanGeofenceTitle" class="text-xs font-semibold text-slate-700">Mendeteksi koordinat GPS...</span>
+                                <span id="scanGeofenceDistance" class="mono-font text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">-- m</span>
+                            </div>
+                            <p id="scanGeofenceDesc" class="text-xs text-slate-400 leading-relaxed">
+                                Pastikan GPS aktif & berada di dalam area madrasah.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-100">
+                        <button type="button" onclick="initScanGeolocation(true)"
+                            class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200/80 text-slate-700 hover:text-slate-900 hover:bg-slate-50 active:scale-[0.98] text-xs font-semibold transition-all cursor-pointer min-h-[40px]">
+                            <svg id="scanGpsRefreshIcon" class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            <span>Perbarui Akurasi Lokasi</span>
+                        </button>
+                    </div>
+                </div>
+
+                {{-- 2. Input Manual Kode QR (Fallback Cadangan) --}}
+                <details class="group bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+                    <summary class="list-none flex items-center justify-between p-4 sm:p-5 cursor-pointer select-none hover:bg-slate-50 transition-colors">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <i data-lucide="key-round" class="w-4 h-4 text-slate-400 shrink-0"></i>
+                            <span class="text-xs font-semibold text-slate-800">Input Manual Token (Cadangan)</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <div class="px-4 pb-5 pt-1 sm:px-5 border-t border-slate-100 space-y-3">
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Gunakan kode teks acak yang tertera di bawah QR Layar Presensi Madrasah jika kamera terkendala.
+                        </p>
+                        <form id="formManual" onsubmit="submitManualToken(event)" class="flex gap-2">
+                            <input type="text" id="manualToken" placeholder="Tempel token QR..." autocomplete="off" inputmode="text"
+                                class="flex-1 min-w-0 px-3.5 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-transparent focus:outline-none mono-font placeholder:text-slate-300 bg-slate-50 focus:bg-white transition-colors">
+                            <button type="submit" id="btnSubmitManual"
+                                class="shrink-0 px-4 py-2.5 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-semibold text-xs shadow-xs transition-all active:scale-[0.98] cursor-pointer min-h-[42px]">
+                                <span>Kirim</span>
+                            </button>
+                        </form>
+                    </div>
+                </details>
+
+                {{-- 3. Panduan Alur Singkat --}}
+                <div class="bg-slate-50 border border-slate-200/70 rounded-3xl p-4 sm:p-5 text-xs text-slate-500 space-y-2">
+                    <p class="font-semibold text-slate-700 flex items-center gap-1.5">
+                        <i data-lucide="info" class="w-4 h-4 text-slate-400"></i>
+                        <span>Informasi Presensi Guru:</span>
+                    </p>
+                    <ul class="list-disc list-inside space-y-1 text-slate-500 pl-1 leading-relaxed">
+                        <li>Scan pertama hari ini otomatis mencatat <strong>Presensi Masuk</strong>.</li>
+                        <li>Selesaikan semua kelas mengajar di jadwal harian sebelum melakukan <strong>Presensi Pulang</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        {{-- ── 3. MODAL: Presensi Pulang Tertahan (Kelas Belum Selesai) ── --}}
+        <div id="modalLock" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 hidden">
+            <div class="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-rose-200">
+                <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-200/80">
+                    <i data-lucide="lock" class="w-6 h-6"></i>
+                </div>
+                <div class="text-center space-y-1">
+                    <h3 class="text-base font-bold text-slate-900 heading-font">Presensi Pulang Tertahan</h3>
+                    <p id="modalLockMessage" class="text-xs text-slate-500 leading-relaxed">Masih ada kelas mengajar yang belum disimpan dan ditutup permanen.</p>
+                </div>
+                <div id="modalLockList" class="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 text-xs text-slate-700 space-y-1.5 max-h-36 overflow-y-auto"></div>
+                <div class="flex items-center gap-2.5 pt-1">
+                    <button type="button" onclick="closeLockModal()"
+                        class="flex-1 py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-semibold text-xs transition-all active:scale-[0.98] cursor-pointer min-h-[44px]">
+                        Tutup
+                    </button>
+                    <a href="{{ route('guru.dashboard') }}"
+                        class="flex-1 py-3 px-4 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-semibold text-xs inline-flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98] cursor-pointer min-h-[44px]">
+                        <span>Ke Dashboard</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
 @endsection
 
@@ -220,16 +319,17 @@
         isWithinGeofence = (data.is_within_geofence !== undefined) ? data.is_within_geofence : Boolean(data.within);
         geofenceDistance = data.distance;
         if (isWithinGeofence) {
-            if (scanGeofenceIconBox) scanGeofenceIconBox.className = "w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0";
-            if (scanGeofenceTitle) { scanGeofenceTitle.textContent = "Di lingkungan madrasah"; scanGeofenceTitle.className = "text-xs font-semibold text-emerald-700"; }
-            if (scanGeofenceDesc) scanGeofenceDesc.textContent = "Radius " + (data.radius || 75) + " m — siap presensi.";
-            if (scanGeofenceDistance) { scanGeofenceDistance.textContent = Math.round(data.distance || 0) + " m"; scanGeofenceDistance.className = "mono-font text-xs px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700"; }
+            if (scanGeofenceIconBox) scanGeofenceIconBox.className = "w-10 h-10 rounded-xl bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5";
+            if (scanGeofenceTitle) { scanGeofenceTitle.textContent = "Di Lingkungan Madrasah"; scanGeofenceTitle.className = "text-xs font-semibold text-emerald-700"; }
+            if (scanGeofenceDesc) scanGeofenceDesc.textContent = "Radius " + (data.radius || 75) + " m — lokasi terverifikasi siap presensi.";
+            if (scanGeofenceDistance) { scanGeofenceDistance.textContent = Math.round(data.distance || 0) + " m"; scanGeofenceDistance.className = "mono-font text-xs font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/80"; }
         } else {
-            if (scanGeofenceIconBox) scanGeofenceIconBox.className = "w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0";
-            if (scanGeofenceTitle) { scanGeofenceTitle.textContent = "Di luar area madrasah"; scanGeofenceTitle.className = "text-xs font-semibold text-rose-700"; }
-            if (scanGeofenceDesc) scanGeofenceDesc.textContent = "Di luar " + (data.radius || 75) + " m — presensi ditolak.";
-            if (scanGeofenceDistance) { scanGeofenceDistance.textContent = Math.round(data.distance || 0) + " m"; scanGeofenceDistance.className = "mono-font text-xs px-1.5 py-0.5 rounded-md bg-rose-50 text-rose-700"; }
+            if (scanGeofenceIconBox) scanGeofenceIconBox.className = "w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5";
+            if (scanGeofenceTitle) { scanGeofenceTitle.textContent = "Di Luar Area Madrasah"; scanGeofenceTitle.className = "text-xs font-semibold text-rose-700"; }
+            if (scanGeofenceDesc) scanGeofenceDesc.textContent = "Berada di luar " + (data.radius || 75) + " m dari madrasah. Presensi ditolak.";
+            if (scanGeofenceDistance) { scanGeofenceDistance.textContent = Math.round(data.distance || 0) + " m"; scanGeofenceDistance.className = "mono-font text-xs font-bold px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200/80"; }
         }
+        if (window.lucide) window.lucide.createIcons();
     }
 
     function initScanGeolocation(isManual = false) {
@@ -592,6 +692,8 @@
     }
 
     function initScanView() {
+        const readerEl = document.getElementById('reader');
+        if (!readerEl) return;
         initScanGeolocation();
         startCamera();
     }

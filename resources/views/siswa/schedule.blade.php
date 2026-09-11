@@ -3,14 +3,6 @@
 @section('title', 'Jadwal Pelajaran — MA Ma\'arif Cilageni')
 @section('page-title', 'Jadwal Pelajaran')
 
-@push('styles')
-<style>
-    .mono-font {
-        font-family: 'JetBrains Mono', monospace;
-    }
-</style>
-@endpush
-
 @section('content')
 <div class="space-y-6">
 
@@ -26,7 +18,6 @@
         ];
         $todayName = $indonesianDays[now()->format('l')] ?? 'SENIN';
 
-        // Hitung total mapel seminggu & mapel hari ini
         $totalWeeklySubjects = 0;
         $totalTodaySubjects = 0;
         foreach ($schedules as $day => $items) {
@@ -47,60 +38,52 @@
         </p>
     </div>
 
-    {{-- ── 2. WEEKLY SCHEDULE CARDS ─────────────────────────────────── --}}
-    <div class="space-y-6">
+    {{-- ── 2. WEEKLY SCHEDULE LIST — Unboxed Day Sections (Anti-Nested Card) ── --}}
+    <div class="space-y-8">
         @forelse($schedules as $day => $items)
             @php
                 $isToday = strtoupper($day) === $todayName;
             @endphp
-            <div class="bg-white rounded-3xl p-5 sm:p-7 border {{ $isToday ? 'border-emerald-500 shadow-md shadow-emerald-500/10 ring-1 ring-emerald-500/20' : 'border-slate-200/80 shadow-xs' }} transition-all">
-                
-                {{-- Day Section Header Bar --}}
-                <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-2xl {{ $isToday ? 'bg-emerald-700 text-white shadow-xs' : 'bg-slate-100 text-slate-700' }} flex items-center justify-center font-bold text-sm shrink-0">
-                            <i data-lucide="calendar-days" class="w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-2.5">
-                                <h2 class="text-base font-bold text-slate-900 heading-font uppercase tracking-wider">
-                                    {{ $day }}
-                                </h2>
-                                @if($isToday)
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
-                                        Hari Ini
-                                    </span>
-                                @endif
-                            </div>
-                            <p class="text-xs text-slate-500 font-medium mt-0.5">
-                                {{ count($items) }} mata pelajaran terjadwal
-                            </p>
-                        </div>
-                    </div>
+            <div class="space-y-3.5">
+
+                {{-- Day Section Header Bar (Clean, no card wrapper, no icon, no pill) --}}
+                <div class="flex items-baseline justify-between pb-2.5 border-b border-slate-200/70">
+                    <h2 class="text-base sm:text-lg font-bold {{ $isToday ? 'text-emerald-700' : 'text-slate-900' }} heading-font uppercase tracking-wide">
+                        {{ $day }}
+                    </h2>
+                    <span class="text-xs text-slate-400 font-medium">
+                        {{ count($items) }} mata pelajaran terjadwal
+                    </span>
                 </div>
 
-                {{-- Lessons List with High Contrast Typography --}}
+                {{-- Lessons List — Bare Number + Plain Time (DESIGN.md §9.D) --}}
                 <div class="space-y-3">
+                    @php
+                        $currentTime = now()->format('H:i:s');
+                    @endphp
                     @foreach($items as $idx => $sch)
-                        <div class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-emerald-300 hover:shadow-xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 group">
-                            
-                            {{-- Left: Sesi Badge + Nama Mapel High Contrast + Teacher Info --}}
+                        @php
+                            $startTime = strlen($sch->start_time) === 5 ? $sch->start_time . ':00' : $sch->start_time;
+                            $endTime = strlen($sch->end_time) === 5 ? $sch->end_time . ':00' : $sch->end_time;
+                            $isCurrentSlot = $isToday && $currentTime >= $startTime && $currentTime <= $endTime;
+                        @endphp
+                        <div class="p-4 sm:p-5 rounded-2xl bg-white border {{ $isCurrentSlot ? 'border-emerald-500 shadow-sm ring-1 ring-emerald-500/20' : 'border-slate-200/90 shadow-2xs hover:border-emerald-300 hover:shadow-xs' }} transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 group">
+
+                            {{-- Left: Sesi Number (bare mono, no box) + Mapel & Guru --}}
                             <div class="flex items-start sm:items-center space-x-3.5 min-w-0 flex-1">
-                                <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold mono-font text-xs flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-emerald-700 group-hover:text-white group-hover:border-emerald-700 transition">
+                                <span class="mono-font font-bold text-sm sm:text-base {{ $isCurrentSlot ? 'text-emerald-600 font-extrabold' : 'text-slate-400' }} shrink-0 w-6 text-center select-none pt-0.5 transition-colors">
                                     {{ str_pad($idx + 1, 2, '0', STR_PAD_LEFT) }}
-                                </div>
+                                </span>
                                 <div class="min-w-0 flex-1 space-y-1">
                                     <h3 class="text-base sm:text-lg font-semibold text-slate-900 heading-font leading-snug tracking-tight break-words group-hover:text-emerald-900 transition">
                                         {{ $sch->subject->name ?? 'Mata Pelajaran' }}
                                     </h3>
                                     <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                                        <span class="inline-flex items-center gap-1.5 text-slate-600 font-semibold">
+                                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600">
                                             <i data-lucide="user" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
                                             <span>{{ $sch->teacher->name ?? 'Dewan Guru' }}</span>
                                         </span>
                                         @if(!empty($sch->subject->code))
-                                            <span class="text-slate-300">•</span>
                                             <span class="mono-font text-[11px] text-slate-400 font-medium">
                                                 Kode: {{ $sch->subject->code }}
                                             </span>
@@ -109,12 +92,12 @@
                                 </div>
                             </div>
 
-                            {{-- Right: High Contrast Time Pill --}}
-                            <div class="flex items-center justify-start sm:justify-end shrink-0 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                                <div class="px-3.5 py-2 rounded-xl bg-slate-900 text-white font-semibold mono-font text-xs sm:text-sm shadow-xs flex items-center gap-2 tracking-wide">
-                                    <i data-lucide="clock" class="w-4 h-4 text-emerald-400 shrink-0"></i>
-                                    <span class="text-white">{{ substr($sch->start_time, 0, 5) }} – {{ substr($sch->end_time, 0, 5) }}</span>
-                                    <span class="text-[10px] text-slate-400 uppercase font-semibold tracking-wider">WIB</span>
+                            {{-- Right: Clean Plain Time Display (no dark pill, WIB baseline aligned) --}}
+                            <div class="flex items-center justify-end shrink-0 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                                <div class="font-semibold mono-font text-xs sm:text-sm flex items-center gap-1.5 tracking-wide {{ $isCurrentSlot ? 'text-emerald-700 font-bold' : 'text-slate-700' }}">
+                                    <i data-lucide="clock" class="w-4 h-4 {{ $isCurrentSlot ? 'text-emerald-600' : 'text-slate-400' }} shrink-0"></i>
+                                    <span class="leading-none">{{ substr($sch->start_time, 0, 5) }} – {{ substr($sch->end_time, 0, 5) }}</span>
+                                    <span class="text-[11px] {{ $isCurrentSlot ? 'text-emerald-600 font-bold' : 'text-slate-400 font-medium' }} uppercase tracking-wider leading-none">WIB</span>
                                 </div>
                             </div>
                         </div>

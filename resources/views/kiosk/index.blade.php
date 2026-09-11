@@ -33,7 +33,7 @@
         <link rel="stylesheet" href="{{ asset('build/' . $fontsFile) }}">
     @endif
     <style>
-        .mono-font { font-family: 'JetBrains Mono', monospace; }
+        .mono-font { font-family: 'Inter', system-ui, sans-serif; font-feature-settings: 'tnum', 'zero'; }
         .heading-font { font-family: 'Inter', system-ui, sans-serif; }
         @keyframes scale-up {
             0% { transform: scale(0.9); opacity: 0; }

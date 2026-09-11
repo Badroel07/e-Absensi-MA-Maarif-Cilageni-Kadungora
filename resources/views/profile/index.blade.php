@@ -16,7 +16,7 @@
         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 pb-6 border-b border-slate-100 text-center sm:text-left">
             <!-- Avatar with Photo Input Trigger -->
             <div class="relative group shrink-0">
-                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl overflow-hidden ring-4 ring-slate-100 shadow-md bg-slate-100 flex items-center justify-center relative">
+                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl overflow-hidden shadow-md bg-slate-100 flex items-center justify-center relative">
                     <img id="preview-avatar-img" 
                          src="{{ $user->profile_photo_url ?? '' }}" 
                          alt="{{ $user->name }}" 
@@ -30,7 +30,7 @@
 
                 <label for="photo-input" 
                        title="Pilih foto profil"
-                       class="absolute -bottom-1 -right-1 p-2.5 bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white rounded-2xl shadow-md shadow-emerald-900/25 cursor-pointer transition-all duration-150 active:scale-95 flex items-center justify-center border-2 border-white focus-within:ring-2 focus-within:ring-emerald-600">
+                       class="absolute -bottom-1 -right-1 p-2.5 bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white rounded-2xl shadow-md shadow-emerald-900/25 cursor-pointer transition-all duration-150 active:scale-95 flex items-center justify-center focus-within:ring-2 focus-within:ring-emerald-600">
                     <i data-lucide="camera" class="w-4 h-4"></i>
                 </label>
             </div>
@@ -39,8 +39,8 @@
                 <div class="flex-1 min-w-0 space-y-1.5">
                     <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                         <h2 class="text-lg sm:text-xl font-bold text-slate-900 heading-font break-words">{{ $user->name }}</h2>
-                        <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wide {{ $user->role === 'guru' ? 'bg-amber-100 text-amber-900 border border-amber-300' : ($user->role === 'admin' ? 'bg-purple-100 text-purple-900 border border-purple-300' : 'bg-emerald-100 text-emerald-900 border border-emerald-300') }}">
-                            {{ $user->role === 'guru' ? 'Bapak/Ibu Guru' : ($user->role === 'admin' ? 'Administrator' : 'Siswa Madrasah') }}
+                        <span class="text-xs font-medium text-slate-500">
+                            Peran: <span class="font-semibold text-slate-700">{{ $user->role === 'guru' ? 'Guru' : ($user->role === 'admin' ? 'Administrator' : 'Siswa Madrasah') }}</span>
                         </span>
                     </div>
                     <p class="text-xs text-slate-500 font-mono font-medium">
@@ -79,14 +79,9 @@
                 </div>
             </form>
 
-            <!-- Photo Management Bar -->
-            <div class="flex flex-wrap items-center gap-3">
-                <label for="photo-input" class="cursor-pointer px-4 py-2.5 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-semibold rounded-xl text-xs inline-flex items-center justify-center gap-2 transition-all duration-150 active:scale-95 shadow-xs focus-within:ring-2 focus-within:ring-slate-700">
-                    <i data-lucide="camera" class="w-4 h-4 text-white"></i>
-                    <span>{{ $user->profile_photo_path ? 'Ganti Foto' : 'Unggah Foto' }}</span>
-                </label>
-
-                @if($user->profile_photo_path)
+            @if($user->profile_photo_path)
+                <!-- Photo Management Bar -->
+                <div class="flex flex-wrap items-center gap-3">
                     <form action="{{ route('profile.photo.destroy') }}" method="POST"
                         data-confirm="Apakah Anda yakin ingin menghapus foto profil Anda? Tampilan avatar akan dikembalikan ke inisial nama Anda."
                         data-confirm-title="Hapus Foto Profil"
@@ -95,98 +90,58 @@
                         data-confirm-icon="trash-2">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-semibold rounded-xl text-xs inline-flex items-center justify-center gap-1.5 transition-all duration-150 shadow-xs active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500" title="Hapus Foto Profil">
-                            <i data-lucide="trash-2" class="w-4 h-4 text-white"></i>
+                        <button type="submit" class="px-4 py-2 bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-700 font-semibold border border-rose-200 rounded-xl text-xs inline-flex items-center justify-center gap-1.5 transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500" title="Hapus Foto Profil">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5 text-rose-600"></i>
                             <span>Hapus Foto</span>
                         </button>
                     </form>
-                @endif
-                <span class="text-[11px] text-slate-400 font-medium">Format JPG, PNG, WEBP &bull; Maks. 2 MB</span>
-            </div>
+                </div>
+            @endif
 
             <!-- Detailed Identity Section -->
             <div class="pt-2">
                 <div class="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 sm:p-5">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-xs sm:text-sm">
-                        <!-- Kolom Kiri: Data Utama & Akademik -->
-                        <div class="space-y-3.5">
-                            @if($user->classroom)
-                                <div class="flex items-start justify-between gap-3 pb-3 border-b border-slate-200/60">
-                                    <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5 shrink-0">
-                                        <i data-lucide="graduation-cap" class="w-4 h-4 text-emerald-600"></i>
-                                        <span>Rombel / Kelas</span>
-                                    </span>
-                                    <span class="font-semibold text-emerald-900 text-right">
-                                        Kelas {{ $user->classroom->name }}
-                                    </span>
-                                </div>
-                            @endif
-
-                            <div class="flex items-start justify-between gap-3 pb-3 border-b border-slate-200/60">
+                    <div class="divide-y divide-slate-200/30 text-xs sm:text-sm">
+                        @if($user->classroom)
+                            <div class="flex items-center justify-between gap-3 py-3 first:pt-0">
                                 <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5 shrink-0">
-                                    <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
-                                    <span>Tanggal Lahir</span>
+                                    <i data-lucide="graduation-cap" class="w-4 h-4 text-slate-400"></i>
+                                    <span>Rombel / Kelas</span>
                                 </span>
-                                <span class="font-medium text-slate-900 text-right whitespace-nowrap">
-                                    {{ $user->birth_date ? $user->birth_date->format('d F Y') : '-' }}
+                                <span class="font-semibold text-emerald-900 text-right">
+                                    Kelas {{ $user->classroom->name }}
                                 </span>
                             </div>
+                        @endif
 
-                            <div class="flex items-start justify-between gap-3">
-                                <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5 shrink-0">
-                                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
-                                    <span>Status Akun</span>
-                                </span>
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 text-xs font-semibold">
-                                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-700 shrink-0"></i>
-                                    <span>Aktif Terverifikasi</span>
-                                </span>
-                            </div>
+                        <div class="flex items-center justify-between gap-3 py-3 first:pt-0">
+                            <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5 shrink-0">
+                                <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
+                                <span>Tanggal Lahir</span>
+                            </span>
+                            <span class="font-medium text-slate-900 text-right whitespace-nowrap">
+                                {{ $user->birth_date ? $user->birth_date->format('d F Y') : '-' }}
+                            </span>
                         </div>
 
-                        <!-- Kolom Kanan: Kontak & Komunikasi -->
-                        <div class="space-y-3.5">
-                            @if($user->email)
-                                <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-1 sm:gap-3 pb-3 border-b border-slate-200/60">
-                                    <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5 shrink-0">
-                                        <i data-lucide="mail" class="w-4 h-4 text-slate-400"></i>
-                                        <span>Alamat Email</span>
-                                    </span>
-                                    <span class="font-medium text-slate-900 font-mono text-xs sm:text-right break-all select-all">
-                                        {{ $user->email }}
-                                    </span>
-                                </div>
-                            @endif
+                        <div class="flex items-center justify-between gap-3 py-3">
+                            <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5 shrink-0">
+                                <i data-lucide="shield-check" class="w-4 h-4 text-slate-400"></i>
+                                <span>Status Akun</span>
+                            </span>
+                            <span class="font-medium text-emerald-700 text-right">
+                                Aktif Terverifikasi
+                            </span>
+                        </div>
 
-                            @if($user->phone_number)
-                                <div class="flex items-start justify-between gap-3 pb-3 border-b border-slate-200/60">
-                                    <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5 shrink-0">
-                                        <i data-lucide="phone" class="w-4 h-4 text-slate-400"></i>
-                                        <span>No. Handphone</span>
-                                    </span>
-                                    <span class="font-medium text-slate-900 font-mono text-right">
-                                        {{ $user->phone_number }}
-                                    </span>
-                                </div>
-                            @else
-                                <div class="flex items-start justify-between gap-3 pb-3 border-b border-slate-200/60">
-                                    <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5 shrink-0">
-                                        <i data-lucide="phone" class="w-4 h-4 text-slate-400"></i>
-                                        <span>No. Handphone</span>
-                                    </span>
-                                    <span class="font-medium text-slate-400 text-right">-</span>
-                                </div>
-                            @endif
-
-                            <div class="flex items-start justify-between gap-3">
-                                <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5 shrink-0">
-                                    <i data-lucide="info" class="w-4 h-4 text-slate-400"></i>
-                                    <span>Tipe Pengguna</span>
-                                </span>
-                                <span class="font-medium text-slate-700 text-right">
-                                    {{ $user->role === 'guru' ? 'Tenaga Pengajar (Guru)' : ($user->role === 'admin' ? 'Pengelola Sistem (Admin)' : 'Peserta Didik (Siswa)') }}
-                                </span>
-                            </div>
+                        <div class="flex items-center justify-between gap-3 py-3 last:pb-0">
+                            <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5 shrink-0">
+                                <i data-lucide="phone" class="w-4 h-4 text-slate-400"></i>
+                                <span>No. Handphone</span>
+                            </span>
+                            <span class="font-medium {{ $user->phone_number ? 'text-slate-900' : 'text-slate-400' }} font-mono text-right">
+                                {{ $user->phone_number ?? '-' }}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -195,10 +150,8 @@
 
     <!-- 2. Security & Password Update Section -->
     <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs space-y-6">
-        <div class="pb-4 border-b border-slate-100 flex items-center space-x-3.5">
-            <div class="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-800 flex items-center justify-center border border-emerald-200/80 shrink-0">
-                <i data-lucide="key-round" class="w-5 h-5 text-emerald-700"></i>
-            </div>
+        <div class="pb-4 border-b border-slate-100 flex items-center gap-3">
+            <i data-lucide="key-round" class="w-5 h-5 text-emerald-700 shrink-0"></i>
             <div>
                 <h3 class="text-base font-bold text-slate-900 heading-font">Perbarui Kata Sandi</h3>
                 <p class="text-xs text-slate-500 mt-0.5">Amankan akun Anda dengan mengganti kata sandi secara berkala (minimal 6 karakter)</p>
@@ -255,10 +208,8 @@
 
     <!-- 3. Account Session & Sign Out Card -->
     <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div class="flex items-center space-x-3.5">
-            <div class="w-11 h-11 rounded-2xl bg-rose-50 text-rose-700 flex items-center justify-center border border-rose-200/80 shrink-0">
-                <i data-lucide="log-out" class="w-5 h-5"></i>
-            </div>
+        <div class="flex items-center gap-3">
+            <i data-lucide="log-out" class="w-5 h-5 text-rose-600 shrink-0"></i>
             <div>
                 <h3 class="text-base font-bold text-slate-900 heading-font">Keluar dari Sesi Aplikasi</h3>
                 <p class="text-xs text-slate-500 mt-0.5">Akhiri sesi aktif akun Anda pada perangkat ini dengan aman.</p>

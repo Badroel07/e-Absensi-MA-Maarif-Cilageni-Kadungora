@@ -8,10 +8,8 @@
         height: 52px;
         font-size: 1.25rem;
         font-weight: 700;
-        font-family: 'JetBrains Mono', monospace;
-    }
-    .mono-font {
-        font-family: 'JetBrains Mono', monospace;
+        font-family: 'Inter', system-ui, sans-serif;
+        font-feature-settings: 'tnum', 'zero';
     }
     .radar-pulse {
         animation: radar-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
@@ -26,85 +24,57 @@
 @endpush
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-8 sm:space-y-10">
 
-    <!-- Page Title Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div>
-            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 heading-font tracking-tight">Dashboard Siswa</h1>
-            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Terminal presensi ruang kelas dan pemantauan kehadiran harian madrasah</p>
+    <!-- 1. UNBOXED EDITORIAL PROFILE & HERO SECTION -->
+    <div class="pb-6 border-b border-slate-200/80 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+        <!-- Left: Avatar + Identity + GPS -->
+        <div class="flex items-start sm:items-center gap-4 min-w-0">
+            <!-- Avatar (Clean, unboxed, no thick ring/nested borders) -->
+            <div class="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-emerald-700 text-white flex items-center justify-center font-bold text-xl sm:text-2xl shrink-0 overflow-hidden shadow-xs">
+                @if($student->profile_photo_url)
+                    <img src="{{ $student->profile_photo_url }}" loading="lazy" decoding="async" alt="{{ $student->name }}" class="w-full h-full object-cover">
+                @else
+                    <span class="select-none">{{ substr($student->name, 0, 1) }}</span>
+                @endif
+            </div>
+
+            <!-- Identity Info -->
+            <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Dashboard Siswa</span>
+                </div>
+                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 heading-font tracking-tight truncate mt-0.5">
+                    {{ $student->name }}
+                </h1>
+                <div class="mt-1 space-y-0.5 text-xs">
+                    <div class="font-semibold text-slate-700 leading-tight">Kelas {{ $student->classroom->name ?? '-' }} &middot; TA {{ $student->classroom->academic_year ?? '2026/2027' }}</div>
+                    <div class="mono-font font-semibold text-slate-600 leading-tight">{{ $student->identity_number }}</div>
+                </div>
+
+                <!-- GPS Live Status Indicator (Linear / Clean Editorial) -->
+                <div class="mt-2.5 flex items-center">
+                    <button type="button" onclick="initGeolocation(true)" id="geofenceBadge" title="Ketuk untuk memperbarui lokasi GPS" class="group inline-flex items-center gap-2 text-xs font-semibold text-emerald-700 hover:text-emerald-800 transition-colors cursor-pointer focus:outline-none">
+                        <span class="relative flex h-2 w-2">
+                            <span id="geofenceBadgePing" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                            <span id="geofenceBadgeDot" class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                        </span>
+                        <span id="geofenceBadgeText" class="tracking-tight">Mendeteksi Lokasi GPS...</span>
+                        <span id="geofenceBadgeDist" class="hidden mono-font text-[11px] text-slate-500"></span>
+                    </button>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <!-- 1. HERO GREETING & PROFILE BANNER -->
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-950 text-white p-5 sm:p-7 shadow-lg border border-emerald-700/50 flex flex-col gap-4 sm:gap-5">
-        <!-- Background Ambient Glow -->
-        <div class="absolute -right-12 -top-12 w-64 h-64 rounded-full bg-emerald-400/20 blur-3xl pointer-events-none"></div>
-        <div class="absolute right-1/3 -bottom-16 w-56 h-56 rounded-full bg-emerald-600/25 blur-2xl pointer-events-none"></div>
-
-        <!-- [MOBILE ONLY] Top Row: Date & Live Digital Clock Capsule (< md) -->
-        <div class="md:hidden relative z-10 flex items-center justify-between gap-2 pb-3 border-b border-white/10">
-            <!-- Date Indicator -->
-            <div class="text-xs font-semibold text-emerald-100/90 whitespace-nowrap tracking-tight">
-                {{ $todayDay }}, {{ now()->translatedFormat('d F Y') }}
-            </div>
-
-            <!-- Live Clock Pill Capsule -->
-            <div class="px-2.5 py-1 rounded-full bg-black/25 backdrop-blur-md border border-white/20 text-white shrink-0 shadow-inner flex items-center gap-1.5">
-                <i data-lucide="clock" class="w-3.5 h-3.5 text-emerald-300 shrink-0"></i>
-                <div class="liveClockTicker text-xs font-bold mono-font tracking-wider">
-                    {{ now()->format('H:i:s') }} <span class="text-[10px] font-semibold text-emerald-300">WIB</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- MAIN HERO ROW: Profile (Left) & Desktop Clock (Right) -->
-        <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <!-- Student Identity (Left) -->
-            <div class="flex items-center gap-4">
-                <div class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-white/20 to-white/5 border border-white/25 text-white flex items-center justify-center font-bold text-2xl sm:text-3xl shadow-lg shrink-0 backdrop-blur-md overflow-hidden ring-2 ring-white/15">
-                    @if($student->profile_photo_url)
-                        <img src="{{ $student->profile_photo_url }}" loading="lazy" decoding="async" alt="{{ $student->name }}" class="w-full h-full object-cover">
-                    @else
-                        <span class="select-none">{{ substr($student->name, 0, 1) }}</span>
-                    @endif
-                </div>
-                <div class="min-w-0 flex-1">
-                    <h2 class="text-xl sm:text-2xl font-bold text-white heading-font tracking-tight truncate">
-                        {{ $student->name }}
-                    </h2>
-                    
-                    <div class="flex items-center gap-2 flex-wrap text-xs text-emerald-200/90 font-medium mt-1">
-                        <span>Kelas {{ $student->classroom->name ?? '-' }}</span>
-                        <span class="text-emerald-400/40 select-none">&bull;</span>
-                        <span>TA {{ $student->classroom->academic_year ?? '2026/2027' }}</span>
-                        <span class="text-emerald-400/40 select-none">&bull;</span>
-                        <span>NISN: <strong class="mono-font font-semibold text-white">{{ $student->identity_number }}</strong></span>
-                    </div>
-
-                    <!-- GPS Live Status Indicator (Linear / Clean Editorial) -->
-                    <div class="mt-2 flex items-center">
-                        <button type="button" onclick="initGeolocation(true)" id="geofenceBadge" title="Ketuk untuk memperbarui lokasi GPS" class="group inline-flex items-center gap-2 text-xs font-semibold text-emerald-200/90 hover:text-white transition-colors cursor-pointer focus:outline-none">
-                            <span class="relative flex h-2 w-2">
-                                <span id="geofenceBadgePing" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                <span id="geofenceBadgeDot" class="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
-                            </span>
-                            <span id="geofenceBadgeText" class="tracking-tight">Mendeteksi Lokasi GPS...</span>
-                            <span id="geofenceBadgeDist" class="hidden mono-font text-[11px] opacity-90"></span>
-                            <i data-lucide="rotate-cw" id="gpsBadgeIcon" class="w-3.5 h-3.5 text-emerald-300/70 group-hover:text-emerald-200 group-hover:rotate-180 transition-transform duration-300"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- [DESKTOP ONLY] Live Clock & Date (Right) -->
-            <div class="hidden md:flex flex-col items-end shrink-0 pl-6 border-l border-white/15 text-right">
-                <div id="liveClockDisplay" class="liveClockTicker text-2xl lg:text-3xl font-bold text-white mono-font tracking-tight drop-shadow-xs">
-                    {{ now()->format('H:i:s') }} <span class="text-xs font-semibold text-emerald-200">WIB</span>
-                </div>
-                <p class="text-xs text-emerald-100/90 mt-1 font-medium">
+        <!-- Right: Time & Date Indicator -->
+        <div class="flex items-center justify-between md:flex-col md:items-end md:justify-center shrink-0 pt-3 md:pt-0 border-t md:border-t-0 md:border-l border-slate-200/60 md:pl-6 text-left md:text-right">
+            <div>
+                <p class="text-xs font-medium text-slate-500">
                     {{ $todayDay }}, {{ now()->translatedFormat('d F Y') }}
                 </p>
+            </div>
+            <div id="liveClockDisplay" class="liveClockTicker text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 mono-font tracking-tight">
+                {{ now()->format('H:i:s') }} <span class="text-xs font-semibold text-slate-500">WIB</span>
             </div>
         </div>
     </div>
@@ -147,21 +117,124 @@
         </div>
     @endif
 
+    <!-- 2. ACTIVE CLASS SESSION & GPS STATE (Appears prominently above guide) -->
+    <!-- Active Class Session Card (Appears when session is opened by teacher) -->
+    <div id="sessionCard" class="hidden bg-white rounded-3xl p-6 border-2 border-maarif-600 shadow-xl shadow-maarif-700/10 space-y-6 transition-all duration-300">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div class="min-w-0 flex-1">
+                <h3 id="sessionSubject" class="text-xl sm:text-2xl font-bold text-slate-900 heading-font truncate">
+                    --
+                </h3>
+                <p id="sessionTeacher" class="text-xs text-slate-500 font-medium mt-0.5 truncate">Bapak/Ibu Guru: --</p>
+            </div>
+            <div class="text-right pl-4 shrink-0">
+                <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Sisa Waktu</p>
+                <div id="sessionCountdown" class="text-2xl sm:text-3xl font-bold text-amber-600 mono-font">
+                    --:--
+                </div>
+            </div>
+        </div>
+
+        <!-- PIN Input Keypad Section -->
+        <div id="pinSection" class="space-y-4">
+            <div class="text-center">
+                <label class="text-xs font-semibold text-slate-700">Masukkan 4 Angka PIN dari Bapak/Ibu Guru</label>
+                <p class="text-[11px] text-slate-400 mt-0.5">Ketik angka PIN yang disebutkan oleh Bapak/Ibu Guru</p>
+                
+                <!-- 4-Digit Display Boxes -->
+                <div class="flex items-center justify-center gap-3 sm:gap-4 my-4">
+                    <div id="digit0" class="w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-maarif-600 bg-white shadow-xs flex items-center justify-center text-2xl sm:text-3xl font-bold text-slate-800 mono-font shrink-0 ring-2 ring-maarif-500/30 transition-all"></div>
+                    <div id="digit1" class="w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-slate-300 bg-slate-50/50 shadow-xs flex items-center justify-center text-2xl sm:text-3xl font-bold text-slate-800 mono-font shrink-0 transition-all"></div>
+                    <div id="digit2" class="w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-slate-300 bg-slate-50/50 shadow-xs flex items-center justify-center text-2xl sm:text-3xl font-bold text-slate-800 mono-font shrink-0 transition-all"></div>
+                    <div id="digit3" class="w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-slate-300 bg-slate-50/50 shadow-xs flex items-center justify-center text-2xl sm:text-3xl font-bold text-slate-800 mono-font shrink-0 transition-all"></div>
+                </div>
+                <p id="pinFeedback" class="text-xs font-semibold text-rose-600 h-5"></p>
+            </div>
+
+            <!-- Ergonomic Touch Keypad (3x4 Grid) -->
+            <div class="grid grid-cols-3 gap-2.5 pt-1 max-w-xs mx-auto">
+                @foreach([1, 2, 3, 4, 5, 6, 7, 8, 9] as $n)
+                    <button type="button" onclick="pressKey('{{ $n }}')" class="keypad-btn bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-slate-800 rounded-2xl border border-slate-200 shadow-2xs transition-all duration-150 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
+                        {{ $n }}
+                    </button>
+                @endforeach
+                <button type="button" onclick="clearPin()" aria-label="Hapus semua angka PIN" class="keypad-btn bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-slate-500 text-sm font-semibold rounded-2xl border border-slate-200 shadow-2xs transition-all duration-150 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+                    C
+                </button>
+                <button type="button" onclick="pressKey('0')" class="keypad-btn bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-slate-800 rounded-2xl border border-slate-200 shadow-2xs transition-all duration-150 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
+                    0
+                </button>
+                <button type="button" onclick="backspacePin()" aria-label="Hapus satu angka" class="keypad-btn bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-slate-700 rounded-2xl border border-slate-200 shadow-2xs transition-all duration-150 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-7.172a2 2 0 00-1.414.586L3 12z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Success Verification Display -->
+        <div id="successSection" class="hidden py-6 text-center space-y-3">
+            <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-md">
+                <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            <div>
+                <h4 class="text-lg font-semibold text-slate-900 heading-font">Kehadiran Berhasil Dicatat!</h4>
+                <p class="text-sm text-emerald-700 font-semibold mt-0.5">Kamu tercatat: <strong>HADIR</strong> pada mata pelajaran ini.</p>
+                <p class="text-xs text-slate-500 mt-1">Presensi pada jam pertama otomatis mencatat kehadiran harian kamu.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- GPS Searching Notice (Shown while GPS is locking/verifying position) -->
+    <div id="gpsSearchingNotice" class="bg-emerald-50/70 border border-emerald-200/80 rounded-3xl p-6 text-center space-y-3.5 shadow-xs transition-all duration-300">
+        <div class="w-14 h-14 rounded-2xl bg-emerald-100/80 text-emerald-700 flex items-center justify-center mx-auto shadow-2xs">
+            <i data-lucide="satellite" class="w-7 h-7 animate-pulse"></i>
+        </div>
+        <div class="max-w-md mx-auto space-y-1">
+            <h4 class="text-base font-bold text-emerald-950 heading-font">Sedang Memeriksa Lokasi GPS...</h4>
+            <p class="text-xs text-emerald-800/90 leading-relaxed font-medium">
+                Sistem sedang memverifikasi posisi kamu di lingkungan madrasah. Menu presensi kelas akan terbuka secara otomatis setelah lokasi kamu terkonfirmasi.
+            </p>
+        </div>
+        <div class="pt-1 flex items-center justify-center gap-2 text-[11px] font-semibold text-emerald-700 bg-emerald-100/60 py-1.5 px-3.5 rounded-full w-fit mx-auto border border-emerald-200/60">
+            <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+            </span>
+            <span>Pastikan GPS HP aktif & izinkan akses lokasi</span>
+        </div>
+    </div>
+
+    <!-- Standby / No Active Session Notice (Refined Hub State) -->
+    <div id="noSessionNotice" class="hidden bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs text-center space-y-3 relative overflow-hidden">
+        <div class="flex justify-center text-maarif-700">
+            <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+
+        <div class="max-w-md mx-auto space-y-1">
+            <h4 class="text-base font-semibold text-slate-900 heading-font">Belum Ada Presensi Kelas yang Dibuka</h4>
+            <p class="text-xs text-slate-500 leading-relaxed">
+                Bapak/Ibu Guru belum membuka presensi untuk kelas <strong>{{ $student->classroom->name ?? 'kamu' }}</strong>. Halaman ini akan otomatis menampilkan kotak PIN ketika presensi dibuka.
+            </p>
+        </div>
+    </div>
+
     <!-- PETUNJUK PRESENSI SISWA ACCORDION (Collapsible) -->
     <details class="group bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden transition-all duration-200 open:border-emerald-300 open:shadow-xs">
         <summary class="flex items-center justify-between p-4 sm:p-5 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden hover:bg-slate-50/80 transition-colors">
             <div class="flex items-center gap-3.5 min-w-0">
                 <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-100">
-                    <i data-lucide="help-circle" class="w-5 h-5"></i>
+                    <i data-lucide="info" class="w-5 h-5"></i>
                 </div>
                 <div class="min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
                         <h4 class="text-sm font-semibold text-slate-800 heading-font">
                             Petunjuk Presensi Siswa
                         </h4>
-                        <span class="text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/70">
-                            3 Langkah Alur
-                        </span>
                     </div>
                     <p class="text-xs text-slate-500 font-normal mt-0.5 leading-relaxed">
                         Ketuk untuk melihat 3 langkah mudah presensi kehadiran di kelas
@@ -199,293 +272,237 @@
         </div>
     </details>
 
-    <!-- 2. QUICK METRIC & ATTENDANCE SUMMARY CARDS -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <!-- Metric 1: Total Mapel Hari Ini -->
-        <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-slate-300 transition">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Jadwal Hari Ini</span>
-                <div class="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
-                    <i data-lucide="calendar" class="w-4 h-4"></i>
-                </div>
-            </div>
-            <div class="mt-3">
-                <span class="text-2xl sm:text-3xl font-bold text-slate-900 mono-font leading-none block">
-                    {{ $todaySchedules->count() }}
-                </span>
-                <p class="text-[11px] text-slate-500 font-medium mt-1">Mata Pelajaran</p>
-            </div>
+    <!-- 3. QUICK METRIC & ATTENDANCE SUMMARY SECTION -->
+    <div class="space-y-3">
+        <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold text-slate-900 heading-font uppercase tracking-wider flex items-center gap-2">
+                <i data-lucide="bar-chart-2" class="w-4 h-4 text-emerald-700"></i>
+                <span>Ringkasan Kehadiran Hari Ini</span>
+            </h2>
         </div>
 
-        <!-- Metric 2: Hadir Hari Ini -->
-        <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-emerald-300 transition">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Hadir</span>
-                <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/60 flex items-center justify-center shrink-0">
-                    <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <!-- Metric 1: Total Mapel Hari Ini -->
+            <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-slate-300 transition">
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Jadwal Hari Ini</span>
+                    <i data-lucide="calendar" class="w-5 h-5 text-slate-400 shrink-0"></i>
+                </div>
+                <div class="mt-3">
+                    <span class="text-2xl sm:text-3xl font-bold text-slate-900 mono-font leading-none block">{{ $todaySchedules->count() }}</span>
+                    <p class="text-[11px] sm:text-xs text-slate-500 font-medium mt-1 truncate">Mata Pelajaran</p>
                 </div>
             </div>
-            <div class="mt-3">
-                <span class="text-2xl sm:text-3xl font-bold text-emerald-700 mono-font leading-none block">
-                    {{ $hadirCount }}
-                </span>
-                <p class="text-[11px] text-slate-500 font-medium mt-1">Sesi Terverifikasi</p>
-            </div>
-        </div>
 
-        <!-- Metric 3: Izin / Sakit -->
-        <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-amber-300 transition">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-amber-700 uppercase tracking-wider">Izin / Sakit</span>
-                <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 border border-amber-200/60 flex items-center justify-center shrink-0">
-                    <i data-lucide="file-text" class="w-4 h-4"></i>
+            <!-- Metric 2: Hadir Hari Ini -->
+            <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-emerald-200 transition">
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wider truncate">Hadir</span>
+                    <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600 shrink-0"></i>
+                </div>
+                <div class="mt-3">
+                    <span class="text-2xl sm:text-3xl font-bold text-emerald-700 mono-font leading-none block">{{ $hadirCount }}</span>
+                    <p class="text-[11px] sm:text-xs text-slate-500 font-medium mt-1 truncate">Sesi Hadir</p>
                 </div>
             </div>
-            <div class="mt-3">
-                <span class="text-2xl sm:text-3xl font-bold text-amber-700 mono-font leading-none block">
-                    {{ $izinCount + $sakitCount }}
-                </span>
-                <p class="text-[11px] text-slate-500 font-medium mt-1">Dispensasi</p>
-            </div>
-        </div>
 
-        <!-- Metric 4: Alpa -->
-        <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-rose-300 transition">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-rose-700 uppercase tracking-wider">Alpa</span>
-                <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-700 border border-rose-200/60 flex items-center justify-center shrink-0">
-                    <i data-lucide="x-circle" class="w-4 h-4"></i>
+            <!-- Metric 3: Izin / Sakit -->
+            <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-amber-200 transition">
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-semibold text-amber-700 uppercase tracking-wider truncate">Izin / Sakit</span>
+                    <i data-lucide="file-text" class="w-5 h-5 text-amber-600 shrink-0"></i>
+                </div>
+                <div class="mt-3">
+                    <span class="text-2xl sm:text-3xl font-bold text-amber-700 mono-font leading-none block">{{ $izinCount + $sakitCount }}</span>
+                    <p class="text-[11px] sm:text-xs text-slate-500 font-medium mt-1 truncate">Dispensasi</p>
                 </div>
             </div>
-            <div class="mt-3">
-                <span class="text-2xl sm:text-3xl font-bold text-rose-700 mono-font leading-none block">
-                    {{ $alpaCount }}
-                </span>
-                <p class="text-[11px] text-slate-500 font-medium mt-1">Tanpa Keterangan</p>
+
+            <!-- Metric 4: Alpa -->
+            <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-rose-200 transition">
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-semibold text-rose-700 uppercase tracking-wider truncate">Alpa</span>
+                    <i data-lucide="x-circle" class="w-5 h-5 text-rose-600 shrink-0"></i>
+                </div>
+                <div class="mt-3">
+                    <span class="text-2xl sm:text-3xl font-bold text-rose-700 mono-font leading-none block">{{ $alpaCount }}</span>
+                    <p class="text-[11px] sm:text-xs text-slate-500 font-medium mt-1 truncate">Tanpa Keterangan</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- 3. MAIN DASHBOARD CONTENT (Single Column Flow) -->
-    <div class="space-y-6">
-        
-        <!-- Active Class Session Card (Appears when session is opened by teacher) -->
-        <div id="sessionCard" class="hidden bg-white rounded-3xl p-6 border-2 border-maarif-600 shadow-xl shadow-maarif-700/10 space-y-6 transition-all duration-300">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-                <div class="min-w-0 flex-1">
-                    <h3 id="sessionSubject" class="text-xl sm:text-2xl font-bold text-slate-900 heading-font truncate">
-                        --
-                    </h3>
-                    <p id="sessionTeacher" class="text-xs text-slate-500 font-medium mt-0.5 truncate">Bapak/Ibu Guru: --</p>
-                </div>
-                <div class="text-right pl-4 shrink-0">
-                    <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Sisa Waktu</p>
-                    <div id="sessionCountdown" class="text-2xl sm:text-3xl font-bold text-amber-600 mono-font">
-                        --:--
-                    </div>
-                </div>
-            </div>
-
-            <!-- PIN Input Keypad Section -->
-            <div id="pinSection" class="space-y-4">
-                <div class="text-center">
-                    <label class="text-xs font-semibold text-slate-700">Masukkan 4 Angka PIN dari Bapak/Ibu Guru</label>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Ketik angka PIN yang disebutkan oleh Bapak/Ibu Guru</p>
-                    
-                    <!-- 4-Digit Display Boxes -->
-                    <div class="flex items-center justify-center gap-3 sm:gap-4 my-4">
-                        <div id="digit0" class="w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-maarif-600 bg-white shadow-xs flex items-center justify-center text-2xl sm:text-3xl font-bold text-slate-800 mono-font shrink-0 ring-2 ring-maarif-500/30 transition-all"></div>
-                        <div id="digit1" class="w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-slate-300 bg-slate-50/50 shadow-xs flex items-center justify-center text-2xl sm:text-3xl font-bold text-slate-800 mono-font shrink-0 transition-all"></div>
-                        <div id="digit2" class="w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-slate-300 bg-slate-50/50 shadow-xs flex items-center justify-center text-2xl sm:text-3xl font-bold text-slate-800 mono-font shrink-0 transition-all"></div>
-                        <div id="digit3" class="w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-slate-300 bg-slate-50/50 shadow-xs flex items-center justify-center text-2xl sm:text-3xl font-bold text-slate-800 mono-font shrink-0 transition-all"></div>
-                    </div>
-                    <p id="pinFeedback" class="text-xs font-semibold text-rose-600 h-5"></p>
-                </div>
-
-                <!-- Ergonomic Touch Keypad (3x4 Grid) -->
-                <div class="grid grid-cols-3 gap-2.5 pt-1 max-w-xs mx-auto">
-                    @foreach([1, 2, 3, 4, 5, 6, 7, 8, 9] as $n)
-                        <button type="button" onclick="pressKey('{{ $n }}')" class="keypad-btn bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-slate-800 rounded-2xl border border-slate-200 shadow-2xs transition-all duration-150 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
-                            {{ $n }}
-                        </button>
-                    @endforeach
-                    <button type="button" onclick="clearPin()" aria-label="Hapus semua angka PIN" class="keypad-btn bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-slate-500 text-sm font-semibold rounded-2xl border border-slate-200 shadow-2xs transition-all duration-150 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
-                        C
-                    </button>
-                    <button type="button" onclick="pressKey('0')" class="keypad-btn bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-slate-800 rounded-2xl border border-slate-200 shadow-2xs transition-all duration-150 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
-                        0
-                    </button>
-                    <button type="button" onclick="backspacePin()" aria-label="Hapus satu angka" class="keypad-btn bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-slate-700 rounded-2xl border border-slate-200 shadow-2xs transition-all duration-150 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
-                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-7.172a2 2 0 00-1.414.586L3 12z" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Success Verification Display -->
-            <div id="successSection" class="hidden py-6 text-center space-y-3">
-                <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-md">
-                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                    </svg>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold text-slate-900 heading-font">Kehadiran Berhasil Dicatat!</h4>
-                    <p class="text-sm text-emerald-700 font-semibold mt-0.5">Kamu tercatat: <strong>HADIR</strong> pada mata pelajaran ini.</p>
-                    <p class="text-xs text-slate-500 mt-1">Presensi pada jam pertama otomatis mencatat kehadiran harian kamu.</p>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- GPS Searching Notice (Shown while GPS is locking/verifying position) -->
-        <div id="gpsSearchingNotice" class="bg-emerald-50/70 border border-emerald-200/80 rounded-3xl p-6 text-center space-y-3.5 shadow-xs transition-all duration-300">
-            <div class="w-14 h-14 rounded-2xl bg-emerald-100/80 text-emerald-700 flex items-center justify-center mx-auto shadow-2xs">
-                <i data-lucide="satellite" class="w-7 h-7 animate-pulse"></i>
-            </div>
-            <div class="max-w-md mx-auto space-y-1">
-                <h4 class="text-base font-bold text-emerald-950 heading-font">Sedang Memeriksa Lokasi GPS...</h4>
-                <p class="text-xs text-emerald-800/90 leading-relaxed font-medium">
-                    Sistem sedang memverifikasi posisi kamu di lingkungan madrasah. Menu presensi kelas akan terbuka secara otomatis setelah lokasi kamu terkonfirmasi.
-                </p>
-            </div>
-            <div class="pt-1 flex items-center justify-center gap-2 text-[11px] font-semibold text-emerald-700 bg-emerald-100/60 py-1.5 px-3.5 rounded-full w-fit mx-auto border border-emerald-200/60">
-                <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
-                </span>
-                <span>Pastikan GPS HP aktif & izinkan akses lokasi</span>
-            </div>
-        </div>
-
-        <!-- Standby / No Active Session Notice (Refined Hub State) -->
-        <div id="noSessionNotice" class="hidden bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs text-center space-y-3 relative overflow-hidden">
-            <div class="flex justify-center text-maarif-700">
-                <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-
-            <div class="max-w-md mx-auto space-y-1">
-                <h4 class="text-base font-semibold text-slate-900 heading-font">Belum Ada Presensi Kelas yang Dibuka</h4>
-                <p class="text-xs text-slate-500 leading-relaxed">
-                    Bapak/Ibu Guru belum membuka presensi untuk kelas <strong>{{ $student->classroom->name ?? 'kamu' }}</strong>. Halaman ini akan otomatis menampilkan kotak PIN ketika presensi dibuka.
-                </p>
-            </div>
-        </div>
+    <!-- 4. SCHEDULE & ATTENDANCE FEED -->
+    <div class="space-y-8 sm:space-y-10">
 
         <!-- Today's Class Schedule (Jadwal Pelajaran Hari Ini) -->
-        <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-xs space-y-4">
-            <div class="flex items-center justify-between pb-3.5 border-b border-slate-100">
-                <div class="flex items-center space-x-3">
-                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-100">
-                        <i data-lucide="calendar" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-sm sm:text-base font-semibold text-slate-900 heading-font uppercase tracking-wide">
-                            Jadwal Pelajaran Hari Ini ({{ $todayDay }})
-                        </h3>
-                        <p class="text-xs text-slate-500">Kelas {{ $student->classroom->name ?? '-' }} &bull; MA Ma'arif Cilageni</p>
-                    </div>
-                </div>
-                <a href="{{ route('siswa.schedule') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 hover:text-emerald-800 bg-slate-100 hover:bg-slate-200/80 px-3 py-1.5 rounded-xl transition-all duration-150 active:scale-95 shadow-2xs shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
+        <div class="space-y-3">
+            <div class="flex items-center justify-between">
+                <h2 class="text-sm font-bold text-slate-900 heading-font uppercase tracking-wider flex items-center gap-2">
+                    <i data-lucide="book-open" class="w-4 h-4 text-emerald-700"></i>
+                    <span>Jadwal Pelajaran Hari Ini</span>
+                </h2>
+                <a href="{{ route('siswa.schedule') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-maarif-700 hover:text-maarif-800 active:text-maarif-900 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
                     <span>Lihat Mingguan</span>
                     <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                 </a>
             </div>
 
-            @if($todaySchedules->isEmpty())
-                <div class="py-10 text-center text-slate-400 space-y-2">
-                    <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-                        <i data-lucide="calendar-x-2" class="w-6 h-6"></i>
+            <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-xs space-y-3.5 overflow-hidden">
+                @if($todaySchedules->isEmpty())
+                    <div class="py-10 text-center text-slate-400 space-y-2">
+                        <i data-lucide="calendar-x-2" class="w-10 h-10 mx-auto text-slate-300"></i>
+                        <p class="text-xs font-medium text-slate-500">Tidak ada jadwal pelajaran terjadwal untuk hari {{ $todayDay }}.</p>
                     </div>
-                    <p class="text-xs font-medium text-slate-500">Tidak ada jadwal pelajaran terjadwal untuk hari {{ $todayDay }}.</p>
-                </div>
-            @else
-                <div class="space-y-3">
-                    @foreach($todaySchedules as $sch)
-                        @php
-                            $matchedAttendance = $todayAttendances->firstWhere('schedule_id', $sch->id);
-                        @endphp
-                        <div class="p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 {{ $matchedAttendance ? ($matchedAttendance->status === 'HADIR' ? 'bg-emerald-50/40 border-emerald-200/80' : 'bg-amber-50/40 border-amber-200/80') : 'bg-slate-50/70 border-slate-200/70 hover:bg-slate-100/80' }}">
-                            <div class="flex items-center space-x-3.5 min-w-0">
-                                <span class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-800 font-semibold mono-font text-xs shrink-0 shadow-2xs">
-                                    {{ substr($sch->start_time, 0, 5) }} – {{ substr($sch->end_time, 0, 5) }}
-                                </span>
-                                <div class="min-w-0 flex-1">
-                                    <h4 class="text-sm font-semibold text-slate-900 leading-snug break-words">{{ $sch->subject->name }}</h4>
-                                    <p class="text-xs text-slate-500 mt-0.5 break-words">{{ $sch->teacher->name }}</p>
-                                </div>
-                            </div>
+                @else
+                    <div class="space-y-3">
+                        @php $currentTime = now()->format('H:i:s'); @endphp
+                        @foreach($todaySchedules as $sch)
+                            @php
+                                $matchedAttendance = $todayAttendances->firstWhere('schedule_id', $sch->id);
+                                $startTime = strlen($sch->start_time) === 5 ? $sch->start_time . ':00' : $sch->start_time;
+                                $endTime = strlen($sch->end_time) === 5 ? $sch->end_time . ':00' : $sch->end_time;
+                                $isCurrentSlot = $currentTime >= $startTime && $currentTime <= $endTime;
+                                $cardStateClass = $matchedAttendance
+                                    ? ($matchedAttendance->status === 'HADIR' ? 'bg-emerald-50/30 border-emerald-200/80' : 'bg-amber-50/30 border-amber-200/80')
+                                    : ($isCurrentSlot ? 'bg-emerald-50/30 border-emerald-500/80 ring-1 ring-emerald-500/20 shadow-xs' : 'bg-slate-50/60 hover:bg-white border-slate-200/80 hover:border-slate-300/90 shadow-2xs hover:shadow-xs');
+                            @endphp
+                            <div class="p-4 sm:p-5 rounded-2xl border transition-all duration-150 flex flex-col gap-3.5 {{ $cardStateClass }} overflow-hidden">
 
-                            <div class="self-end sm:self-center shrink-0">
+                                {{-- Top Row: Sesi (bare mono) + Mapel & Guru + Waktu plain (rata kanan sejajar) --}}
+                                <div class="flex items-start space-x-3.5 min-w-0">
+                                    <span class="mono-font font-bold text-base sm:text-lg {{ $isCurrentSlot ? 'text-emerald-700 font-extrabold' : 'text-slate-400' }} shrink-0 w-7 text-center select-none pt-0.5 transition-colors">
+                                        {{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}
+                                    </span>
+                                    <div class="min-w-0 flex-1 space-y-1.5">
+                                        <h4 class="text-base sm:text-lg font-bold text-slate-900 heading-font leading-snug tracking-tight break-words">
+                                            {{ $sch->subject->name }}
+                                        </h4>
+                                        <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                                            <span class="inline-flex items-center gap-1.5 font-semibold text-slate-700">
+                                                <i data-lucide="user" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
+                                                <span>{{ $sch->teacher->name }}</span>
+                                            </span>
+                                            <div class="font-semibold mono-font text-xs flex items-center gap-1.5 tracking-wide {{ $isCurrentSlot ? 'text-emerald-700 font-bold' : 'text-slate-600' }}">
+                                                <i data-lucide="clock" class="w-3.5 h-3.5 {{ $isCurrentSlot ? 'text-emerald-600' : 'text-slate-400' }} shrink-0"></i>
+                                                <span class="leading-none">{{ substr($sch->start_time, 0, 5) }} – {{ substr($sch->end_time, 0, 5) }}</span>
+                                                <span class="text-[11px] {{ $isCurrentSlot ? 'text-emerald-600 font-bold' : 'text-slate-400 font-medium' }} uppercase tracking-wider leading-none">WIB</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Status Bar — Anti-Pill Pure Typography (match guru/history) --}}
                                 @if($matchedAttendance)
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold {{ $matchedAttendance->status === 'HADIR' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($matchedAttendance->status === 'IZIN' ? 'bg-amber-100 text-amber-800 border border-amber-200' : ($matchedAttendance->status === 'SAKIT' ? 'bg-sky-100 text-sky-800 border border-sky-200' : 'bg-rose-100 text-rose-800 border border-rose-200')) }}">
-                                        @if($matchedAttendance->status === 'HADIR')
-                                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i>
-                                        @endif
-                                        {{ $matchedAttendance->status }}
-                                    </span>
+                                    @if($matchedAttendance->status === 'HADIR')
+                                        <div class="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 pl-[42px]">
+                                            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+                                            <span>Hadir — Tercatat pada {{ $matchedAttendance->verified_at ? $matchedAttendance->verified_at->format('H:i') . ' WIB' : substr($sch->start_time, 0, 5) . ' WIB' }}</span>
+                                        </div>
+                                    @elseif($matchedAttendance->status === 'IZIN')
+                                        <div class="flex items-center gap-1.5 text-xs font-semibold text-amber-700 pl-[42px]">
+                                            <i data-lucide="file-text" class="w-4 h-4 text-amber-600 shrink-0"></i>
+                                            <span>Izin</span>
+                                        </div>
+                                    @elseif($matchedAttendance->status === 'SAKIT')
+                                        <div class="flex items-center gap-1.5 text-xs font-semibold text-sky-700 pl-[42px]">
+                                            <i data-lucide="activity" class="w-4 h-4 text-sky-600 shrink-0"></i>
+                                            <span>Sakit</span>
+                                        </div>
+                                    @else
+                                        <div class="flex items-center gap-1.5 text-xs font-semibold text-rose-700 pl-[42px]">
+                                            <i data-lucide="x-circle" class="w-4 h-4 text-rose-600 shrink-0"></i>
+                                            <span>Alpa</span>
+                                        </div>
+                                    @endif
                                 @else
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold bg-white border border-slate-200 text-slate-600">
-                                        Menunggu Sesi
-                                    </span>
+                                    <div class="flex items-center gap-1.5 text-xs font-medium text-slate-500 pl-[42px]">
+                                        <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
+                                        <span>Menunggu Sesi — Presensi dibuka saat jam pelajaran dimulai</span>
+                                    </div>
                                 @endif
                             </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
+                        @endforeach
+                    </div>
+                @endif
+            </div>
         </div>
 
         <!-- Today's Attendance Feed (Riwayat Kehadiran Hari Ini) -->
-        <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-xs space-y-4">
-            <div class="flex items-center justify-between pb-3.5 border-b border-slate-100">
-                <div class="flex items-center space-x-3">
-                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-100">
-                        <i data-lucide="check-square" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-sm sm:text-base font-semibold text-slate-900 uppercase tracking-wide heading-font">
-                            Riwayat Kehadiran Hari Ini
-                        </h3>
-                        <p class="text-xs text-slate-500">Catatan kehadiran pada jam pelajaran hari ini</p>
-                    </div>
-                </div>
-                <span class="text-xs font-semibold text-slate-700 px-3 py-1 rounded-xl bg-slate-100 border border-slate-200/80 mono-font shrink-0">
+        <div class="space-y-3">
+            <div class="flex items-center justify-between">
+                <h2 class="text-sm font-bold text-slate-900 heading-font uppercase tracking-wider flex items-center gap-2">
+                    <i data-lucide="history" class="w-4 h-4 text-emerald-700"></i>
+                    <span>Riwayat Kehadiran Hari Ini</span>
+                </h2>
+                <span class="text-xs font-semibold text-slate-500 mono-font">
                     {{ $todayAttendances->count() }} Tercatat
                 </span>
             </div>
 
-            @if($todayAttendances->isEmpty())
-                <div class="text-center py-10 text-slate-400 space-y-2">
-                    <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-                        <i data-lucide="clipboard-list" class="w-6 h-6"></i>
+            <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-xs space-y-4">
+                @if($todayAttendances->isEmpty())
+                    <div class="text-center py-8 text-slate-400 space-y-2">
+                        <i data-lucide="clipboard-x" class="w-10 h-10 mx-auto text-slate-300"></i>
+                        <p class="text-xs font-medium text-slate-500">Belum ada sesi kelas yang tercatat hari ini.</p>
                     </div>
-                    <p class="text-xs font-medium text-slate-500">Belum ada rekaman kehadiran pelajaran hari ini.</p>
-                </div>
-            @else
-                <div class="space-y-3">
-                    @foreach($todayAttendances as $att)
-                        <div class="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/70 flex items-center justify-between text-xs hover:bg-slate-100/80 transition">
-                            <div class="min-w-0 flex-1 pr-3">
-                                <p class="font-semibold text-slate-900 text-sm leading-snug break-words">{{ $att->schedule->subject->name ?? 'Mata Pelajaran' }}</p>
-                                <p class="text-xs text-slate-500 mt-0.5 break-words">
-                                    {{ $att->schedule->teacher->name ?? 'Dewan Guru' }} &bull; 
-                                    <span class="mono-font text-slate-600 font-medium">{{ $att->verified_at ? $att->verified_at->format('H:i') . ' WIB' : 'Pukul ' . substr($att->schedule->start_time ?? '', 0, 5) . ' WIB' }}</span>
-                                </p>
+                @else
+                    <div class="space-y-3">
+                        @foreach($todayAttendances as $att)
+                            @php
+                                $hadirCount = $att->status === 'HADIR' ? 1 : 0;
+                            @endphp
+                            <div class="p-4 rounded-2xl border border-slate-200/80 bg-slate-50/50 hover:bg-white hover:border-slate-300 transition-all duration-150 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-2xs">
+                                <div class="min-w-0 flex-1 space-y-1">
+                                    <div class="flex items-center gap-2.5 flex-wrap">
+                                        <h4 class="text-sm font-bold text-slate-900 heading-font leading-snug">
+                                            {{ $att->schedule->subject->name ?? 'Mata Pelajaran' }}
+                                        </h4>
+                                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-slate-600">
+                                            <i data-lucide="user" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
+                                            <span>{{ $att->schedule->teacher->name ?? 'Dewan Guru' }}</span>
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-[11px] text-slate-500 flex-wrap">
+                                        <span class="inline-flex items-center gap-1">
+                                            <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
+                                            <span>Tercatat: <strong class="mono-font font-semibold text-slate-700">{{ $att->verified_at ? $att->verified_at->format('H:i') . ' WIB' : substr($att->schedule->start_time ?? '', 0, 5) . ' WIB' }}</strong></span>
+                                        </span>
+                                        @if($att->schedule)
+                                            <span class="mono-font text-[11px] text-slate-400 font-medium">
+                                                {{ substr($att->schedule->start_time, 0, 5) }} – {{ substr($att->schedule->end_time, 0, 5) }} WIB
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="flex items-center sm:items-end justify-between sm:justify-center flex-row sm:flex-col gap-1.5 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200/60">
+                                    @if($att->status === 'HADIR')
+                                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700">
+                                            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+                                            <span>Hadir</span>
+                                        </span>
+                                    @elseif($att->status === 'IZIN')
+                                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-amber-700">
+                                            <i data-lucide="file-text" class="w-4 h-4 text-amber-600 shrink-0"></i>
+                                            <span>Izin</span>
+                                        </span>
+                                    @elseif($att->status === 'SAKIT')
+                                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-sky-700">
+                                            <i data-lucide="activity" class="w-4 h-4 text-sky-600 shrink-0"></i>
+                                            <span>Sakit</span>
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-rose-700">
+                                            <i data-lucide="x-circle" class="w-4 h-4 text-rose-600 shrink-0"></i>
+                                            <span>Alpa</span>
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold shrink-0 {{ $att->status === 'HADIR' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($att->status === 'IZIN' ? 'bg-amber-100 text-amber-800 border border-amber-200' : ($att->status === 'SAKIT' ? 'bg-sky-100 text-sky-800 border border-sky-200' : 'bg-rose-100 text-rose-800 border border-rose-200')) }}">
-                                @if($att->status === 'HADIR')
-                                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i>
-                                @endif
-                                {{ $att->status }}
-                            </span>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
+                        @endforeach
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 
@@ -546,7 +563,7 @@
             const h = String(now.getHours()).padStart(2, '0');
             const m = String(now.getMinutes()).padStart(2, '0');
             const s = String(now.getSeconds()).padStart(2, '0');
-            const html = `${h}:${m}:${s} <span class="text-xs font-semibold text-emerald-300">WIB</span>`;
+            const html = `${h}:${m}:${s} <span class="text-xs font-semibold text-slate-500">WIB</span>`;
             document.querySelectorAll('.liveClockTicker').forEach(el => {
                 el.innerHTML = html;
             });
@@ -602,11 +619,11 @@
             if (gpsSearchingNotice) gpsSearchingNotice.classList.add('hidden');
             if (sessionCard) sessionCard.classList.add('hidden');
             if (geofenceBadge) {
-                geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-rose-200 hover:text-rose-100 transition-colors cursor-pointer focus:outline-none";
+                geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-rose-600 hover:text-rose-700 transition-colors cursor-pointer focus:outline-none";
             }
             if (geofenceBadgePing) geofenceBadgePing.classList.add('hidden');
             if (geofenceBadgeDot) {
-                geofenceBadgeDot.className = "relative inline-flex rounded-full h-2 w-2 bg-rose-400";
+                geofenceBadgeDot.className = "relative inline-flex rounded-full h-2 w-2 bg-rose-500";
             }
             if (geofenceBadgeText) geofenceBadgeText.textContent = "GPS Tidak Didukung";
             if (geofenceBadgeDist) geofenceBadgeDist.classList.add('hidden');
@@ -659,11 +676,11 @@
                 if (currentNotice) currentNotice.classList.add('hidden');
                 if (currentNoSession) currentNoSession.classList.add('hidden');
                 if (currentBadge) {
-                    currentBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-rose-200 hover:text-rose-100 transition-colors cursor-pointer focus:outline-none";
+                    currentBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-rose-600 hover:text-rose-700 transition-colors cursor-pointer focus:outline-none";
                 }
                 if (currentPing) currentPing.classList.add('hidden');
                 if (currentDot) {
-                    currentDot.className = "relative inline-flex rounded-full h-2 w-2 bg-rose-400";
+                    currentDot.className = "relative inline-flex rounded-full h-2 w-2 bg-rose-500";
                 }
                 if (currentText) currentText.textContent = "Izin GPS Ditolak";
                 if (currentDist) currentDist.classList.add('hidden');
@@ -676,14 +693,14 @@
                 if (currentNoSession) currentNoSession.classList.add('hidden');
                 if (currentWarning) currentWarning.classList.add('hidden');
                 if (currentBadge) {
-                    currentBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-amber-200 hover:text-amber-100 transition-colors cursor-pointer focus:outline-none";
+                    currentBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-amber-600 hover:text-amber-700 transition-colors cursor-pointer focus:outline-none";
                 }
                 if (currentPing) {
                     currentPing.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75";
                     currentPing.classList.remove('hidden');
                 }
                 if (currentDot) {
-                    currentDot.className = "relative inline-flex rounded-full h-2 w-2 bg-amber-400";
+                    currentDot.className = "relative inline-flex rounded-full h-2 w-2 bg-amber-500";
                 }
                 if (currentText) currentText.textContent = "Mencari Sinyal GPS...";
                 if (currentDist) currentDist.classList.add('hidden');
@@ -694,14 +711,14 @@
                     if (currentNoSession) currentNoSession.classList.add('hidden');
                     if (currentWarning) currentWarning.classList.add('hidden');
                     if (currentBadge) {
-                        currentBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-amber-200 hover:text-amber-100 transition-colors cursor-pointer focus:outline-none";
+                        currentBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-amber-600 hover:text-amber-700 transition-colors cursor-pointer focus:outline-none";
                     }
                     if (currentPing) {
                         currentPing.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75";
                         currentPing.classList.remove('hidden');
                     }
                     if (currentDot) {
-                        currentDot.className = "relative inline-flex rounded-full h-2 w-2 bg-amber-400";
+                        currentDot.className = "relative inline-flex rounded-full h-2 w-2 bg-amber-500";
                     }
                     if (currentText) currentText.textContent = "Mencari Lokasi GPS...";
                     if (currentDist) currentDist.classList.add('hidden');
@@ -789,11 +806,11 @@
         if (data.is_within_geofence) {
             isWithinGeofence = true;
             if (geofenceBadge) {
-                geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-emerald-200 hover:text-white transition-colors cursor-pointer focus:outline-none";
+                geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-emerald-700 hover:text-emerald-800 transition-colors cursor-pointer focus:outline-none";
             }
             if (geofenceBadgePing) geofenceBadgePing.classList.add('hidden');
             if (geofenceBadgeDot) {
-                geofenceBadgeDot.className = "relative inline-flex rounded-full h-2 w-2 bg-emerald-400 shadow-xs shadow-emerald-400/50";
+                geofenceBadgeDot.className = "relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-xs shadow-emerald-500/50";
             }
             if (geofenceBadgeText) geofenceBadgeText.textContent = "Di Area Madrasah";
             if (geofenceBadgeDist) {
@@ -827,11 +844,11 @@
         } else {
             isWithinGeofence = false;
             if (geofenceBadge) {
-                geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-rose-200 hover:text-rose-100 transition-colors cursor-pointer focus:outline-none";
+                geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-rose-600 hover:text-rose-700 transition-colors cursor-pointer focus:outline-none";
             }
             if (geofenceBadgePing) geofenceBadgePing.classList.add('hidden');
             if (geofenceBadgeDot) {
-                geofenceBadgeDot.className = "relative inline-flex rounded-full h-2 w-2 bg-rose-400 shadow-xs shadow-rose-400/50";
+                geofenceBadgeDot.className = "relative inline-flex rounded-full h-2 w-2 bg-rose-500 shadow-xs shadow-rose-500/50";
             }
             if (geofenceBadgeText) geofenceBadgeText.textContent = "Di Luar Radius";
             if (geofenceBadgeDist) {

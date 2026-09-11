@@ -65,7 +65,8 @@
             font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
         }
         .mono-font {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+            font-feature-settings: 'tnum', 'zero';
         }
         .safe-bottom {
             padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
@@ -169,17 +170,6 @@
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ Auth::user()->role === 'guru' ? 'bg-amber-300 text-slate-900 border border-amber-400 shadow-2xs' : 'bg-emerald-600 text-white border border-emerald-500 shadow-2xs' }}">
                                 {{ strtoupper(Auth::user()->role) }}
                             </span>
-                            <form action="{{ route('logout') }}" method="POST" class="inline"
-                                data-confirm="Apakah Anda yakin ingin mengakhiri sesi dan keluar dari sistem absensi?"
-                                data-confirm-title="Konfirmasi Keluar"
-                                data-confirm-type="warning"
-                                data-confirm-btn="Ya, Keluar"
-                                data-confirm-icon="log-out">
-                                @csrf
-                                <button type="submit" title="Keluar dari sistem" aria-label="Keluar dari sistem" class="p-1.5 rounded-lg text-emerald-100 hover:text-white hover:bg-rose-600/80 transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
-                                    <i data-lucide="log-out" class="w-5 h-5"></i>
-                                </button>
-                            </form>
                         @endauth
                     </div>
                 </div>

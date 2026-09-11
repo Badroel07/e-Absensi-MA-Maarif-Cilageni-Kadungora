@@ -3,30 +3,28 @@
 @section('title', 'Riwayat Presensi — MA Ma\'arif Cilageni')
 @section('page-title', 'Riwayat Presensi Siswa')
 
-@push('styles')
-<style>
-    .mono-font {
-        font-family: 'JetBrains Mono', monospace;
-    }
-</style>
-@endpush
-
 @section('content')
 <div class="space-y-6">
 
-    {{-- ── 1. HEADER & IDENTITY ─────────────────────────────────────── --}}
-    <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 heading-font tracking-tight">
-            Riwayat Presensi Siswa
-        </h1>
-        <p class="text-xs sm:text-sm text-slate-500 mt-1">
-            Catatan komprehensif rekam kehadiran per sesi pelajaran, dispensasi, dan ketepatan waktu belajar.
-        </p>
+    {{-- ── 1. HEADER HALAMAN (Unboxed, Pure Typography — match guru/history) ── --}}
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/70">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 heading-font tracking-tight">
+                Riwayat Presensi Siswa
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                Catatan komprehensif rekam kehadiran per sesi pelajaran, dispensasi, dan ketepatan waktu belajar
+            </p>
+        </div>
+        <div class="flex items-center gap-3 text-xs self-start sm:self-auto">
+            <span class="text-slate-500 font-medium">Total Terdata:</span>
+            <span class="mono-font font-bold text-slate-900 text-sm">{{ $totalSessions }} Sesi</span>
+        </div>
     </div>
 
-    {{-- ── 2. ATTENDANCE METRICS BOARD (REAL DATA ONLY) ─────────────── --}}
+    {{-- ── 2. ATTENDANCE METRICS BOARD (match guru/history stats board) ── --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4">
-        
+
         {{-- Primary Anchor: Tingkat Kehadiran Hero Card --}}
         <div class="sm:col-span-2 lg:col-span-5 bg-gradient-to-br from-emerald-800 via-emerald-800 to-emerald-900 rounded-3xl p-5 sm:p-6 text-white shadow-sm flex flex-col justify-between relative overflow-hidden">
             <div class="relative z-10">
@@ -37,15 +35,15 @@
                     </div>
 
                     @if($persenHadir >= 90)
-                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/25 border border-emerald-400/40 text-emerald-100">
+                        <span class="text-[11px] font-semibold text-emerald-200">
                             Disiplin Prima
                         </span>
                     @elseif($persenHadir >= 75)
-                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/25 border border-amber-400/40 text-amber-100">
+                        <span class="text-[11px] font-semibold text-amber-200">
                             Cukup Baik
                         </span>
                     @else
-                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/25 border border-rose-400/40 text-rose-100">
+                        <span class="text-[11px] font-semibold text-rose-200">
                             Perlu Evaluasi
                         </span>
                     @endif
@@ -55,7 +53,7 @@
                     <span class="text-4xl sm:text-5xl font-bold mono-font tracking-tight leading-none text-white">
                         {{ $persenHadir }}%
                     </span>
-                    <span class="text-xs font-semibold text-emerald-200/90">
+                    <span class="text-xs font-semibold text-emerald-200/90 mono-font">
                         ({{ $totalHadir }} Hadir)
                     </span>
                 </div>
@@ -78,9 +76,7 @@
             <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-amber-300/80 transition-colors">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Izin</span>
-                    <span class="w-9 h-9 rounded-2xl bg-amber-50 border border-amber-200/70 text-amber-600 flex items-center justify-center shrink-0">
-                        <i data-lucide="file-text" class="w-4 h-4"></i>
-                    </span>
+                    <i data-lucide="file-text" class="w-5 h-5 text-amber-600 shrink-0"></i>
                 </div>
                 <div class="mt-4">
                     <span class="text-3xl font-bold text-amber-600 mono-font leading-none block">
@@ -96,9 +92,7 @@
             <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-sky-300/80 transition-colors">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Sakit</span>
-                    <span class="w-9 h-9 rounded-2xl bg-sky-50 border border-sky-200/70 text-sky-600 flex items-center justify-center shrink-0">
-                        <i data-lucide="activity" class="w-4 h-4"></i>
-                    </span>
+                    <i data-lucide="activity" class="w-5 h-5 text-sky-600 shrink-0"></i>
                 </div>
                 <div class="mt-4">
                     <span class="text-3xl font-bold text-sky-600 mono-font leading-none block">
@@ -114,9 +108,7 @@
             <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-rose-300/80 transition-colors">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Alpa</span>
-                    <span class="w-9 h-9 rounded-2xl bg-rose-50 border border-rose-200/70 text-rose-600 flex items-center justify-center shrink-0">
-                        <i data-lucide="x-circle" class="w-4 h-4"></i>
-                    </span>
+                    <i data-lucide="x-circle" class="w-5 h-5 text-rose-600 shrink-0"></i>
                 </div>
                 <div class="mt-4">
                     <span class="text-3xl font-bold text-rose-600 mono-font leading-none block">
@@ -130,11 +122,11 @@
         </div>
     </div>
 
-    {{-- ── 3. INTERACTIVE FILTER & SEARCH BAR ───────────────────────── --}}
+    {{-- ── 3. FILTER BAR (Clean Controls, Anti-Pill — match guru/history) ── --}}
     <div class="bg-white rounded-3xl border border-slate-200/80 p-4 sm:p-5 shadow-xs space-y-4">
-        
+
         {{-- Status Filter Tabs --}}
-        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-semibold scrollbar-none">
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-medium scrollbar-none">
             @php
                 $statusTabs = [
                     '' => ['label' => 'Semua', 'count' => $totalSessions, 'icon' => 'list-filter'],
@@ -151,11 +143,11 @@
                     $tabUrl = route('siswa.history', array_merge(request()->except('page'), ['status' => $val ?: null]));
                 @endphp
                 <a href="{{ $tabUrl }}"
-                   class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl transition-all duration-150 active:scale-95 shrink-0 select-none cursor-pointer {{ $isActive ? 'bg-slate-900 text-white shadow-2xs font-semibold' : 'bg-slate-100/80 hover:bg-slate-200/70 text-slate-600 font-medium' }}">
+                   class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl transition-all duration-150 active:scale-95 shrink-0 select-none cursor-pointer {{ $isActive ? 'bg-slate-900 text-white shadow-2xs font-semibold' : 'bg-slate-100/80 hover:bg-slate-200/70 text-slate-600 font-medium' }}">
                     <i data-lucide="{{ $tab['icon'] }}" class="w-3.5 h-3.5 {{ $isActive ? 'text-white' : 'text-slate-500' }}"></i>
                     <span>{{ $tab['label'] }}</span>
-                    <span class="px-1.5 py-0.5 rounded-md text-[10px] mono-font font-semibold {{ $isActive ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700' }}">
-                        {{ $tab['count'] }}
+                    <span class="mono-font text-[11px] font-bold {{ $isActive ? 'text-emerald-300' : 'text-slate-500' }}">
+                        ({{ $tab['count'] }})
                     </span>
                 </a>
             @endforeach
@@ -163,7 +155,6 @@
 
         {{-- Search & Date Filters Form --}}
         <form method="GET" action="{{ route('siswa.history') }}" data-loading-form class="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-2 border-t border-slate-100 text-xs">
-            {{-- Keep active status filter if set --}}
             @if($selectedStatus)
                 <input type="hidden" name="status" value="{{ $selectedStatus }}">
             @endif
@@ -172,69 +163,79 @@
             <div class="sm:col-span-5 relative">
                 <label for="search-input" class="sr-only">Cari Mata Pelajaran atau Guru</label>
                 <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                         <i data-lucide="search" class="w-4 h-4"></i>
                     </span>
                     <input type="text" id="search-input" name="search" value="{{ $search }}"
                            placeholder="Cari mata pelajaran, guru, atau catatan..."
-                           class="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 transition">
+                           class="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 transition">
                 </div>
             </div>
 
-            {{-- Date Range: Start Date --}}
-            <div class="sm:col-span-3">
-                <input type="date" name="start_date" value="{{ $startDate }}"
-                       title="Dari Tanggal"
-                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-slate-800 mono-font font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-600 transition text-xs">
+            {{-- Date Range: Dari Tanggal --}}
+            <div class="sm:col-span-3 flex flex-col gap-1">
+                <label class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider pl-0.5">Dari Tanggal</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i data-lucide="calendar" class="w-4 h-4"></i>
+                    </span>
+                    <input type="date" name="start_date" value="{{ $startDate }}"
+                           class="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-slate-800 mono-font font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-600 transition text-xs [&::-webkit-calendar-picker-indicator]:opacity-50 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:mr-1">
+                </div>
             </div>
 
-            {{-- Date Range: End Date --}}
-            <div class="sm:col-span-3">
-                <input type="date" name="end_date" value="{{ $endDate }}"
-                       title="Sampai Tanggal"
-                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-slate-800 mono-font font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-600 transition text-xs">
+            {{-- Date Range: Sampai Tanggal --}}
+            <div class="sm:col-span-3 flex flex-col gap-1">
+                <label class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider pl-0.5">Sampai Tanggal</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i data-lucide="calendar" class="w-4 h-4"></i>
+                    </span>
+                    <input type="date" name="end_date" value="{{ $endDate }}"
+                           class="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-slate-800 mono-font font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-600 transition text-xs [&::-webkit-calendar-picker-indicator]:opacity-50 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:mr-1">
+                </div>
             </div>
 
             {{-- Actions --}}
-            <div class="sm:col-span-1 flex items-center gap-1.5">
+            <div class="sm:col-span-1 flex items-end gap-1.5">
                 <button type="submit"
-                        class="w-full py-2.5 px-3 bg-slate-800 hover:bg-slate-900 active:bg-slate-950 text-white font-semibold rounded-xl transition-all duration-150 active:scale-95 flex items-center justify-center gap-1 shadow-2xs cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700"
+                        class="w-full py-2.5 px-3 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-semibold rounded-xl transition-all duration-150 active:scale-95 flex items-center justify-center gap-1 shadow-2xs cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 min-h-[42px]"
                         title="Terapkan Filter">
-                    <i data-lucide="filter" class="w-3.5 h-3.5"></i>
-                    <span class="sm:hidden">Terapkan</span>
+                    <i data-lucide="filter" class="w-4 h-4"></i>
+                    <span class="sm:hidden text-xs">Terapkan</span>
                 </button>
 
                 @if(!empty($search) || !empty($startDate) || !empty($endDate) || !empty($selectedStatus))
                     <a href="{{ route('siswa.history') }}"
-                       class="p-2.5 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-600 rounded-xl transition-all duration-150 active:scale-95 flex items-center justify-center shrink-0 cursor-pointer"
+                       class="p-2.5 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-600 rounded-xl transition-all duration-150 active:scale-95 flex items-center justify-center shrink-0 cursor-pointer min-h-[42px] min-w-[42px]"
                        title="Reset Seluruh Filter">
-                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
                     </a>
                 @endif
             </div>
         </form>
 
-        {{-- Active Filter Notification Pill --}}
+        {{-- Active Filter Text Indicators (Clean, Anti-Pill — match guru/history) --}}
         @if(!empty($search) || !empty($startDate) || !empty($endDate) || !empty($selectedStatus))
-            <div class="flex flex-wrap items-center gap-2 pt-2 text-[11px] text-slate-500 font-medium">
-                <span class="text-slate-400">Filter Aktif:</span>
+            <div class="flex flex-wrap items-center gap-3 pt-2 text-xs text-slate-500 font-medium border-t border-slate-100">
+                <span class="text-slate-400 font-semibold">Filter Diterapkan:</span>
                 @if(!empty($selectedStatus))
-                    <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200/70 font-semibold">
+                    <span class="text-emerald-700 font-semibold">
                         Status: {{ $selectedStatus }}
                     </span>
                 @endif
                 @if(!empty($search))
-                    <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 font-semibold">
-                        Kata Kunci: "{{ $search }}"
+                    <span class="text-slate-700 font-medium">
+                        Pencarian: "{{ $search }}"
                     </span>
                 @endif
                 @if(!empty($startDate) || !empty($endDate))
-                    <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 mono-font font-semibold">
+                    <span class="text-slate-700 mono-font font-medium">
                         Rentang: {{ $startDate ?: 'Awal' }} s/d {{ $endDate ?: 'Hari Ini' }}
                     </span>
                 @endif
-                <a href="{{ route('siswa.history') }}" class="text-emerald-700 hover:text-emerald-800 underline font-semibold cursor-pointer ml-1">
-                    Hapus Filter
+                <a href="{{ route('siswa.history') }}" class="text-rose-600 hover:text-rose-700 font-semibold underline cursor-pointer ml-auto text-xs">
+                    Reset Filter
                 </a>
             </div>
         @endif
@@ -248,14 +249,14 @@
                     Rekam Jejak Presensi Pelajaran
                 </h3>
                 <p class="text-xs text-slate-500 mt-0.5">
-                    Data historis presensi diverifikasi oleh dewan guru pengampu dan sistem terminal madrasah.
+                    Data historis presensi diverifikasi oleh dewan guru pengampu dan sistem terminal madrasah
                 </p>
             </div>
             <div class="self-start sm:self-auto">
-                <span class="text-xs text-slate-500 mono-font">Total {{ $attendances->total() }} sesi</span>
+                <span class="text-xs text-slate-500 mono-font font-medium">Menampilkan {{ $attendances->count() }} dari {{ $attendances->total() }} sesi</span>
             </div>
         </div>
-        
+
         {{-- 4A. DESKTOP VIEW: Floating Card Rows with Styled Header Bar --}}
         <div class="hidden md:block overflow-x-auto p-4 sm:p-6">
             <table class="w-full text-left border-separate border-spacing-y-3.5 text-xs">
@@ -277,7 +278,7 @@
                                 <div class="font-semibold text-slate-900 text-xs">
                                     {{ $att->attendance_date->translatedFormat('l') }}
                                 </div>
-                                <div class="text-[11px] text-slate-400 font-mono mt-1">
+                                <div class="text-[11px] text-slate-400 mono-font mt-1">
                                     {{ $att->attendance_date->translatedFormat('d M Y') }}
                                 </div>
                             </td>
@@ -288,7 +289,7 @@
                                     {{ $att->schedule->subject->name ?? 'Mata Pelajaran' }}
                                 </div>
                                 @if($att->schedule)
-                                    <div class="text-[11px] text-slate-400 font-mono mt-1 whitespace-nowrap">
+                                    <div class="text-[11px] text-slate-400 mono-font mt-1 whitespace-nowrap">
                                         {{ substr($att->schedule->start_time, 0, 5) }} – {{ substr($att->schedule->end_time, 0, 5) }} WIB
                                     </div>
                                 @endif
@@ -312,23 +313,27 @@
                                 @endif
                             </td>
 
-                            {{-- Status Kehadiran --}}
+                            {{-- Status Kehadiran — Anti-Pill Pure Typography (match guru/history) --}}
                             <td class="py-5 px-6 align-middle text-center whitespace-nowrap border-y border-slate-200/70">
                                 @if($att->status === 'HADIR')
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100/70 text-emerald-800">
-                                        Hadir
+                                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 justify-center">
+                                        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+                                        <span>Hadir</span>
                                     </span>
                                 @elseif($att->status === 'IZIN')
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-100/70 text-amber-800">
-                                        Izin
+                                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 justify-center">
+                                        <i data-lucide="file-text" class="w-4 h-4 text-amber-600 shrink-0"></i>
+                                        <span>Izin</span>
                                     </span>
                                 @elseif($att->status === 'SAKIT')
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-sky-100/70 text-sky-800">
-                                        Sakit
+                                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-700 justify-center">
+                                        <i data-lucide="activity" class="w-4 h-4 text-sky-600 shrink-0"></i>
+                                        <span>Sakit</span>
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-rose-100/70 text-rose-800">
-                                        Alpa
+                                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-700 justify-center">
+                                        <i data-lucide="x-circle" class="w-4 h-4 text-rose-600 shrink-0"></i>
+                                        <span>Alpa</span>
                                     </span>
                                 @endif
                             </td>
@@ -347,17 +352,15 @@
                     @empty
                         <tr>
                             <td colspan="6" class="text-center py-16 px-4">
-                                <div class="max-w-sm mx-auto flex flex-col items-center gap-3">
-                                    <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center">
-                                        <i data-lucide="calendar-x-2" class="w-6 h-6"></i>
-                                    </div>
+                                <div class="max-w-sm mx-auto flex flex-col items-center gap-2">
+                                    <i data-lucide="calendar-x-2" class="w-8 h-8 text-slate-300"></i>
                                     @if(!empty($search) || !empty($startDate) || !empty($endDate) || !empty($selectedStatus))
                                         <h4 class="text-sm font-semibold text-slate-800">Tidak Ada Presensi yang Cocok</h4>
                                         <p class="text-xs text-slate-400">
                                              Tidak ditemukan data yang sesuai dengan filter pencarian yang diterapkan.
                                         </p>
                                         <a href="{{ route('siswa.history') }}"
-                                           class="mt-1 inline-flex items-center gap-1.5 px-4 py-2 bg-slate-800 hover:bg-slate-900 active:bg-slate-950 text-white font-semibold rounded-xl text-xs transition-all duration-150 active:scale-95 shadow-xs cursor-pointer">
+                                           class="mt-1 inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-semibold rounded-xl text-xs transition-all duration-150 active:scale-95 shadow-xs cursor-pointer">
                                             <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
                                             <span>Reset Filter</span>
                                         </a>
@@ -375,48 +378,43 @@
             </table>
         </div>
 
-        {{-- 4B. MOBILE VIEW: Chronological Cards (Hidden on Desktop) --}}
+        {{-- 4B. MOBILE VIEW: Chronological Cards — Pure Typography Status (Anti-Pill) --}}
         <div class="md:hidden p-4 space-y-3.5">
             @forelse($attendances as $att)
-                @php
-                    $borderClass = match($att->status) {
-                        'HADIR' => 'border-l-4 border-l-emerald-500',
-                        'IZIN' => 'border-l-4 border-l-amber-500',
-                        'SAKIT' => 'border-l-4 border-l-sky-500',
-                        default => 'border-l-4 border-l-rose-500',
-                    };
-                @endphp
-                <div class="p-4 rounded-2xl border border-slate-200/80 bg-white {{ $borderClass }} shadow-xs space-y-2 transition">
-                    
-                    {{-- Top Row: Date & Status Badge --}}
+                <div class="p-4 rounded-2xl border border-slate-200/80 bg-white hover:border-slate-300 shadow-xs space-y-3 transition">
+
+                    {{-- Top Row: Date & Status (bare typography) --}}
                     <div class="flex items-start justify-between gap-2">
                         <div>
                             <span class="font-semibold text-slate-900 text-xs">
                                 {{ $att->attendance_date->translatedFormat('l, d M Y') }}
                             </span>
                             @if($att->schedule)
-                                <span class="block text-[11px] text-slate-400 font-mono mt-0.5">
+                                <span class="block text-[11px] text-slate-400 mono-font mt-0.5">
                                     {{ substr($att->schedule->start_time, 0, 5) }} – {{ substr($att->schedule->end_time, 0, 5) }} WIB
                                 </span>
                             @endif
                         </div>
 
-                        {{-- Status Pill --}}
                         @if($att->status === 'HADIR')
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 shrink-0">
-                                Hadir
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 shrink-0">
+                                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i>
+                                <span>Hadir</span>
                             </span>
                         @elseif($att->status === 'IZIN')
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 shrink-0">
-                                Izin
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 shrink-0">
+                                <i data-lucide="file-text" class="w-3.5 h-3.5 text-amber-600"></i>
+                                <span>Izin</span>
                             </span>
                         @elseif($att->status === 'SAKIT')
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-50 text-sky-800 shrink-0">
-                                Sakit
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold text-sky-700 shrink-0">
+                                <i data-lucide="activity" class="w-3.5 h-3.5 text-sky-600"></i>
+                                <span>Sakit</span>
                             </span>
                         @else
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-800 shrink-0">
-                                Alpa
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold text-rose-700 shrink-0">
+                                <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-600"></i>
+                                <span>Alpa</span>
                             </span>
                         @endif
                     </div>
@@ -433,20 +431,18 @@
 
                     {{-- Bottom: Verification Timestamp & Notes --}}
                     <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-                        <span>Waktu: {{ $att->verified_at ? $att->verified_at->format('H:i') . ' WIB' : '—' }}</span>
+                        <span class="mono-font">Waktu: {{ $att->verified_at ? $att->verified_at->format('H:i') . ' WIB' : '—' }}</span>
                         @if($att->notes)
                             <span class="text-slate-600 truncate max-w-[180px]">{{ $att->notes }}</span>
                         @endif
                     </div>
                 </div>
             @empty
-                <div class="text-center py-12 px-4 space-y-3">
-                    <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-                        <i data-lucide="calendar-x-2" class="w-6 h-6"></i>
-                    </div>
+                <div class="text-center py-12 px-4 space-y-2">
+                    <i data-lucide="calendar-x-2" class="w-8 h-8 text-slate-300 mx-auto"></i>
                     @if(!empty($search) || !empty($startDate) || !empty($endDate) || !empty($selectedStatus))
                         <p class="text-xs font-semibold text-slate-700">Tidak ada presensi sesuai filter</p>
-                        <a href="{{ route('siswa.history') }}" class="text-xs text-emerald-700 font-semibold underline cursor-pointer">
+                        <a href="{{ route('siswa.history') }}" class="text-xs text-rose-600 font-semibold underline cursor-pointer">
                             Hapus Filter
                         </a>
                     @else

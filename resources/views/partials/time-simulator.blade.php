@@ -17,7 +17,8 @@
             color: #e4e4e7;
         }
         #dev-toolbar-root .mono {
-            font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-feature-settings: 'tnum', 'zero';
         }
         /* Floating Trigger Pill */
         #dev-pill-trigger {

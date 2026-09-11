@@ -31,7 +31,7 @@
             -webkit-tap-highlight-color: transparent;
         }
         .heading-font { font-family: 'Inter', system-ui, sans-serif; }
-        .mono-font { font-family: 'JetBrains Mono', monospace; }
+        .mono-font { font-family: 'Inter', system-ui, sans-serif; font-feature-settings: 'tnum', 'zero'; }
         
         /* Custom slim & elegant scrollbar for sidebar */
         .custom-sidebar-scroll {
@@ -84,9 +84,9 @@
     <!-- Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
         <style>
             [x-cloak] { display: block !important; }
             [x-show*="!ready"], [x-show*="!shown"] { display: none !important; }
@@ -134,17 +134,6 @@
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-600 text-white border border-emerald-500 shadow-2xs">
                             ADMIN
                         </span>
-                        <form action="{{ route('logout') }}" method="POST" class="inline"
-                            data-confirm="Apakah Anda yakin ingin mengakhiri sesi dan keluar dari sistem absensi?"
-                            data-confirm-title="Konfirmasi Keluar"
-                            data-confirm-type="warning"
-                            data-confirm-btn="Ya, Keluar"
-                            data-confirm-icon="log-out">
-                            @csrf
-                            <button type="submit" title="Keluar dari sistem" aria-label="Keluar dari sistem" class="p-1.5 rounded-lg text-emerald-100 hover:text-white hover:bg-rose-600/80 transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
-                                <i data-lucide="log-out" class="w-5 h-5"></i>
-                            </button>
-                        </form>
                     </div>
                 </div>
             </header>
