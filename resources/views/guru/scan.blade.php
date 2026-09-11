@@ -487,9 +487,30 @@
             return;
         }
         const endpoint="{{ route('guru.auto', [], false) }}";
+        let _csrfRetry = false;
+        const doFetch = async () => {
+            const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content,'Accept':'application/json'},body:JSON.stringify({qr_token:token.trim(),latitude:userCoords.lat,longitude:userCoords.lng}), credentials:'same-origin'});
+            const data=await res.json().catch(()=>({}));
+            return {res, data};
+        };
         try{
-            const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content,'Accept':'application/json'},body:JSON.stringify({qr_token:token.trim(),latitude:userCoords.lat,longitude:userCoords.lng})});
-            const data=await res.json();
+            let {res, data} = await doFetch();
+            // Auto-handle CSRF mismatch (stale token after long idle) — refresh meta and retry once
+            if(res.status===419 && data.code==='CSRF_MISMATCH' && !_csrfRetry){
+                _csrfRetry = true;
+                try{
+                    const fresh = await fetch(window.location.href, {headers:{'X-Requested-With':'XMLHttpRequest'}, credentials:'same-origin'});
+                    const html = await fresh.text();
+                    const m = html.match(/name="_token"\s+value="([^"]+)"|name="csrf-token"\s+content="([^"]+)"/);
+                    const newToken = m ? (m[1]||m[2]) : null;
+                    if(newToken){
+                        document.querySelectorAll('meta[name="csrf-token"]').forEach(m=>m.content=newToken);
+                        document.querySelectorAll('input[name="_token"]').forEach(i=>i.value=newToken);
+                    }
+                }catch(e){}
+                const retry = await doFetch();
+                res = retry.res; data = retry.data;
+            }
             if(res.ok&&data.success){
                 stopScannerCleanly();
                 if(typeof window.showAlertDialog==='function'){
@@ -506,6 +527,12 @@
                     if(typeof window.showAlertDialog==='function'){
                         await window.showAlertDialog({title:'Sudah Tercatat',message:data.message,type:'warning',icon:'check-circle-2'});
                     } else alert(data.message);
+                } else if(data.code==='CSRF_MISMATCH'){
+                    if(typeof window.showAlertDialog==='function'){
+                        await window.showAlertDialog({title:'Sesi Diperbarui',message:'Sesi keamanan diperbarui. Halaman akan dimuat ulang.',type:'warning',icon:'refresh-cw'});
+                    }
+                    window.location.reload();
+                    return;
                 } else {
                     if(typeof window.showAlertDialog==='function'){
                         await window.showAlertDialog({title:'Presensi Gagal',message:data.message||'Kode QR tidak valid atau sudah berganti. Pindai ulang.',type:'danger',icon:'alert-circle'});

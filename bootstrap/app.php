@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'guru/check-status',
             'guru/scan/check-in',
             'guru/scan/check-out',
+            'guru/scan/auto',
             'guru/sessions/*',
             'siswa/check-status',
             'siswa/verify-pin',
