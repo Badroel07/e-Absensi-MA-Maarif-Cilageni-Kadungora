@@ -1,4 +1,4 @@
-﻿<aside id="main-sidebar" class="hidden md:flex w-64 lg:w-72 bg-white text-slate-800 flex-col shrink-0 sticky top-0 h-screen z-40 select-none">
+<aside id="main-sidebar" class="hidden md:flex w-64 lg:w-72 bg-white text-slate-800 flex-col shrink-0 sticky top-0 h-screen z-40 select-none">
     <!-- Top Brand Section (Overlapping above topbar header) -->
     <div class="h-[72px] px-5 bg-emerald-800 border-b border-r border-emerald-900/20 flex items-center shrink-0" style="height: 72px; min-height: 72px;">
         <a href="{{ Auth::check() ? (Auth::user()->role === 'admin' ? route('admin.dashboard') : (Auth::user()->role === 'guru' ? route('guru.dashboard') : route('siswa.dashboard'))) : url('/') }}" class="flex items-center space-x-3.5 group min-w-0 w-full">

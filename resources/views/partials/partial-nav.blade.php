@@ -8,6 +8,7 @@
     const progressBar = document.getElementById('pjax-progress-bar');
     let currentAbortController = null;
     let progressTimer = null;
+    let progressShowTimer = null;
 
     // Lightweight HTML cache for rapid back-and-forth (30s TTL)
     const pageCache = new Map(); // url -> {html, ts}
@@ -111,23 +112,43 @@
     function startProgress() {
         if (!progressBar) return;
         if (progressTimer) clearInterval(progressTimer);
-        
-        progressBar.style.transition = 'width 0.2s ease, opacity 0.15s ease';
-        progressBar.style.opacity = '1';
-        progressBar.style.width = '25%';
+        if (progressShowTimer) clearTimeout(progressShowTimer);
 
-        let currentWidth = 25;
-        progressTimer = setInterval(() => {
-            if (currentWidth < 85) {
-                currentWidth += Math.random() * 12;
-                progressBar.style.width = currentWidth + '%';
-            }
-        }, 150);
+        // Reset tanpa animasi
+        progressBar.style.transition = 'none';
+        progressBar.style.opacity = '0';
+        progressBar.style.width = '0%';
+
+        let currentWidth = 15;
+
+        // Tunda tampil progress bar 500ms — navigasi cepat tidak perlu tampil sama sekali
+        progressShowTimer = setTimeout(() => {
+            progressBar.style.transition = 'width 0.2s ease, opacity 0.15s ease';
+            progressBar.style.opacity = '1';
+            progressBar.style.width = currentWidth + '%';
+
+            progressTimer = setInterval(() => {
+                if (currentWidth < 85) {
+                    currentWidth += Math.random() * 12;
+                    progressBar.style.width = Math.min(currentWidth, 85) + '%';
+                }
+            }, 150);
+        }, 500);
     }
 
     function finishProgress() {
         if (!progressBar) return;
         if (progressTimer) clearInterval(progressTimer);
+
+        // Jika bar belum sempat tampil (navigasi < 500ms), batalkan & reset diam-diam
+        if (progressShowTimer) {
+            clearTimeout(progressShowTimer);
+            progressShowTimer = null;
+            progressBar.style.transition = 'none';
+            progressBar.style.opacity = '0';
+            progressBar.style.width = '0%';
+            return;
+        }
 
         progressBar.style.transition = 'width 0.15s ease, opacity 0.25s ease';
         progressBar.style.width = '100%';
@@ -264,6 +285,22 @@
             });
         }
 
+        // 8b. Sync theme-color so Chrome Android toolbar stays green across SPA navigations
+        const newThemeColor = newDoc.querySelector('meta[name="theme-color"]')?.getAttribute('content');
+        const curThemeColor = document.querySelector('meta[name="theme-color"]');
+        if (newThemeColor) {
+            if (curThemeColor) {
+                curThemeColor.setAttribute('content', newThemeColor);
+            } else {
+                const meta = document.createElement('meta');
+                meta.name = 'theme-color';
+                meta.content = newThemeColor;
+                document.head.appendChild(meta);
+            }
+        } else if (curThemeColor) {
+            curThemeColor.remove();
+        }
+
         // 9. Update and Execute Page-Specific Scripts
         const newPageScripts = newDoc.getElementById('page-scripts-container');
         if (newPageScripts) {
@@ -385,12 +422,12 @@
     function skeletonFilterBar(hasSearch, selectCount) {
         var html = '<div class="bg-white rounded-2xl border border-slate-200/80 p-4"><div class="flex flex-wrap items-center gap-3">';
         if (hasSearch) {
-            html += '<div class="skeleton w-52 h-9 rounded-xl flex-1 min-w-[200px] max-w-xs"></div>';
+            html += '<div class="skeleton h-9 rounded-xl" style="width:min(208px,100%)"></div>';
         }
         for (var i = 0; i < selectCount; i++) {
-            html += '<div class="skeleton w-32 h-9 rounded-xl"></div>';
+            html += '<div class="skeleton w-28 h-9 rounded-xl shrink-0"></div>';
         }
-        html += '<div class="skeleton w-20 h-9 rounded-xl"></div>';
+        html += '<div class="skeleton w-20 h-9 rounded-xl shrink-0"></div>';
         html += '</div></div>';
         return html;
     }

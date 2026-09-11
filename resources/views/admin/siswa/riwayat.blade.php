@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
 @section('title', 'Riwayat Presensi Siswa: ' . $student->name . ' — Admin')
 @section('page-title', 'Riwayat Presensi Siswa')

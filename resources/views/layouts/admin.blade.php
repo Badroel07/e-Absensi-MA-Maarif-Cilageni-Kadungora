@@ -2,7 +2,10 @@
 <html lang="id" class="h-full bg-slate-50">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#15803D">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>@yield('title', 'Panel Admin — Sistem Presensi MA Ma\'arif Cilageni')</title>
@@ -116,31 +119,33 @@
             </header>
 
             <!-- 2. MOBILE TOP BAR (Visible only on screens < 768px) -->
-            <header class="md:hidden sticky top-0 z-40 h-16 px-4 bg-gradient-to-r from-emerald-800 via-maarif-700 to-emerald-800 border-b border-emerald-900/80 flex items-center justify-between text-white">
-                <div class="flex items-center space-x-3">
-                    <img src="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" alt="Logo MA Ma'arif Cilageni" class="w-11 h-11 object-contain shrink-0 drop-shadow-md" width="44" height="44" fetchpriority="high">
-                    <div id="mobile-header-title">
-                        <h1 class="text-[10px] font-semibold tracking-wider text-emerald-200 uppercase">MA Ma'arif Cilageni</h1>
-                        <p class="text-sm font-semibold text-white heading-font leading-tight">
-                            @yield('page-title', 'Dashboard')
-                        </p>
+            <header class="md:hidden sticky top-0 z-40 px-4 bg-gradient-to-r from-emerald-800 via-maarif-700 to-emerald-800 border-b border-emerald-900/80 flex flex-col justify-end text-white" style="padding-top: max(env(safe-area-inset-top, 0px), 0px); min-height: calc(64px + env(safe-area-inset-top, 0px));">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center space-x-3">
+                        <img src="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" alt="Logo MA Ma'arif Cilageni" class="w-11 h-11 object-contain shrink-0 drop-shadow-md" width="44" height="44" fetchpriority="high">
+                        <div id="mobile-header-title">
+                            <h1 class="text-[10px] font-semibold tracking-wider text-emerald-200 uppercase">MA Ma'arif Cilageni</h1>
+                            <p class="text-sm font-semibold text-white heading-font leading-tight">
+                                @yield('page-title', 'Dashboard')
+                            </p>
+                        </div>
                     </div>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-600 text-white border border-emerald-500 shadow-2xs">
-                        ADMIN
-                    </span>
-                    <form action="{{ route('logout') }}" method="POST" class="inline"
-                        data-confirm="Apakah Anda yakin ingin mengakhiri sesi dan keluar dari sistem absensi?"
-                        data-confirm-title="Konfirmasi Keluar"
-                        data-confirm-type="warning"
-                        data-confirm-btn="Ya, Keluar"
-                        data-confirm-icon="log-out">
-                        @csrf
-                        <button type="submit" title="Keluar dari sistem" aria-label="Keluar dari sistem" class="p-1.5 rounded-lg text-emerald-100 hover:text-white hover:bg-rose-600/80 transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
-                            <i data-lucide="log-out" class="w-5 h-5"></i>
-                        </button>
-                    </form>
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-600 text-white border border-emerald-500 shadow-2xs">
+                            ADMIN
+                        </span>
+                        <form action="{{ route('logout') }}" method="POST" class="inline"
+                            data-confirm="Apakah Anda yakin ingin mengakhiri sesi dan keluar dari sistem absensi?"
+                            data-confirm-title="Konfirmasi Keluar"
+                            data-confirm-type="warning"
+                            data-confirm-btn="Ya, Keluar"
+                            data-confirm-icon="log-out">
+                            @csrf
+                            <button type="submit" title="Keluar dari sistem" aria-label="Keluar dari sistem" class="p-1.5 rounded-lg text-emerald-100 hover:text-white hover:bg-rose-600/80 transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
+                                <i data-lucide="log-out" class="w-5 h-5"></i>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </header>
 
