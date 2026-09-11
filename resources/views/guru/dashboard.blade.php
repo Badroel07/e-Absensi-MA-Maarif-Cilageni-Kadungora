@@ -155,9 +155,9 @@
         </button>
     </div>
 
-    <!-- Outside Check-in Gating Warning Box (If not checked in today at Kiosk) -->
+    <!-- Outside Check-in Gating Warning Box (If not checked in today at Kiosk) — JS hides when outside geofence -->
     @if(!$hasCheckedIn)
-        <div class="bg-amber-50/90 border border-amber-200 rounded-3xl p-6 text-center space-y-4 shadow-xs">
+        <div id="checkinWarning" class="hidden bg-amber-50/90 border border-amber-200 rounded-3xl p-6 text-center space-y-4 shadow-xs">
             <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto shadow-xs">
                 <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -764,6 +764,8 @@
         if (!navigator.geolocation) {
             if (geofenceTitle) geofenceTitle.textContent = "GPS Tidak Didukung";
             if (geofenceDesc) geofenceDesc.textContent = "Browser perangkat Anda tidak mendukung geolokasi.";
+            const cw = document.getElementById('checkinWarning');
+            if (cw) cw.classList.add('hidden');
             document.querySelectorAll('.sessionSubmitBtn').forEach(btn => {
                 btn.setAttribute('disabled', 'disabled');
                 btn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -800,6 +802,8 @@
         const handleError = (err) => {
             isGpsLocked = false;
             isWithinGeofence = false;
+            const cwErr = document.getElementById('checkinWarning');
+            if (cwErr) cwErr.classList.add('hidden');
             document.querySelectorAll('.sessionSubmitBtn').forEach(btn => {
                 btn.setAttribute('disabled', 'disabled');
                 btn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -908,6 +912,7 @@
         const geofenceDistance = document.getElementById('geofenceDistance');
         const outsideWarning = document.getElementById('outsideWarning');
         const outsideDistanceText = document.getElementById('outsideDistanceText');
+        const checkinWarning = document.getElementById('checkinWarning');
 
         if (data.is_within_geofence) {
             if (geofenceIconBox) {
@@ -926,6 +931,7 @@
             }
 
             if (outsideWarning) outsideWarning.classList.add('hidden');
+            if (checkinWarning) checkinWarning.classList.remove('hidden');
 
             isWithinGeofence = true;
             isGpsLocked = true;
@@ -938,6 +944,7 @@
         } else {
             isWithinGeofence = false;
             isGpsLocked = true;
+            if (checkinWarning) checkinWarning.classList.add('hidden');
 
             if (geofenceIconBox) {
                 geofenceIconBox.className = "w-10 h-10 rounded-xl bg-red-600 border border-red-500 text-white flex items-center justify-center shrink-0 shadow-md transition-all";
