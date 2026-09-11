@@ -352,14 +352,20 @@
 
         function updateAudioUi() {
             const ctx = kioskAudioCtx;
-            const isReady = ctx && ctx.state === 'running' && audioUnlocked;
+            // Ready if context exists and is running (audioUnlocked flag is just helper for first blip)
+            const isReady = ctx && ctx.state === 'running';
+            const wasUnlockedBefore = (() => { try { return localStorage.getItem('kiosk_audio_unlocked') === '1'; } catch(e){ return false; } })();
+            // Show button only when still blocked, hide otherwise. If never created, keep hidden until we try.
             if (audioUnlockBtn) {
-                audioUnlockBtn.classList.toggle('hidden', isReady);
-                audioUnlockBtn.classList.toggle('flex', !isReady);
+                const shouldShowButton = !isReady;
+                // Don't flash button on first load before we even tried auto-unlock
+                const show = shouldShowButton && (kioskAudioCtx !== null || wasUnlockedBefore || Date.now() - pageLoadMs > 1200);
+                audioUnlockBtn.classList.toggle('hidden', !show);
+                audioUnlockBtn.classList.toggle('flex', show);
             }
             if (audioStatusPill) {
                 audioStatusPill.classList.toggle('hidden', !isReady);
-                audioStatusPill.classList.toggle('flex', isReady);
+                audioStatusPill.classList.toggle('flex', !!isReady);
             }
         }
 
@@ -368,8 +374,8 @@
                 const ctx = getAudioCtx();
                 if (!ctx) return false;
                 if (ctx.state === 'suspended') await ctx.resume();
-                // iOS silent blip to fully unlock
-                if (!audioUnlocked) {
+                // iOS silent blip to fully unlock — only once
+                if (!audioUnlocked && ctx.state === 'running') {
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
                     gain.gain.value = 0.0001;
@@ -378,6 +384,11 @@
                     osc.start();
                     osc.stop(ctx.currentTime + 0.02);
                     audioUnlocked = true;
+                    try { localStorage.setItem('kiosk_audio_unlocked', '1'); } catch(e) {}
+                }
+                if (ctx.state === 'running') {
+                    audioUnlocked = true;
+                    try { localStorage.setItem('kiosk_audio_unlocked', '1'); } catch(e) {}
                 }
                 updateAudioUi();
                 return ctx.state === 'running';
@@ -387,22 +398,28 @@
             }
         }
 
-        // Try unlock on any user gesture
+        const pageLoadMs = Date.now();
+        // Try unlock on any user gesture — anywhere on the page (so button is not mandatory)
         ['click', 'touchstart', 'keydown'].forEach(evt => {
-            document.addEventListener(evt, () => { unlockAudio(); }, { once: false, passive: true });
+            document.addEventListener(evt, () => { if (kioskAudioCtx?.state !== 'running') unlockAudio(); }, { once: false, passive: true });
         });
         if (audioUnlockBtn) {
             audioUnlockBtn.addEventListener('click', async (e) => {
                 e.stopPropagation();
                 const ok = await unlockAudio();
-                if (ok) {
-                    // Play preview chime so user knows it's active
-                    playGreetingChime(true);
-                }
+                if (ok) playGreetingChime(true);
             });
         }
-        // Initial UI check after load
-        setTimeout(updateAudioUi, 500);
+        // Auto-attempt silent unlock shortly after load (will succeed if browser already has engagement)
+        setTimeout(async () => {
+            try {
+                const wasUnlockedBefore = (() => { try { return localStorage.getItem('kiosk_audio_unlocked') === '1'; } catch(e){ return false; } })();
+                if (wasUnlockedBefore || kioskAudioCtx === null) {
+                    await unlockAudio();
+                }
+            } catch(e) {}
+            updateAudioUi();
+        }, 800);
         // Also poll context state in case browser auto-suspends
         setInterval(updateAudioUi, 2000);
 
