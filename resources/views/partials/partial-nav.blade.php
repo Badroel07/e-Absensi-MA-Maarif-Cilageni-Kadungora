@@ -10,56 +10,12 @@
     let progressTimer = null;
     let progressShowTimer = null;
 
-    // Lightweight HTML cache for rapid back-and-forth (30s TTL)
-    const pageCache = new Map(); // url -> {html, ts}
-    const CACHE_TTL_MS = 30000;
-    const prefetchInFlight = new Set();
-
     // Scroll positions map for precise Back/Forward scroll restoration
     const scrollPositions = new Map(); // url -> {x, y}
 
     // Lifecycle callbacks registered by pages
     const pageUnloadCallbacks = new Set();
     const pageLoadCallbacks = new Set();
-
-    function getCachedHtml(url) {
-        const entry = pageCache.get(url);
-        if (!entry) return null;
-        if (Date.now() - entry.ts > CACHE_TTL_MS) {
-            pageCache.delete(url);
-            return null;
-        }
-        return entry.html;
-    }
-
-    function setCachedHtml(url, html) {
-        if (pageCache.size >= 25) {
-            const firstKey = pageCache.keys().next().value;
-            pageCache.delete(firstKey);
-        }
-        pageCache.set(url, { html, ts: Date.now() });
-    }
-
-    function clearCache() {
-        pageCache.clear();
-    }
-
-    async function prefetchUrl(url) {
-        if (prefetchInFlight.has(url) || getCachedHtml(url)) return;
-        try {
-            prefetchInFlight.add(url);
-            const res = await fetch(url, {
-                headers: { 'X-Partial-Nav': 'true', 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            if (!res.ok) return;
-            const ct = res.headers.get('content-type') || '';
-            if (!ct.includes('text/html')) return;
-            const html = await res.text();
-            if (html.includes('id="main-content"')) setCachedHtml(url, html);
-        } catch(e) {} finally {
-            prefetchInFlight.delete(url);
-        }
-    }
 
     // Track active page intervals to prevent orphan background polling
     const pageIntervals = new Set();
@@ -1450,8 +1406,6 @@
         // Save current scroll position before leaving
         scrollPositions.set(window.location.href, { x: window.scrollX, y: window.scrollY });
 
-        const cachedHtml = options.skipCache ? null : getCachedHtml(targetUrl);
-
         if (currentAbortController) {
             currentAbortController.abort();
         }
@@ -1461,8 +1415,8 @@
 
         const mainContent = document.getElementById('main-content');
 
-        // ── DEFERRED: inject skeleton SEBELUM fetch jika tidak ada cache ──
-        if (!cachedHtml && mainContent && !options.isLiveSearch) {
+        // Inject skeleton instantly before fetch — every navigation hits server fresh
+        if (mainContent && !options.isLiveSearch) {
             if (!options.restoreScroll) {
                 window.scrollTo({ top: 0, behavior: 'instant' });
             }
@@ -1485,42 +1439,36 @@
             let html;
             let responseUrl = targetUrl;
 
-            if (cachedHtml) {
-                html = cachedHtml;
-            } else {
-                const response = await fetch(targetUrl, {
-                    signal: currentAbortController.signal,
-                    headers: {
-                        'X-Partial-Nav': 'true',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
+            const response = await fetch(targetUrl, {
+                signal: currentAbortController.signal,
+                headers: {
+                    'X-Partial-Nav': 'true',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                cache: 'no-store'
+            });
 
-                if (response.redirected && response.url) {
-                    const redirectedUrl = new URL(response.url);
-                    if (redirectedUrl.pathname === '/login') {
-                        window.location.href = response.url;
-                        return;
-                    }
-                    responseUrl = response.url;
-                }
-
-                if (!response.ok) {
-                    window.location.href = targetUrl;
+            if (response.redirected && response.url) {
+                const redirectedUrl = new URL(response.url);
+                if (redirectedUrl.pathname === '/login') {
+                    window.location.href = response.url;
                     return;
                 }
-
-                const contentType = response.headers.get('content-type') || '';
-                if (!contentType.includes('text/html')) {
-                    window.location.href = targetUrl;
-                    return;
-                }
-
-                html = await response.text();
-                if (html.includes('id="main-content"')) {
-                    setCachedHtml(targetUrl, html);
-                }
+                responseUrl = response.url;
             }
+
+            if (!response.ok) {
+                window.location.href = targetUrl;
+                return;
+            }
+
+            const contentType = response.headers.get('content-type') || '';
+            if (!contentType.includes('text/html')) {
+                window.location.href = targetUrl;
+                return;
+            }
+
+            html = await response.text();
 
             const parser = new DOMParser();
             const newDoc = parser.parseFromString(html, 'text/html');
@@ -1581,14 +1529,12 @@
                 isLiveSearch: options.isLiveSearch,
                 activeInputName: options.activeInputName,
                 cursorStart: options.cursorStart,
-                cursorEnd: options.cursorEnd,
-                skipCache: true
+                cursorEnd: options.cursorEnd
             });
             return;
         }
 
         // 2. POST / PUT / DELETE form handling (data mutations)
-        clearCache(); // Invalidate cache on mutations
 
         const submitBtn = submitter || form.querySelector('button[type="submit"]');
         let originalBtnHtml = null;
@@ -1674,35 +1620,6 @@
         }
     }
 
-    // Prefetch on hover/focus/touchstart for instant feel
-    let prefetchTimer = null;
-    function schedulePrefetch(anchor) {
-        if (!isEligibleLink(anchor)) return;
-        const href = anchor.href;
-        try {
-            const url = new URL(href, window.location.origin);
-            if (url.pathname === window.location.pathname && url.search === window.location.search) return;
-        } catch(e) {}
-        if (getCachedHtml(href) || prefetchInFlight.has(href)) return;
-        clearTimeout(prefetchTimer);
-        prefetchTimer = setTimeout(() => prefetchUrl(href), 70);
-    }
-
-    document.addEventListener('mouseenter', function(e) {
-        const a = (e.target && typeof e.target.closest === 'function') ? e.target.closest('a') : null;
-        if (a) schedulePrefetch(a);
-    }, true);
-
-    document.addEventListener('focusin', function(e) {
-        const a = (e.target && typeof e.target.closest === 'function') ? e.target.closest('a') : null;
-        if (a) schedulePrefetch(a);
-    }, true);
-
-    document.addEventListener('touchstart', function(e) {
-        const a = (e.target && typeof e.target.closest === 'function') ? e.target.closest('a') : null;
-        if (a) schedulePrefetch(a);
-    }, { passive: true, capture: true });
-
     // Intercept click on links
     document.addEventListener('click', function(e) {
         if (e.defaultPrevented) return;
@@ -1733,7 +1650,7 @@
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else {
                     // Already at top: soft-refresh current page via SPA without full-page white flash
-                    navigateTo(anchor.href, false, { skipCache: true });
+                    navigateTo(anchor.href, false);
                 }
                 return;
             }
@@ -1808,12 +1725,12 @@
         });
     });
 
-    // Public API
+    // Public API — no page cache anymore, every navigation hits server (fetch cache: no-store)
     const spaApi = {
         navigate: (url, pushState = true, options = {}) => navigateTo(url, pushState, options),
         submitForm: (form, submitter = null, options = {}) => submitForm(form, submitter, options),
-        reload: () => navigateTo(window.location.href, false, { skipCache: true }),
-        clearCache: clearCache,
+        reload: () => navigateTo(window.location.href, false),
+        clearCache: () => {}, // kept for backward compat, no-op (page cache removed)
         onPageLoad: (callback) => { if (typeof callback === 'function') pageLoadCallbacks.add(callback); },
         onPageUnload: (callback) => { if (typeof callback === 'function') pageUnloadCallbacks.add(callback); }
     };
