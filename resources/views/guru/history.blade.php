@@ -238,9 +238,7 @@
     </div>
 
     {{-- ── 4. RECORDS TABLE ────────────────────────────────────────────── --}}
-    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden"
-         x-data="{ ready: false }"
-         x-init="$nextTick(() => { setTimeout(() => { ready = true; }, window.__isLiveSearching ? 0 : 450); })">
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
         <div class="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
                 <h3 class="font-bold text-slate-900 heading-font text-base sm:text-lg tracking-tight">
@@ -255,14 +253,7 @@
             </div>
         </div>
 
-        {{-- Skeleton placeholder — visible immediately on page load (NO x-cloak) --}}
-        <div x-show="!ready" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" aria-hidden="true" class="p-4 sm:p-6 space-y-2.5">
-            <x-skeleton :count="6" :columns="6" :avatar="false" />
-        </div>
-
-        {{-- Real Content Container (Desktop Table + Mobile Cards + Pagination) --}}
-        <div x-show="ready" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-            {{-- 4A. DESKTOP TABLE (Hidden on Mobile) --}}
+        {{-- 4A. DESKTOP TABLE (Hidden on Mobile) --}}
             <div class="hidden md:block overflow-x-auto p-4 sm:p-6">
                 <table class="w-full text-left border-separate border-spacing-y-3.5 text-xs">
                 <thead>
@@ -448,7 +439,6 @@
                 {{ $sessions->links() }}
             </div>
         @endif
-        </div>
     </div>
 
 </div>

@@ -372,297 +372,957 @@
         return true;
     }
 
-    // ── SKELETON TEMPLATES per rute ──────────────────────────────────────────
-    // HTML diinject ke DOM SEBELUM fetch dimulai — halaman terasa ganti INSTAN
+    // ── PERFORM SMOOTH DOCUMENT UPDATE (Scoped in-DOM crossfade, never covers header/bottom bar) ──
+    function performDocumentUpdate(newDoc, targetUrl, options = {}) {
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const mainContent = document.getElementById('main-content');
 
-    function skeletonTableRows(count, colDefs) {
-        let rows = '';
-        for (let i = 0; i < count; i++) {
-            rows += '<tr class="border-b border-slate-100">';
-            colDefs.forEach(function(col) {
-                rows += '<td class="py-3.5 px-5">';
-                if (col.avatar) {
-                    rows += '<div class="flex items-center gap-3">' +
+        if (!mainContent || options.isLiveSearch || prefersReducedMotion) {
+            return applyDocumentUpdates(newDoc, targetUrl, options);
+        }
+
+        // Clean GPU-accelerated enter animation strictly scoped inside #main-content
+        mainContent.classList.remove('spa-content-enter');
+        void mainContent.offsetWidth; // Force reflow so animation restarts cleanly
+
+        applyDocumentUpdates(newDoc, targetUrl, options);
+
+        mainContent.classList.add('spa-content-enter');
+        setTimeout(() => {
+            if (mainContent) mainContent.classList.remove('spa-content-enter');
+        }, 140);
+
+        return true;
+    }
+
+    // ── 1:1 HIGH-PRECISION SKELETON BUILDERS ──────────────────────────────────
+    function skelDark(widthCls, heightCls = 'h-3', roundedCls = 'rounded', extraCls = '') {
+        return '<div class="skeleton-dark ' + widthCls + ' ' + heightCls + ' ' + roundedCls + ' ' + extraCls + '"></div>';
+    }
+
+    function skelLight(widthCls, heightCls = 'h-3', roundedCls = 'rounded', extraCls = '') {
+        return '<div class="skeleton ' + widthCls + ' ' + heightCls + ' ' + roundedCls + ' ' + extraCls + '"></div>';
+    }
+
+    function skelPageHeader(titleW, subtitleW, btns = []) {
+        let btnHtml = '';
+        if (btns.length > 0) {
+            btnHtml = '<div class="flex items-center gap-2 mt-2 sm:mt-0 shrink-0">';
+            btns.forEach(btn => {
+                btnHtml += '<div class="skeleton ' + (btn.w || 'w-28') + ' ' + (btn.h || 'h-9') + ' ' + (btn.rounded || 'rounded-xl') + ' shrink-0"></div>';
+            });
+            btnHtml += '</div>';
+        }
+        return '<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">' +
+            '<div class="space-y-1.5">' +
+                '<div class="skeleton skeleton-text ' + (titleW || 'w-48') + ' h-7 rounded-lg"></div>' +
+                '<div class="skeleton skeleton-text ' + (subtitleW || 'w-64') + ' h-3.5 opacity-60"></div>' +
+            '</div>' +
+            btnHtml +
+        '</div>';
+    }
+
+    function skelStatCardWhite(titleW, valW, subW, roundedCls = 'rounded-2xl') {
+        return '<div class="bg-white ' + roundedCls + ' p-5 border border-slate-200/80 flex flex-col justify-between space-y-3">' +
+            '<div class="flex items-center justify-between">' +
+                '<div class="skeleton skeleton-text ' + (titleW || 'w-20') + ' h-2.5 opacity-60"></div>' +
+                '<div class="skeleton w-8 h-8 rounded-xl shrink-0"></div>' +
+            '</div>' +
+            '<div>' +
+                '<div class="skeleton skeleton-text ' + (valW || 'w-16') + ' h-8 rounded-lg"></div>' +
+                '<div class="skeleton skeleton-text ' + (subW || 'w-24') + ' h-2.5 opacity-50 mt-2"></div>' +
+            '</div>' +
+        '</div>';
+    }
+
+    function skelFilterBar(fields = []) {
+        let items = '';
+        fields.forEach(f => {
+            if (f.type === 'search') {
+                items += '<div class="skeleton h-9 rounded-xl flex-1 min-w-[180px] max-w-xs"></div>';
+            } else {
+                items += '<div class="skeleton ' + (f.w || 'w-28') + ' h-9 rounded-xl shrink-0"></div>';
+            }
+        });
+        return '<div class="bg-white rounded-2xl border border-slate-200/80 p-4">' +
+            '<div class="flex flex-wrap items-center gap-3">' + items + '</div>' +
+        '</div>';
+    }
+
+    function skelTable(theadCols = [], rowsCount = 6, options = {}) {
+        let theadHtml = theadCols.map(c => {
+            const align = c.align === 'center' ? 'text-center' : (c.align === 'right' ? 'text-right' : 'text-left');
+            const justify = c.align === 'center' ? 'mx-auto' : (c.align === 'right' ? 'ml-auto' : '');
+            return '<th class="py-3 px-5 ' + align + '"><div class="skeleton skeleton-text ' + (c.w || 'w-20') + ' h-2.5 opacity-50 ' + justify + '"></div></th>';
+        }).join('');
+
+        let rowsHtml = '';
+        for (let i = 0; i < rowsCount; i++) {
+            rowsHtml += '<tr class="border-b border-slate-100">';
+            theadCols.forEach(c => {
+                const align = c.align === 'center' ? 'text-center' : (c.align === 'right' ? 'text-right' : 'text-left');
+                const justify = c.align === 'center' ? 'justify-center' : (c.align === 'right' ? 'justify-end' : '');
+                const mAuto = c.align === 'center' ? 'mx-auto' : (c.align === 'right' ? 'ml-auto' : '');
+
+                rowsHtml += '<td class="py-3.5 px-5 ' + align + '">';
+                if (c.avatar) {
+                    rowsHtml += '<div class="flex items-center gap-3 ' + justify + '">' +
                         '<div class="skeleton skeleton-circle w-8 h-8 rounded-lg shrink-0"></div>' +
-                        '<div class="space-y-1.5 flex-1">' +
-                            '<div class="skeleton skeleton-text ' + (col.line1 || 'w-32') + '"></div>' +
-                            '<div class="skeleton skeleton-text ' + (col.line2 || 'w-24') + ' opacity-60"></div>' +
-                        '</div></div>';
+                        '<div class="space-y-1.5 flex-1 min-w-0">' +
+                            '<div class="skeleton skeleton-text ' + (c.rowW || 'w-32') + ' h-3"></div>' +
+                            '<div class="skeleton skeleton-text ' + (c.subW || 'w-20') + ' h-2.5 opacity-60"></div>' +
+                        '</div>' +
+                    '</div>';
+                } else if (c.badge) {
+                    rowsHtml += '<div class="skeleton ' + (c.rowW || 'w-20') + ' h-6 rounded-md ' + mAuto + '"></div>';
+                } else if (c.btn) {
+                    rowsHtml += '<div class="skeleton ' + (c.rowW || 'w-16') + ' h-7 rounded-lg ' + mAuto + '"></div>';
                 } else {
-                    rows += '<div class="skeleton skeleton-text ' + (col.cls || 'w-28') + '"></div>';
-                    if (col.sub) {
-                        rows += '<div class="skeleton skeleton-text ' + col.sub + ' mt-1 opacity-60"></div>';
+                    rowsHtml += '<div class="skeleton skeleton-text ' + (c.rowW || 'w-24') + ' h-3 ' + mAuto + '"></div>';
+                    if (c.sub) {
+                        rowsHtml += '<div class="skeleton skeleton-text ' + (c.subW || 'w-16') + ' h-2.5 opacity-60 mt-1 ' + mAuto + '"></div>';
                     }
                 }
-                rows += '</td>';
+                rowsHtml += '</td>';
             });
-            rows += '</tr>';
+            rowsHtml += '</tr>';
         }
-        return rows;
-    }
 
-    function skeletonTheadCells(widths) {
-        return widths.map(function(w) {
-            return '<th class="py-3 px-5"><div class="skeleton skeleton-text ' + w + ' h-2.5 opacity-50"></div></th>';
-        }).join('');
-    }
-
-    function skeletonPageHeader(hasBtn) {
-        var btn = hasBtn
-            ? '<div class="skeleton w-32 h-10 rounded-xl shrink-0"></div>'
-            : '<div class="skeleton w-28 h-8 rounded-xl shrink-0"></div>';
-        return '<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">' +
-            '<div class="space-y-2">' +
-                '<div class="skeleton skeleton-text w-48 h-7 rounded-lg"></div>' +
-                '<div class="skeleton skeleton-text w-64 h-3 opacity-60"></div>' +
-            '</div>' + btn +
-        '</div>';
-    }
-
-    function skeletonFilterBar(hasSearch, selectCount) {
-        var html = '<div class="bg-white rounded-2xl border border-slate-200/80 p-4"><div class="flex flex-wrap items-center gap-3">';
-        if (hasSearch) {
-            html += '<div class="skeleton h-9 rounded-xl" style="width:min(208px,100%)"></div>';
+        let headerBlock = '';
+        if (options.title) {
+            const stripe = options.accentColor ? '<div class="w-1 h-8 rounded-full ' + options.accentColor + ' shrink-0"></div>' : '';
+            const rBtn = options.rightBtn ? '<div class="skeleton ' + (options.rightBtn.w || 'w-20') + ' h-8 rounded-xl shrink-0"></div>' : '';
+            headerBlock = '<div class="p-5 border-b border-slate-100 flex items-center justify-between gap-3">' +
+                '<div class="flex items-center gap-3">' +
+                    stripe +
+                    '<div>' +
+                        '<div class="skeleton skeleton-text ' + (options.titleW || 'w-36') + ' h-4 rounded"></div>' +
+                        '<div class="skeleton skeleton-text ' + (options.subtitleW || 'w-48') + ' h-2.5 opacity-50 mt-1"></div>' +
+                    '</div>' +
+                '</div>' +
+                rBtn +
+            '</div>';
         }
-        for (var i = 0; i < selectCount; i++) {
-            html += '<div class="skeleton w-28 h-9 rounded-xl shrink-0"></div>';
-        }
-        html += '<div class="skeleton w-20 h-9 rounded-xl shrink-0"></div>';
-        html += '</div></div>';
-        return html;
-    }
 
-    function skeletonTable(colDefs, count, theadWidths) {
-        var thead = theadWidths
-            ? skeletonTheadCells(theadWidths)
-            : colDefs.map(function() { return '<th class="py-3 px-5"><div class="skeleton skeleton-text w-16 h-2.5 opacity-50"></div></th>'; }).join('');
         return '<div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden">' +
-            '<div class="overflow-x-auto"><table class="w-full text-left border-collapse text-xs">' +
-                '<thead><tr class="bg-slate-50 border-b border-slate-100">' + thead + '</tr></thead>' +
-                '<tbody class="divide-y divide-slate-100">' + skeletonTableRows(count, colDefs) + '</tbody>' +
-            '</table></div>' +
+            headerBlock +
+            '<div class="overflow-x-auto">' +
+                '<table class="w-full text-left border-collapse text-xs">' +
+                    '<thead><tr class="bg-slate-50 border-b border-slate-100">' + theadHtml + '</tr></thead>' +
+                    '<tbody class="divide-y divide-slate-100">' + rowsHtml + '</tbody>' +
+                '</table>' +
+            '</div>' +
         '</div>';
     }
 
-    function skeletonStatGrid(cols, height) {
-        var cards = '';
-        for (var i = 0; i < cols; i++) {
-            cards += '<div class="skeleton rounded-2xl" style="height:' + (height || 120) + 'px"></div>';
-        }
-        return '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-' + cols + ' gap-4">' + cards + '</div>';
+    // ── 1:1 ROUTE-SPECIFIC SKELETON GENERATORS ───────────────────────────────
+
+    // 1. /admin (Admin Dashboard)
+    function skelAdminDashboard() {
+        return '<div class="space-y-7">' +
+            '<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-1.5">' +
+                '<div class="space-y-1.5">' +
+                    skelLight('w-36', 'h-3', 'rounded', 'opacity-60') +
+                    skelLight('w-44', 'h-7', 'rounded-lg') +
+                    skelLight('w-64', 'h-3', 'rounded', 'opacity-50') +
+                '</div>' +
+                '<div class="skeleton w-28 h-8 rounded-lg shrink-0"></div>' +
+            '</div>' +
+            '<div class="grid grid-cols-1 lg:grid-cols-5 gap-4">' +
+                '<div class="lg:col-span-2 bg-gradient-to-br from-maarif-800 to-maarif-900 rounded-2xl p-6 flex flex-col justify-between text-white relative overflow-hidden">' +
+                    '<div>' +
+                        skelDark('w-36', 'h-3', 'rounded', 'opacity-70') +
+                        skelDark('w-44', 'h-10', 'rounded-xl', 'my-3') +
+                        '<div class="w-full bg-white/15 rounded-full h-2 my-2"><div class="skeleton-dark h-2 rounded-full w-2/3"></div></div>' +
+                    '</div>' +
+                    '<div class="flex items-center gap-4 mt-5">' +
+                        skelDark('w-14', 'h-3') + '<span class="text-white/20">|</span>' +
+                        skelDark('w-14', 'h-3') + '<span class="text-white/20">|</span>' +
+                        skelDark('w-14', 'h-3') +
+                    '</div>' +
+                '</div>' +
+                '<div class="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">' +
+                    skelStatCardWhite('w-20', 'w-16', 'w-24') +
+                    skelStatCardWhite('w-20', 'w-14', 'w-24') +
+                    skelStatCardWhite('w-24', 'w-14', 'w-24') +
+                '</div>' +
+            '</div>' +
+            skelTable([
+                { w: 'w-24', rowW: 'w-32', sub: true, subW: 'w-20' },
+                { w: 'w-16', align: 'center', badge: true, rowW: 'w-20' },
+                { w: 'w-16', align: 'center', badge: true, rowW: 'w-20' },
+                { w: 'w-16', align: 'center', badge: true, rowW: 'w-20' }
+            ], 4, {
+                title: true,
+                titleW: 'w-40',
+                subtitleW: 'w-56',
+                accentColor: 'bg-maarif-700',
+                rightBtn: { w: 'w-20' }
+            }) +
+            skelTable([
+                { w: 'w-28', rowW: 'w-36' },
+                { w: 'w-24', rowW: 'w-28' },
+                { w: 'w-16', align: 'center', rowW: 'w-16' },
+                { w: 'w-20', rowW: 'w-20' },
+                { w: 'w-16', align: 'center', badge: true, rowW: 'w-16' },
+                { w: 'w-12', align: 'right', btn: true, rowW: 'w-12' }
+            ], 3, {
+                title: true,
+                titleW: 'w-44',
+                subtitleW: 'w-60',
+                accentColor: 'bg-amber-500'
+            }) +
+        '</div>';
     }
 
+    // 2. /admin/presensi-siswa
+    function skelAdminPresensiSiswa() {
+        return '<div class="space-y-6">' +
+            skelPageHeader('w-44', 'w-72', [{ w: 'w-44', h: 'h-9' }]) +
+            '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">' +
+                '<div class="bg-gradient-to-br from-maarif-800 to-maarif-900 rounded-2xl p-5 text-white flex flex-col justify-between">' +
+                    '<div>' +
+                        skelDark('w-24', 'h-2.5', 'rounded', 'opacity-70') +
+                        skelDark('w-32', 'h-8', 'rounded-lg', 'my-2.5') +
+                    '</div>' +
+                    '<div class="w-full bg-white/15 rounded-full h-1.5 mt-3"><div class="skeleton-dark h-1.5 rounded-full w-3/4"></div></div>' +
+                '</div>' +
+                skelStatCardWhite('w-16', 'w-14', 'w-28') +
+                skelStatCardWhite('w-16', 'w-14', 'w-28') +
+                skelStatCardWhite('w-24', 'w-14', 'w-28') +
+            '</div>' +
+            skelFilterBar([{ w: 'w-40' }, { w: 'w-32' }, { w: 'w-32' }, { type: 'search' }, { w: 'w-24' }]) +
+            skelTable([
+                { w: 'w-28', avatar: true, rowW: 'w-32', subW: 'w-20' },
+                { w: 'w-28', rowW: 'w-32' },
+                { w: 'w-24', rowW: 'w-28' },
+                { w: 'w-20', align: 'center', badge: true, rowW: 'w-20' },
+                { w: 'w-16', align: 'center', rowW: 'w-16' },
+                { w: 'w-14', align: 'center', badge: true, rowW: 'w-14' },
+                { w: 'w-12', align: 'right', btn: true, rowW: 'w-12' }
+            ], 8) +
+        '</div>';
+    }
+
+    // 3. /admin/presensi-guru
+    function skelAdminPresensiGuru() {
+        return '<div class="space-y-6">' +
+            skelPageHeader('w-44', 'w-72') +
+            '<div class="grid grid-cols-1 md:grid-cols-4 gap-4">' +
+                skelStatCardWhite('w-20', 'w-16', 'w-24') +
+                skelStatCardWhite('w-16', 'w-14', 'w-24') +
+                skelStatCardWhite('w-16', 'w-14', 'w-24') +
+                skelStatCardWhite('w-24', 'w-14', 'w-24') +
+            '</div>' +
+            skelFilterBar([{ w: 'w-40' }, { w: 'w-32' }, { type: 'search' }, { w: 'w-24' }]) +
+            skelTable([
+                { w: 'w-28', avatar: true, rowW: 'w-32', subW: 'w-24' },
+                { w: 'w-16', align: 'center', badge: true, rowW: 'w-16' },
+                { w: 'w-16', align: 'center', badge: true, rowW: 'w-16' },
+                { w: 'w-16', align: 'center', badge: true, rowW: 'w-20' },
+                { w: 'w-24', rowW: 'w-28' },
+                { w: 'w-14', align: 'right', btn: true, rowW: 'w-14' }
+            ], 8) +
+        '</div>';
+    }
+
+    // 4. /admin/siswa
+    function skelAdminSiswa() {
+        return '<div class="space-y-6">' +
+            skelPageHeader('w-44', 'w-64', [{ w: 'w-36', h: 'h-9' }]) +
+            skelFilterBar([{ type: 'search' }, { w: 'w-36' }, { w: 'w-20' }]) +
+            skelTable([
+                { w: 'w-24', rowW: 'w-24' },
+                { w: 'w-32', avatar: true, rowW: 'w-32', subW: 'w-20' },
+                { w: 'w-20', badge: true, rowW: 'w-16' },
+                { w: 'w-20', rowW: 'w-20' },
+                { w: 'w-24', rowW: 'w-24' },
+                { w: 'w-14', align: 'center', badge: true, rowW: 'w-14' },
+                { w: 'w-16', align: 'right', btn: true, rowW: 'w-16' }
+            ], 8) +
+        '</div>';
+    }
+
+    // 5. /admin/siswa/*/riwayat
+    function skelAdminSiswaRiwayat() {
+        return '<div class="space-y-6">' +
+            skelPageHeader('w-52', 'w-72', [{ w: 'w-32', h: 'h-8' }, { w: 'w-24', h: 'h-8' }]) +
+            '<div class="bg-white rounded-2xl p-5 border border-slate-200/80 flex flex-col md:flex-row md:items-center justify-between gap-4">' +
+                '<div class="flex items-center gap-4">' +
+                    '<div class="skeleton w-14 h-14 rounded-xl shrink-0"></div>' +
+                    '<div class="space-y-2">' +
+                        '<div class="skeleton skeleton-text w-48 h-5 rounded"></div>' +
+                        '<div class="flex gap-2">' +
+                            '<div class="skeleton w-20 h-5 rounded"></div>' +
+                            '<div class="skeleton w-24 h-5 rounded"></div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="grid grid-cols-2 sm:grid-cols-4 gap-4">' +
+                skelStatCardWhite('w-16', 'w-12', 'w-20') +
+                skelStatCardWhite('w-16', 'w-12', 'w-20') +
+                skelStatCardWhite('w-16', 'w-12', 'w-20') +
+                skelStatCardWhite('w-16', 'w-12', 'w-20') +
+            '</div>' +
+            skelFilterBar([{ w: 'w-36' }, { w: 'w-44' }]) +
+            skelTable([
+                { w: 'w-24', rowW: 'w-28' },
+                { w: 'w-28', rowW: 'w-32' },
+                { w: 'w-24', rowW: 'w-28' },
+                { w: 'w-16', align: 'center', badge: true, rowW: 'w-16' },
+                { w: 'w-28', rowW: 'w-36' }
+            ], 6) +
+        '</div>';
+    }
+
+    // 6. /admin/guru
+    function skelAdminGuru() {
+        return '<div class="space-y-6">' +
+            skelPageHeader('w-44', 'w-64', [{ w: 'w-36', h: 'h-9' }]) +
+            skelFilterBar([{ type: 'search' }, { w: 'w-20' }]) +
+            skelTable([
+                { w: 'w-28', rowW: 'w-28' },
+                { w: 'w-36', avatar: true, rowW: 'w-36', subW: 'w-28' },
+                { w: 'w-24', rowW: 'w-24' },
+                { w: 'w-16', align: 'center', badge: true, rowW: 'w-16' },
+                { w: 'w-16', align: 'right', btn: true, rowW: 'w-16' }
+            ], 8) +
+        '</div>';
+    }
+
+    // 7. /admin/guru/*/riwayat
+    function skelAdminGuruRiwayat() {
+        return '<div class="space-y-6">' +
+            skelPageHeader('w-52', 'w-72', [{ w: 'w-32', h: 'h-8' }, { w: 'w-24', h: 'h-8' }]) +
+            '<div class="bg-white rounded-2xl p-5 border border-slate-200/80 flex flex-col md:flex-row md:items-center justify-between gap-4">' +
+                '<div class="flex items-center gap-4">' +
+                    '<div class="skeleton w-14 h-14 rounded-xl shrink-0"></div>' +
+                    '<div class="space-y-2">' +
+                        '<div class="skeleton skeleton-text w-48 h-5 rounded"></div>' +
+                        '<div class="flex gap-2">' +
+                            '<div class="skeleton w-24 h-5 rounded"></div>' +
+                            '<div class="skeleton w-32 h-5 rounded"></div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="grid grid-cols-2 sm:grid-cols-4 gap-4">' +
+                skelStatCardWhite('w-16', 'w-12', 'w-20') +
+                skelStatCardWhite('w-16', 'w-12', 'w-20') +
+                skelStatCardWhite('w-16', 'w-12', 'w-20') +
+                skelStatCardWhite('w-16', 'w-12', 'w-20') +
+            '</div>' +
+            skelFilterBar([{ w: 'w-36' }]) +
+            skelTable([
+                { w: 'w-24', rowW: 'w-28' },
+                { w: 'w-16', align: 'center', badge: true, rowW: 'w-16' },
+                { w: 'w-16', align: 'center', badge: true, rowW: 'w-16' },
+                { w: 'w-16', align: 'center', badge: true, rowW: 'w-16' },
+                { w: 'w-28', rowW: 'w-36' }
+            ], 6) +
+        '</div>';
+    }
+
+    // 8. /admin/kelas
+    function skelAdminKelas() {
+        return '<div class="space-y-6">' +
+            skelPageHeader('w-48', 'w-64', [{ w: 'w-32', h: 'h-9' }]) +
+            skelTable([
+                { w: 'w-24', badge: true, rowW: 'w-20' },
+                { w: 'w-32', rowW: 'w-32' },
+                { w: 'w-20', rowW: 'w-20' },
+                { w: 'w-16', align: 'center', rowW: 'w-12' },
+                { w: 'w-16', align: 'right', btn: true, rowW: 'w-14' }
+            ], 6) +
+        '</div>';
+    }
+
+    // 9. /admin/mapel
+    function skelAdminMapel() {
+        return '<div class="space-y-6">' +
+            skelPageHeader('w-40', 'w-64', [{ w: 'w-32', h: 'h-9' }]) +
+            skelTable([
+                { w: 'w-20', badge: true, rowW: 'w-16' },
+                { w: 'w-44', rowW: 'w-40' },
+                { w: 'w-28', rowW: 'w-24' },
+                { w: 'w-16', align: 'right', btn: true, rowW: 'w-14' }
+            ], 6) +
+        '</div>';
+    }
+
+    // 10. /admin/jadwal
+    function skelAdminJadwal() {
+        return '<div class="space-y-6">' +
+            skelPageHeader('w-44', 'w-64', [{ w: 'w-32', h: 'h-9' }]) +
+            skelFilterBar([{ w: 'w-32' }, { w: 'w-32' }, { w: 'w-40' }, { w: 'w-20' }]) +
+            skelTable([
+                { w: 'w-24', rowW: 'w-28' },
+                { w: 'w-20', badge: true, rowW: 'w-16' },
+                { w: 'w-32', rowW: 'w-36' },
+                { w: 'w-28', avatar: true, rowW: 'w-28', subW: 'w-20' },
+                { w: 'w-20', rowW: 'w-20' },
+                { w: 'w-16', align: 'right', btn: true, rowW: 'w-14' }
+            ], 8) +
+        '</div>';
+    }
+
+    // 11. /admin/laporan
+    function skelAdminLaporan() {
+        return '<div class="space-y-6">' +
+            skelPageHeader('w-52', 'w-72', [{ w: 'w-28', h: 'h-9' }, { w: 'w-32', h: 'h-9' }]) +
+            '<div class="bg-white rounded-2xl border border-slate-200/80 p-4">' +
+                '<div class="flex flex-wrap items-center gap-3">' +
+                    '<div class="skeleton w-36 h-9 rounded-xl shrink-0"></div>' +
+                    '<div class="skeleton w-36 h-9 rounded-xl shrink-0"></div>' +
+                    '<div class="skeleton w-36 h-9 rounded-xl shrink-0"></div>' +
+                    '<div class="skeleton w-24 h-9 rounded-xl shrink-0"></div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">' +
+                skelStatCardWhite('w-20', 'w-16', 'w-24') +
+                skelStatCardWhite('w-24', 'w-16', 'w-24') +
+                skelStatCardWhite('w-20', 'w-16', 'w-24') +
+            '</div>' +
+            skelTable([
+                { w: 'w-20', rowW: 'w-20' },
+                { w: 'w-32', avatar: true, rowW: 'w-32', subW: 'w-20' },
+                { w: 'w-16', badge: true, rowW: 'w-16' },
+                { w: 'w-12', align: 'center', rowW: 'w-10' },
+                { w: 'w-12', align: 'center', rowW: 'w-10' },
+                { w: 'w-12', align: 'center', rowW: 'w-10' },
+                { w: 'w-12', align: 'center', rowW: 'w-10' },
+                { w: 'w-16', align: 'center', badge: true, rowW: 'w-14' }
+            ], 8) +
+        '</div>';
+    }
+
+    // 12. /admin/lokasi
+    function skelAdminLokasi() {
+        return '<div class="max-w-3xl space-y-6">' +
+            skelPageHeader('w-56', 'w-72') +
+            '<div class="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/80 space-y-6">' +
+                '<div class="flex items-center gap-3.5 pb-4 border-b border-slate-100">' +
+                    '<div class="skeleton w-10 h-10 rounded-xl shrink-0"></div>' +
+                    '<div class="space-y-1.5">' +
+                        '<div class="skeleton skeleton-text w-48 h-4 rounded"></div>' +
+                        '<div class="skeleton skeleton-text w-64 h-3 opacity-50"></div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="space-y-4">' +
+                    '<div class="space-y-1.5">' +
+                        '<div class="skeleton skeleton-text w-36 h-3"></div>' +
+                        '<div class="skeleton w-full h-10 rounded-xl"></div>' +
+                    '</div>' +
+                    '<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">' +
+                        '<div class="space-y-1.5">' +
+                            '<div class="skeleton skeleton-text w-32 h-3"></div>' +
+                            '<div class="skeleton w-full h-10 rounded-xl"></div>' +
+                        '</div>' +
+                        '<div class="space-y-1.5">' +
+                            '<div class="skeleton skeleton-text w-32 h-3"></div>' +
+                            '<div class="skeleton w-full h-10 rounded-xl"></div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="space-y-1.5">' +
+                        '<div class="skeleton skeleton-text w-48 h-3"></div>' +
+                        '<div class="skeleton w-full h-10 rounded-xl"></div>' +
+                    '</div>' +
+                    '<div class="skeleton w-full h-44 rounded-2xl"></div>' +
+                    '<div class="skeleton w-36 h-10 rounded-xl"></div>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+    }
+
+    // 13. /admin/audit
+    function skelAdminAudit() {
+        return '<div class="space-y-6">' +
+            skelPageHeader('w-48', 'w-64') +
+            skelFilterBar([{ w: 'w-36' }, { w: 'w-36' }, { w: 'w-36' }, { w: 'w-20' }]) +
+            skelTable([
+                { w: 'w-24', rowW: 'w-28' },
+                { w: 'w-28', avatar: true, rowW: 'w-28', subW: 'w-20' },
+                { w: 'w-20', badge: true, rowW: 'w-20' },
+                { w: 'w-36', rowW: 'w-44' },
+                { w: 'w-28', rowW: 'w-32' }
+            ], 8) +
+        '</div>';
+    }
+
+    // 14. /guru (Guru Dashboard)
+    function skelGuruDashboard() {
+        return '<div class="space-y-6">' +
+            skelPageHeader('w-36', 'w-72') +
+            '<div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-maarif-900 via-maarif-800 to-emerald-950 text-white p-5 sm:p-7 shadow-xl border border-emerald-600/30 flex flex-col gap-4 sm:gap-5">' +
+                '<div class="md:hidden flex items-center justify-between gap-2 pb-3 border-b border-white/10">' +
+                    skelDark('w-32', 'h-4', 'rounded-full') +
+                    skelDark('w-24', 'h-6', 'rounded-full') +
+                '</div>' +
+                '<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">' +
+                    '<div class="flex items-center gap-4">' +
+                        '<div class="skeleton-dark w-16 h-16 sm:w-20 sm:h-20 rounded-2xl shrink-0"></div>' +
+                        '<div class="space-y-2 flex-1">' +
+                            skelDark('w-24', 'h-4', 'rounded-md') +
+                            skelDark('w-48', 'h-6', 'rounded-lg') +
+                            skelDark('w-56', 'h-3', 'rounded', 'opacity-70') +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="hidden md:flex flex-col items-end shrink-0 pl-6 border-l border-white/15">' +
+                        skelDark('w-32', 'h-7', 'rounded-lg') +
+                        skelDark('w-28', 'h-3', 'rounded', 'mt-2 opacity-70') +
+                    '</div>' +
+                '</div>' +
+                '<div class="rounded-2xl bg-black/20 p-3.5 sm:p-4 border border-white/15 flex items-center justify-between gap-3">' +
+                    '<div class="flex items-center gap-3">' +
+                        '<div class="skeleton-dark w-10 h-10 rounded-xl shrink-0"></div>' +
+                        '<div class="space-y-1.5">' +
+                            skelDark('w-40', 'h-3.5') +
+                            skelDark('w-60', 'h-2.5', 'rounded', 'opacity-60') +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="skeleton-dark w-32 h-8 rounded-xl shrink-0"></div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-5 flex items-center justify-between">' +
+                '<div class="flex items-center gap-3">' +
+                    '<div class="skeleton w-10 h-10 rounded-2xl shrink-0"></div>' +
+                    '<div class="space-y-1.5">' +
+                        '<div class="skeleton skeleton-text w-48 h-4 rounded"></div>' +
+                        '<div class="skeleton skeleton-text w-56 h-2.5 opacity-50"></div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="skeleton w-7 h-7 rounded-lg shrink-0"></div>' +
+            '</div>' +
+            '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">' +
+                skelStatCardWhite('w-24', 'w-14', 'w-24') +
+                skelStatCardWhite('w-20', 'w-14', 'w-24') +
+                skelStatCardWhite('w-20', 'w-14', 'w-24') +
+                skelStatCardWhite('w-24', 'w-14', 'w-24') +
+            '</div>' +
+            '<div class="space-y-3">' +
+                '<div class="bg-white rounded-2xl sm:rounded-3xl p-5 border border-slate-200/80 flex items-center justify-between">' +
+                    '<div class="space-y-2">' +
+                        '<div class="skeleton skeleton-text w-40 h-5 rounded"></div>' +
+                        '<div class="skeleton skeleton-text w-56 h-3 opacity-60"></div>' +
+                    '</div>' +
+                    '<div class="skeleton w-28 h-9 rounded-xl shrink-0"></div>' +
+                '</div>' +
+                '<div class="bg-white rounded-2xl sm:rounded-3xl p-5 border border-slate-200/80 flex items-center justify-between">' +
+                    '<div class="space-y-2">' +
+                        '<div class="skeleton skeleton-text w-36 h-5 rounded"></div>' +
+                        '<div class="skeleton skeleton-text w-48 h-3 opacity-60"></div>' +
+                    '</div>' +
+                    '<div class="skeleton w-28 h-9 rounded-xl shrink-0"></div>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+    }
+
+    // 15. /guru/scan (QR Scanner)
+    function skelGuruScan() {
+        return '<div class="max-w-[860px] mx-auto space-y-4">' +
+            '<div class="space-y-1">' +
+                '<div class="skeleton skeleton-text w-48 h-7 rounded-lg"></div>' +
+                '<div class="skeleton skeleton-text w-64 h-3.5 opacity-60"></div>' +
+            '</div>' +
+            '<div class="flex gap-2">' +
+                '<div class="skeleton w-24 h-6 rounded-full"></div>' +
+                '<div class="skeleton w-36 h-6 rounded-full"></div>' +
+            '</div>' +
+            '<div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 items-start">' +
+                '<div class="bg-white rounded-2xl border border-slate-200 overflow-hidden p-4 space-y-3">' +
+                    '<div class="skeleton w-full h-11 rounded-xl"></div>' +
+                    '<div class="w-full aspect-[4/3] bg-slate-900 rounded-xl relative flex items-center justify-center overflow-hidden">' +
+                        '<div class="w-48 h-48 sm:w-56 sm:h-56 border-2 border-emerald-500/50 rounded-2xl relative overflow-hidden">' +
+                            '<div class="skeleton-laser"></div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="skeleton skeleton-text w-48 h-3 mx-auto mt-2"></div>' +
+                '</div>' +
+                '<div class="bg-white rounded-2xl border border-slate-200 p-5 space-y-4">' +
+                    '<div class="space-y-1.5">' +
+                        '<div class="skeleton skeleton-text w-36 h-4 rounded"></div>' +
+                        '<div class="skeleton skeleton-text w-48 h-3 opacity-60"></div>' +
+                    '</div>' +
+                    '<div class="skeleton w-full h-16 rounded-xl"></div>' +
+                    '<div class="space-y-2">' +
+                        '<div class="skeleton skeleton-text w-full h-3"></div>' +
+                        '<div class="skeleton skeleton-text w-3/4 h-3"></div>' +
+                        '<div class="skeleton skeleton-text w-2/3 h-3"></div>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+    }
+
+    // 16. /guru/jadwal & /siswa/jadwal
+    function skelWeeklySchedule(isSiswa = false) {
+        return '<div class="space-y-6">' +
+            skelPageHeader(isSiswa ? 'w-44' : 'w-44', 'w-72') +
+            '<div class="space-y-6">' +
+                [1, 2, 3].map(i =>
+                    '<div class="bg-white rounded-3xl p-5 sm:p-7 border border-slate-200/80 space-y-4">' +
+                        '<div class="flex items-center justify-between pb-4 border-b border-slate-100">' +
+                            '<div class="flex items-center gap-3">' +
+                                '<div class="skeleton w-10 h-10 rounded-2xl shrink-0"></div>' +
+                                '<div class="space-y-1.5">' +
+                                    '<div class="skeleton skeleton-text w-24 h-4 rounded"></div>' +
+                                    '<div class="skeleton skeleton-text w-16 h-2.5 opacity-50"></div>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="space-y-3">' +
+                            '<div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">' +
+                                '<div class="space-y-1.5">' +
+                                    '<div class="skeleton skeleton-text w-36 h-4 rounded"></div>' +
+                                    '<div class="skeleton skeleton-text w-24 h-2.5 opacity-50"></div>' +
+                                '</div>' +
+                                '<div class="skeleton w-20 h-6 rounded-md shrink-0"></div>' +
+                            '</div>' +
+                            '<div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">' +
+                                '<div class="space-y-1.5">' +
+                                    '<div class="skeleton skeleton-text w-44 h-4 rounded"></div>' +
+                                    '<div class="skeleton skeleton-text w-28 h-2.5 opacity-50"></div>' +
+                                '</div>' +
+                                '<div class="skeleton w-20 h-6 rounded-md shrink-0"></div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>'
+                ).join('') +
+            '</div>' +
+        '</div>';
+    }
+
+    // 17. /guru/riwayat (Teaching History)
+    function skelGuruHistory() {
+        return '<div class="space-y-6">' +
+            skelPageHeader('w-52', 'w-72') +
+            '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4">' +
+                '<div class="sm:col-span-2 lg:col-span-5 bg-gradient-to-br from-emerald-800 via-emerald-800 to-emerald-900 rounded-3xl p-5 sm:p-6 text-white flex flex-col justify-between relative overflow-hidden">' +
+                    '<div>' +
+                        skelDark('w-32', 'h-3') +
+                        skelDark('w-28', 'h-10', 'rounded-xl', 'my-3') +
+                    '</div>' +
+                    '<div class="w-full bg-white/15 rounded-full h-1.5 mt-2"><div class="skeleton-dark h-1.5 rounded-full w-4/5"></div></div>' +
+                '</div>' +
+                '<div class="sm:col-span-2 lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-4">' +
+                    skelStatCardWhite('w-20', 'w-14', 'w-20', 'rounded-3xl') +
+                    skelStatCardWhite('w-20', 'w-14', 'w-20', 'rounded-3xl') +
+                    skelStatCardWhite('w-24', 'w-14', 'w-20', 'rounded-3xl') +
+                '</div>' +
+            '</div>' +
+            skelFilterBar([{ type: 'search' }, { w: 'w-36' }, { w: 'w-32' }]) +
+            '<div class="bg-white rounded-3xl border border-slate-200/80 p-4 sm:p-6 overflow-hidden">' +
+                '<div class="overflow-x-auto">' +
+                    '<table class="w-full text-left border-collapse text-xs">' +
+                        '<thead><tr class="bg-slate-900 text-slate-200">' +
+                            '<th class="py-3.5 px-5"><div class="skeleton-dark w-20 h-2.5"></div></th>' +
+                            '<th class="py-3.5 px-5"><div class="skeleton-dark w-16 h-2.5"></div></th>' +
+                            '<th class="py-3.5 px-5"><div class="skeleton-dark w-28 h-2.5"></div></th>' +
+                            '<th class="py-3.5 px-5"><div class="skeleton-dark w-16 h-2.5"></div></th>' +
+                            '<th class="py-3.5 px-5"><div class="skeleton-dark w-16 h-2.5"></div></th>' +
+                            '<th class="py-3.5 px-5 text-center"><div class="skeleton-dark w-16 h-2.5 mx-auto"></div></th>' +
+                        '</tr></thead>' +
+                        '<tbody class="divide-y divide-slate-100">' +
+                            [1,2,3,4,5,6].map(() =>
+                                '<tr>' +
+                                    '<td class="py-3.5 px-5"><div class="skeleton skeleton-text w-24 h-3"></div></td>' +
+                                    '<td class="py-3.5 px-5"><div class="skeleton w-16 h-6 rounded-md"></div></td>' +
+                                    '<td class="py-3.5 px-5"><div class="skeleton skeleton-text w-32 h-3"></div></td>' +
+                                    '<td class="py-3.5 px-5"><div class="skeleton skeleton-text w-16 h-3"></div></td>' +
+                                    '<td class="py-3.5 px-5"><div class="skeleton skeleton-text w-16 h-3"></div></td>' +
+                                    '<td class="py-3.5 px-5 text-center"><div class="skeleton w-20 h-6 rounded-md mx-auto"></div></td>' +
+                                '</tr>'
+                            ).join('') +
+                        '</tbody>' +
+                    '</table>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+    }
+
+    // 18. /guru/sessions/* (Live Session)
+    function skelGuruSessionLive() {
+        return '<div class="space-y-4">' +
+            '<div class="flex items-center justify-between bg-white rounded-2xl p-4 border border-slate-200/80">' +
+                '<div class="skeleton w-36 h-8 rounded-xl shrink-0"></div>' +
+                '<div class="flex gap-2">' +
+                    '<div class="skeleton w-20 h-7 rounded-lg shrink-0"></div>' +
+                    '<div class="skeleton w-32 h-7 rounded-lg shrink-0"></div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">' +
+                '<div class="lg:col-span-5 space-y-4">' +
+                    '<div class="bg-white rounded-3xl p-6 border border-slate-200/80 text-center space-y-5">' +
+                        '<div class="skeleton w-44 h-6 rounded-full mx-auto"></div>' +
+                        '<div class="space-y-2">' +
+                            '<div class="skeleton skeleton-text w-36 h-3 mx-auto"></div>' +
+                            '<div class="w-full h-24 bg-slate-950 rounded-3xl flex items-center justify-center">' +
+                                '<div class="skeleton-dark w-44 h-12 rounded-xl"></div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="w-full bg-slate-200 rounded-full h-2.5"><div class="skeleton h-2.5 rounded-full w-2/3"></div></div>' +
+                        '<div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">' +
+                            '<div class="skeleton h-14 rounded-2xl"></div>' +
+                            '<div class="skeleton h-14 rounded-2xl"></div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="lg:col-span-7 space-y-4">' +
+                    '<div class="bg-white rounded-3xl p-6 border border-slate-200/80 space-y-4">' +
+                        '<div class="flex items-center justify-between pb-3 border-b border-slate-100">' +
+                            '<div class="skeleton skeleton-text w-44 h-4 rounded"></div>' +
+                            '<div class="skeleton w-16 h-6 rounded-full"></div>' +
+                        '</div>' +
+                        '<div class="space-y-2">' +
+                            [1,2,3,4,5].map(() =>
+                                '<div class="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">' +
+                                    '<div class="flex items-center gap-3">' +
+                                        '<div class="skeleton skeleton-circle w-8 h-8 rounded-lg shrink-0"></div>' +
+                                        '<div class="space-y-1">' +
+                                            '<div class="skeleton skeleton-text w-32 h-3"></div>' +
+                                            '<div class="skeleton skeleton-text w-20 h-2.5 opacity-60"></div>' +
+                                        '</div>' +
+                                    '</div>' +
+                                    '<div class="skeleton w-16 h-6 rounded-md shrink-0"></div>' +
+                                '</div>'
+                            ).join('') +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+    }
+
+    // 19. /guru/sessions/*/reconcile
+    function skelGuruReconcile() {
+        return '<div class="space-y-4 max-w-7xl mx-auto pb-8">' +
+            '<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-3xl border border-slate-200/80">' +
+                '<div class="flex items-center gap-3">' +
+                    '<div class="skeleton w-10 h-10 rounded-2xl shrink-0"></div>' +
+                    '<div class="space-y-1.5">' +
+                        '<div class="skeleton skeleton-text w-44 h-4 rounded"></div>' +
+                        '<div class="skeleton skeleton-text w-32 h-2.5 opacity-50"></div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="flex gap-2">' +
+                    '<div class="skeleton w-20 h-8 rounded-xl shrink-0"></div>' +
+                    '<div class="skeleton w-20 h-8 rounded-xl shrink-0"></div>' +
+                    '<div class="skeleton w-24 h-8 rounded-xl shrink-0"></div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="space-y-3">' +
+                [1,2,3,4,5,6].map(() =>
+                    '<div class="bg-white rounded-2xl p-4 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">' +
+                        '<div class="flex items-center gap-3">' +
+                            '<div class="skeleton w-10 h-10 rounded-xl shrink-0"></div>' +
+                            '<div class="space-y-1">' +
+                                '<div class="skeleton skeleton-text w-36 h-3.5"></div>' +
+                                '<div class="skeleton skeleton-text w-24 h-2.5 opacity-60"></div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="flex items-center gap-1.5">' +
+                            '<div class="skeleton w-16 h-8 rounded-xl shrink-0"></div>' +
+                            '<div class="skeleton w-16 h-8 rounded-xl shrink-0"></div>' +
+                            '<div class="skeleton w-16 h-8 rounded-xl shrink-0"></div>' +
+                            '<div class="skeleton w-16 h-8 rounded-xl shrink-0"></div>' +
+                        '</div>' +
+                    '</div>'
+                ).join('') +
+            '</div>' +
+            '<div class="skeleton w-44 h-11 rounded-2xl mx-auto mt-4"></div>' +
+        '</div>';
+    }
+
+    // 20. /siswa (Siswa Dashboard)
+    function skelSiswaDashboard() {
+        return '<div class="space-y-6">' +
+            skelPageHeader('w-44', 'w-72') +
+            '<div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-950 text-white p-5 sm:p-7 shadow-lg border border-emerald-700/50 flex flex-col gap-4 sm:gap-5">' +
+                '<div class="md:hidden flex items-center justify-between gap-2 pb-3 border-b border-white/10">' +
+                    skelDark('w-32', 'h-4', 'rounded-full') +
+                    skelDark('w-24', 'h-6', 'rounded-full') +
+                '</div>' +
+                '<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">' +
+                    '<div class="flex items-center gap-4">' +
+                        '<div class="skeleton-dark w-16 h-16 sm:w-20 sm:h-20 rounded-2xl shrink-0"></div>' +
+                        '<div class="space-y-2 flex-1">' +
+                            skelDark('w-44', 'h-6', 'rounded-lg') +
+                            skelDark('w-56', 'h-3', 'rounded', 'opacity-70') +
+                            skelDark('w-36', 'h-4', 'rounded-md', 'mt-1') +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="hidden md:flex flex-col items-end shrink-0 pl-6 border-l border-white/15">' +
+                        skelDark('w-32', 'h-7', 'rounded-lg') +
+                        skelDark('w-28', 'h-3', 'rounded', 'mt-2 opacity-70') +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-5 flex items-center justify-between">' +
+                '<div class="flex items-center gap-3">' +
+                    '<div class="skeleton w-10 h-10 rounded-2xl shrink-0"></div>' +
+                    '<div class="space-y-1.5">' +
+                        '<div class="skeleton skeleton-text w-44 h-4 rounded"></div>' +
+                        '<div class="skeleton skeleton-text w-56 h-2.5 opacity-50"></div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="skeleton w-7 h-7 rounded-lg shrink-0"></div>' +
+            '</div>' +
+            '<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">' +
+                skelStatCardWhite('w-20', 'w-12', 'w-20', 'rounded-3xl') +
+                skelStatCardWhite('w-16', 'w-12', 'w-20', 'rounded-3xl') +
+                skelStatCardWhite('w-16', 'w-12', 'w-20', 'rounded-3xl') +
+                skelStatCardWhite('w-16', 'w-12', 'w-20', 'rounded-3xl') +
+            '</div>' +
+            '<div class="bg-white rounded-3xl p-6 border border-slate-200/80 text-center space-y-3">' +
+                '<div class="skeleton skeleton-circle w-8 h-8 mx-auto"></div>' +
+                '<div class="skeleton skeleton-text w-48 h-4 mx-auto rounded"></div>' +
+                '<div class="skeleton skeleton-text w-64 h-3 mx-auto opacity-50"></div>' +
+            '</div>' +
+            '<div class="space-y-3">' +
+                '<div class="bg-white rounded-2xl p-5 border border-slate-200/80 flex items-center justify-between">' +
+                    '<div class="space-y-2">' +
+                        '<div class="skeleton skeleton-text w-36 h-5 rounded"></div>' +
+                        '<div class="skeleton skeleton-text w-48 h-3 opacity-60"></div>' +
+                    '</div>' +
+                    '<div class="skeleton w-24 h-8 rounded-xl shrink-0"></div>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+    }
+
+    // 21. /siswa/riwayat
+    function skelSiswaHistory() {
+        return '<div class="space-y-6">' +
+            skelPageHeader('w-52', 'w-72') +
+            '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4">' +
+                '<div class="sm:col-span-2 lg:col-span-5 bg-gradient-to-br from-emerald-800 via-emerald-800 to-emerald-900 rounded-3xl p-5 sm:p-6 text-white flex flex-col justify-between relative overflow-hidden">' +
+                    '<div>' +
+                        skelDark('w-32', 'h-3') +
+                        skelDark('w-28', 'h-10', 'rounded-xl', 'my-3') +
+                    '</div>' +
+                    '<div class="w-full bg-white/15 rounded-full h-1.5 mt-2"><div class="skeleton-dark h-1.5 rounded-full w-4/5"></div></div>' +
+                '</div>' +
+                '<div class="sm:col-span-2 lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-4">' +
+                    skelStatCardWhite('w-16', 'w-12', 'w-20', 'rounded-3xl') +
+                    skelStatCardWhite('w-16', 'w-12', 'w-20', 'rounded-3xl') +
+                    skelStatCardWhite('w-16', 'w-12', 'w-20', 'rounded-3xl') +
+                '</div>' +
+            '</div>' +
+            skelFilterBar([{ type: 'search' }, { w: 'w-36' }, { w: 'w-36' }]) +
+            skelTable([
+                { w: 'w-24', rowW: 'w-28' },
+                { w: 'w-28', rowW: 'w-32' },
+                { w: 'w-24', rowW: 'w-28' },
+                { w: 'w-16', align: 'center', rowW: 'w-16' },
+                { w: 'w-16', align: 'center', rowW: 'w-16' },
+                { w: 'w-16', align: 'center', badge: true, rowW: 'w-16' }
+            ], 6) +
+        '</div>';
+    }
+
+    // 22. /profile
+    function skelProfile() {
+        return '<div class="space-y-6">' +
+            skelPageHeader('w-40', 'w-72') +
+            '<div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 space-y-6">' +
+                '<div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 pb-6 border-b border-slate-100 text-center sm:text-left">' +
+                    '<div class="skeleton w-24 h-24 sm:w-28 sm:h-28 rounded-3xl shrink-0"></div>' +
+                    '<div class="space-y-2 flex-1">' +
+                        '<div class="flex items-center gap-2">' +
+                            '<div class="skeleton skeleton-text w-44 h-6 rounded-lg"></div>' +
+                            '<div class="skeleton w-24 h-5 rounded-full"></div>' +
+                        '</div>' +
+                        '<div class="skeleton skeleton-text w-36 h-3"></div>' +
+                        '<div class="skeleton skeleton-text w-48 h-3"></div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="space-y-4">' +
+                    '<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">' +
+                        '<div class="space-y-1.5">' +
+                            '<div class="skeleton skeleton-text w-24 h-3"></div>' +
+                            '<div class="skeleton w-full h-10 rounded-xl"></div>' +
+                        '</div>' +
+                        '<div class="space-y-1.5">' +
+                            '<div class="skeleton skeleton-text w-24 h-3"></div>' +
+                            '<div class="skeleton w-full h-10 rounded-xl"></div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">' +
+                        '<div class="space-y-1.5">' +
+                            '<div class="skeleton skeleton-text w-32 h-3"></div>' +
+                            '<div class="skeleton w-full h-10 rounded-xl"></div>' +
+                        '</div>' +
+                        '<div class="space-y-1.5">' +
+                            '<div class="skeleton skeleton-text w-28 h-3"></div>' +
+                            '<div class="skeleton w-full h-10 rounded-xl"></div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 space-y-4">' +
+                '<div class="skeleton skeleton-text w-40 h-5 rounded"></div>' +
+                '<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">' +
+                    '<div class="space-y-1.5">' +
+                        '<div class="skeleton skeleton-text w-28 h-3"></div>' +
+                        '<div class="skeleton w-full h-10 rounded-xl"></div>' +
+                    '</div>' +
+                    '<div class="space-y-1.5">' +
+                        '<div class="skeleton skeleton-text w-28 h-3"></div>' +
+                        '<div class="skeleton w-full h-10 rounded-xl"></div>' +
+                    '</div>' +
+                    '<div class="space-y-1.5">' +
+                        '<div class="skeleton skeleton-text w-36 h-3"></div>' +
+                        '<div class="skeleton w-full h-10 rounded-xl"></div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="skeleton w-36 h-10 rounded-xl mt-2"></div>' +
+            '</div>' +
+        '</div>';
+    }
+
+    // ── MASTER SKELETON DISPATCHER FOR ALL 23 ROUTES ──────────────────────────
     function getInstantSkeleton(url) {
         try {
-            var path = (new URL(url, window.location.origin)).pathname.replace(/\/$/, '');
+            const u = new URL(url, window.location.origin);
+            const path = u.pathname.replace(/\/$/, '') || '/';
 
-            // ── /admin atau /admin/dashboard ──
-            if (path === '/admin' || path === '/admin/dashboard') {
-                return '<div class="space-y-7">' +
-                    '<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-1.5">' +
-                        '<div class="space-y-2">' +
-                            '<div class="skeleton skeleton-text w-36 h-3 opacity-60"></div>' +
-                            '<div class="skeleton skeleton-text w-40 h-7 rounded-lg"></div>' +
-                            '<div class="skeleton skeleton-text w-56 h-3 opacity-50"></div>' +
-                        '</div>' +
-                        '<div class="skeleton w-24 h-8 rounded-lg shrink-0"></div>' +
-                    '</div>' +
-                    '<div class="grid grid-cols-1 lg:grid-cols-5 gap-4">' +
-                        '<div class="lg:col-span-2 skeleton rounded-2xl" style="height:160px"></div>' +
-                        '<div class="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">' +
-                            '<div class="skeleton rounded-2xl" style="height:140px"></div>' +
-                            '<div class="skeleton rounded-2xl" style="height:140px"></div>' +
-                            '<div class="skeleton rounded-2xl" style="height:140px"></div>' +
-                        '</div>' +
-                    '</div>' +
-                    '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4">' +
-                        '<div class="skeleton rounded-2xl" style="height:110px"></div>' +
-                        '<div class="skeleton rounded-2xl" style="height:110px"></div>' +
-                        '<div class="skeleton rounded-2xl" style="height:110px"></div>' +
-                        '<div class="skeleton rounded-2xl" style="height:110px"></div>' +
-                    '</div>' +
-                    '<div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden">' +
-                        '<div class="p-5 border-b border-slate-100 flex items-center gap-3">' +
-                            '<div class="skeleton w-1 h-8 rounded-full shrink-0"></div>' +
-                            '<div class="space-y-1.5">' +
-                                '<div class="skeleton skeleton-text w-40 h-4 rounded"></div>' +
-                                '<div class="skeleton skeleton-text w-56 h-3 opacity-50"></div>' +
-                            '</div>' +
-                        '</div>' +
-                        '<div class="overflow-x-auto"><table class="w-full text-xs border-collapse">' +
-                            '<thead><tr class="bg-slate-50 border-b border-slate-100">' +
-                                skeletonTheadCells(['w-20','w-24','w-28','w-20','w-16']) +
-                            '</tr></thead>' +
-                            '<tbody class="divide-y divide-slate-100">' +
-                                skeletonTableRows(6, [
-                                    { avatar: true, line1: 'w-28', line2: 'w-20' },
-                                    { cls: 'w-20' }, { cls: 'w-24' }, { cls: 'w-16' }, { cls: 'w-14' }
-                                ]) +
-                            '</tbody>' +
-                        '</table></div>' +
-                    '</div>' +
-                '</div>';
-            }
+            // 1. Portal Admin
+            if (path === '/admin' || path === '/admin/dashboard') return skelAdminDashboard();
+            if (path === '/admin/presensi-siswa') return skelAdminPresensiSiswa();
+            if (path === '/admin/presensi-guru') return skelAdminPresensiGuru();
+            if (path === '/admin/siswa') return skelAdminSiswa();
+            if (/^\/admin\/siswa\/[^\/]+\/riwayat/.test(path)) return skelAdminSiswaRiwayat();
+            if (path === '/admin/guru') return skelAdminGuru();
+            if (/^\/admin\/guru\/[^\/]+\/riwayat/.test(path)) return skelAdminGuruRiwayat();
+            if (path === '/admin/kelas') return skelAdminKelas();
+            if (path === '/admin/mapel') return skelAdminMapel();
+            if (path === '/admin/jadwal') return skelAdminJadwal();
+            if (path === '/admin/laporan') return skelAdminLaporan();
+            if (path === '/admin/lokasi') return skelAdminLokasi();
+            if (path === '/admin/audit') return skelAdminAudit();
 
-            // ── /admin/siswa ──
-            if (path === '/admin/siswa') {
-                return '<div class="space-y-6">' +
-                    skeletonPageHeader(true) +
-                    skeletonFilterBar(true, 1) +
-                    skeletonTable([
-                        { cls: 'w-24' },
-                        { avatar: true, line1: 'w-32', line2: 'w-28' },
-                        { cls: 'w-20' }, { cls: 'w-20' }, { cls: 'w-24' }, { cls: 'w-12' }, { cls: 'w-20' }
-                    ], 8) +
-                '</div>';
-            }
+            // 2. Portal Dewan Guru
+            if (path === '/guru' || path === '/guru/dashboard') return skelGuruDashboard();
+            if (path === '/guru/scan') return skelGuruScan();
+            if (path === '/guru/jadwal') return skelWeeklySchedule(false);
+            if (path === '/guru/riwayat') return skelGuruHistory();
+            if (/^\/guru\/sessions\/[^\/]+\/reconcile/.test(path)) return skelGuruReconcile();
+            if (/^\/guru\/sessions\/[^\/]+/.test(path)) return skelGuruSessionLive();
 
-            // ── /admin/guru ──
-            if (path === '/admin/guru') {
-                return '<div class="space-y-6">' +
-                    skeletonPageHeader(true) +
-                    skeletonFilterBar(true, 0) +
-                    skeletonTable([
-                        { cls: 'w-28' },
-                        { avatar: true, line1: 'w-36', line2: 'w-28' },
-                        { cls: 'w-20' }, { cls: 'w-24' }, { cls: 'w-12' }, { cls: 'w-20' }
-                    ], 8) +
-                '</div>';
-            }
+            // 3. Portal Siswa
+            if (path === '/siswa' || path === '/siswa/dashboard') return skelSiswaDashboard();
+            if (path === '/siswa/jadwal') return skelWeeklySchedule(true);
+            if (path === '/siswa/riwayat') return skelSiswaHistory();
 
-            // ── /admin/kelas ──
-            if (path === '/admin/kelas') {
-                return '<div class="space-y-6">' +
-                    skeletonPageHeader(true) +
-                    skeletonTable([
-                        { cls: 'w-24' }, { cls: 'w-32' }, { cls: 'w-28' }, { cls: 'w-14' }, { cls: 'w-20' }
-                    ], 6) +
-                '</div>';
-            }
-
-            // ── /admin/mapel ──
-            if (path === '/admin/mapel') {
-                return '<div class="space-y-6">' +
-                    skeletonPageHeader(true) +
-                    skeletonTable([
-                        { cls: 'w-16' }, { cls: 'w-40' }, { cls: 'w-12' }, { cls: 'w-20' }
-                    ], 6) +
-                '</div>';
-            }
-
-            // ── /admin/jadwal ──
-            if (path === '/admin/jadwal') {
-                return '<div class="space-y-6">' +
-                    skeletonPageHeader(true) +
-                    skeletonFilterBar(false, 2) +
-                    skeletonTable([
-                        { cls: 'w-16' }, { cls: 'w-28' }, { cls: 'w-20' }, { cls: 'w-32' },
-                        { avatar: true, line1: 'w-28', line2: 'w-20' }, { cls: 'w-20' }
-                    ], 8) +
-                '</div>';
-            }
-
-            // ── /admin/presensi-siswa ──
-            if (path === '/admin/presensi-siswa') {
-                return '<div class="space-y-6">' +
-                    skeletonPageHeader(false) +
-                    skeletonStatGrid(4, 120) +
-                    skeletonFilterBar(true, 3) +
-                    skeletonTable([
-                        { avatar: true, line1: 'w-28', line2: 'w-20' },
-                        { cls: 'w-24', sub: 'w-20' },
-                        { avatar: true, line1: 'w-24', line2: 'w-16' },
-                        { cls: 'w-16' }, { cls: 'w-20' }, { cls: 'w-12' }, { cls: 'w-20' }
-                    ], 10) +
-                '</div>';
-            }
-
-            // ── /admin/presensi-guru ──
-            if (path === '/admin/presensi-guru') {
-                return '<div class="space-y-6">' +
-                    skeletonPageHeader(false) +
-                    '<div class="grid grid-cols-1 md:grid-cols-4 gap-4">' +
-                        '<div class="skeleton rounded-2xl" style="height:120px"></div>' +
-                        '<div class="skeleton rounded-2xl" style="height:120px"></div>' +
-                        '<div class="skeleton rounded-2xl" style="height:120px"></div>' +
-                        '<div class="skeleton rounded-2xl" style="height:120px"></div>' +
-                    '</div>' +
-                    skeletonFilterBar(true, 2) +
-                    skeletonTable([
-                        { avatar: true, line1: 'w-32', line2: 'w-24' },
-                        { cls: 'w-20' }, { cls: 'w-16' }, { cls: 'w-16' }, { cls: 'w-28' }, { cls: 'w-20' }
-                    ], 10) +
-                '</div>';
-            }
-
-            // ── /admin/audit ──
-            if (path === '/admin/audit') {
-                return '<div class="space-y-6">' +
-                    '<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">' +
-                        '<div class="space-y-2">' +
-                            '<div class="skeleton skeleton-text w-52 h-7 rounded-lg"></div>' +
-                            '<div class="skeleton skeleton-text w-64 h-3 opacity-60"></div>' +
-                        '</div>' +
-                        '<div class="skeleton w-36 h-8 rounded-xl shrink-0"></div>' +
-                    '</div>' +
-                    skeletonTable([
-                        { cls: 'w-28' },
-                        { avatar: true, line1: 'w-28', line2: 'w-20' },
-                        { cls: 'w-24' },
-                        { avatar: true, line1: 'w-24', line2: 'w-16' },
-                        { cls: 'w-36' }
-                    ], 8) +
-                '</div>';
-            }
-
-            // ── /guru/history ──
-            if (path === '/guru/history') {
-                return '<div class="space-y-6">' +
-                    '<div>' +
-                        '<div class="skeleton skeleton-text w-52 h-8 rounded-lg"></div>' +
-                        '<div class="skeleton skeleton-text w-72 h-3 mt-2 opacity-60"></div>' +
-                    '</div>' +
-                    '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4">' +
-                        '<div class="sm:col-span-2 lg:col-span-5 skeleton rounded-3xl" style="height:160px"></div>' +
-                        '<div class="sm:col-span-2 lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-4">' +
-                            '<div class="skeleton rounded-3xl" style="height:150px"></div>' +
-                            '<div class="skeleton rounded-3xl" style="height:150px"></div>' +
-                            '<div class="skeleton rounded-3xl" style="height:150px"></div>' +
-                        '</div>' +
-                    '</div>' +
-                    skeletonFilterBar(true, 2) +
-                    '<div class="bg-white rounded-3xl border border-slate-200/80 overflow-hidden">' +
-                        '<div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between gap-3">' +
-                            '<div class="space-y-1.5">' +
-                                '<div class="skeleton skeleton-text w-36 h-4 rounded"></div>' +
-                                '<div class="skeleton skeleton-text w-24 h-3 opacity-50"></div>' +
-                            '</div>' +
-                            '<div class="skeleton w-28 h-8 rounded-xl"></div>' +
-                        '</div>' +
-                        '<div class="overflow-x-auto"><table class="w-full text-xs border-collapse">' +
-                            '<thead><tr class="bg-slate-50 border-b border-slate-100">' +
-                                skeletonTheadCells(['w-24','w-20','w-20','w-28','w-16','w-20']) +
-                            '</tr></thead>' +
-                            '<tbody class="divide-y divide-slate-100">' +
-                                skeletonTableRows(8, [
-                                    { cls: 'w-24' }, { cls: 'w-20' }, { cls: 'w-20' },
-                                    { cls: 'w-28' }, { cls: 'w-16' }, { cls: 'w-20' }
-                                ]) +
-                            '</tbody>' +
-                        '</table></div>' +
-                    '</div>' +
-                '</div>';
-            }
+            // 4. Common / Profile
+            if (path === '/profile') return skelProfile();
 
         } catch (e) {}
 
-        // Fallback generik
-        return '<div class="space-y-6">' +
-            skeletonPageHeader(true) +
-            skeletonTable([
-                { cls: 'w-24' }, { cls: 'w-40' }, { cls: 'w-28' }, { cls: 'w-20' }, { cls: 'w-20' }
-            ], 7) +
-        '</div>';
+        // Fallback generic table layout
+        return skelAdminKelas();
     }
 
     // ── TRUE DEFERRED NAVIGATION ──────────────────────────────────────────────
@@ -686,6 +1346,10 @@
 
         // ── DEFERRED: inject skeleton SEBELUM fetch jika tidak ada cache ──
         if (!cachedHtml && mainContent && !options.isLiveSearch) {
+            if (!options.restoreScroll) {
+                window.scrollTo({ top: 0, behavior: 'instant' });
+            }
+            mainContent.classList.remove('spa-content-enter');
             mainContent.style.transition = 'none';
             mainContent.style.opacity = '1';
             mainContent.innerHTML = getInstantSkeleton(targetUrl);
@@ -750,7 +1414,7 @@
                 return;
             }
 
-            applyDocumentUpdates(newDoc, responseUrl, options);
+            performDocumentUpdate(newDoc, responseUrl, options);
 
             if (pushState) {
                 window.history.pushState({ spa: true, url: responseUrl }, newDoc.title, responseUrl);
@@ -859,7 +1523,7 @@
 
                 if (newDoc.getElementById('main-content')) {
                     const isSuccess = response.ok && !newDoc.querySelector('.is-invalid, [aria-invalid="true"]');
-                    applyDocumentUpdates(newDoc, response.url || window.location.href, {
+                    performDocumentUpdate(newDoc, response.url || window.location.href, {
                         closeModals: isSuccess
                     });
 

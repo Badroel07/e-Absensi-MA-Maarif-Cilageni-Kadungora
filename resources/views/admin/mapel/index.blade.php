@@ -20,18 +20,8 @@
     </div>
 
     {{-- ── TABLE MAPEL ──────────────────────────────────────────────── --}}
-    <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden"
-         x-data="{ ready: false }"
-         x-init="$nextTick(() => { setTimeout(() => { ready = true; }, window.__isLiveSearching ? 0 : 450); })">
-
-        {{-- Skeleton placeholder — visible immediately on page load (NO x-cloak) --}}
-        <div x-show="!ready" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" aria-hidden="true">
-            <x-skeleton :count="6" :columns="4" :avatar="false" />
-        </div>
-
-        {{-- Real Table Content --}}
-        <div x-show="ready" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-            <div class="overflow-x-auto">
+    <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden">
+        <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-xs">
                 <thead>
                     <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 uppercase font-semibold text-[10px] tracking-widest">
@@ -113,7 +103,6 @@
                     @endforelse
                 </tbody>
             </table>
-        </div>
         </div>
     </div>
 
