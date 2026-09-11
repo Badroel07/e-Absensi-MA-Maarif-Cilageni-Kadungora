@@ -25,14 +25,14 @@ class KioskService
     }
 
     /**
-     * Generate dynamic HMAC-SHA256 token for 20-second window
+     * Generate dynamic HMAC-SHA256 token for 10-second window
      */
     public function generateTokenPayload(): array
     {
         $nowTs = Carbon::now()->timestamp;
-        $window = (int) floor($nowTs / 20);
+        $window = (int) floor($nowTs / 10);
         $token = hash_hmac('sha256', $window.':'.$this->kioskId, $this->secretKey);
-        $remainingSeconds = 20 - ($nowTs % 20);
+        $remainingSeconds = 10 - ($nowTs % 10);
 
         return [
             'token' => $token,
@@ -43,19 +43,19 @@ class KioskService
     }
 
     /**
-     * Validate scanned token with tolerance for previous 20s window
+     * Validate scanned token with tolerance for previous 10s window
      */
     public function validateToken(string $token): bool
     {
         $nowTs = Carbon::now()->timestamp;
-        $currentWindow = (int) floor($nowTs / 20);
+        $currentWindow = (int) floor($nowTs / 10);
         $expectedCurrent = hash_hmac('sha256', $currentWindow.':'.$this->kioskId, $this->secretKey);
 
         if (hash_equals($expectedCurrent, $token)) {
             return true;
         }
 
-        // Previous window (network delay tolerance)
+        // Previous window (network delay tolerance: previous 10s)
         $previousWindow = $currentWindow - 1;
         $expectedPrevious = hash_hmac('sha256', $previousWindow.':'.$this->kioskId, $this->secretKey);
 

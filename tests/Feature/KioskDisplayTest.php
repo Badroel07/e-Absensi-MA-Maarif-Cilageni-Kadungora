@@ -81,18 +81,18 @@ test('TC-KIOSK-004: Kiosk — HMAC token window saat ini (window 0) valid', func
     expect($this->kioskService->validateToken($currentToken))->toBeTrue();
 });
 
-test('TC-KIOSK-005: Kiosk — HMAC token window sebelumnya (window -1, toleransi 40s) tetap valid', function () {
+test('TC-KIOSK-005: Kiosk — HMAC token window sebelumnya (window -1, toleransi 20s) tetap valid', function () {
     $nowTs = Carbon::now()->timestamp;
-    $prevWindow = (int) floor($nowTs / 20) - 1;
+    $prevWindow = (int) floor($nowTs / 10) - 1;
     $secret = config('app.key') ?: (env('APP_KEY') ?: 'maarif-secret-kiosk-key-2026');
     $prevToken = hash_hmac('sha256', $prevWindow.':kiosk-ruang-guru-ma-maarif', $secret);
 
     expect($this->kioskService->validateToken($prevToken))->toBeTrue();
 });
 
-test('TC-KIOSK-006: Kiosk — HMAC token kedaluwarsa >= window -2 (>40s) ditolak', function () {
+test('TC-KIOSK-006: Kiosk — HMAC token kedaluwarsa >= window -2 (>20s) ditolak', function () {
     $nowTs = Carbon::now()->timestamp;
-    $expiredWindow = (int) floor($nowTs / 20) - 2;
+    $expiredWindow = (int) floor($nowTs / 10) - 2;
     $secret = config('app.key') ?: (env('APP_KEY') ?: 'maarif-secret-kiosk-key-2026');
     $expiredToken = hash_hmac('sha256', $expiredWindow.':kiosk-ruang-guru-ma-maarif', $secret);
 
