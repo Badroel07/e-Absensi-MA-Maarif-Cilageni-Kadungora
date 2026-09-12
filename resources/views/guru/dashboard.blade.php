@@ -29,9 +29,8 @@
                 @endif
             </div>
             <div class="min-w-0 flex-1">
-                <div class="flex items-center justify-between gap-1">
+                <div>
                     <p class="text-[11px] font-medium text-slate-400 tracking-wide mono-font">NIP {{ $teacher->identity_number }}</p>
-                    <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-semibold text-[11px]">Guru Mapel</span>
                 </div>
                 <h2 class="text-base font-bold text-slate-900 tracking-tight heading-font truncate mt-0.5">{{ $teacher->name }}</h2>
                 <div class="flex items-center gap-2 mt-1 text-xs text-slate-500">
@@ -211,7 +210,7 @@
                         <div class="flex items-start justify-between gap-3">
                             <div class="space-y-1 min-w-0">
                                 <div class="flex items-center gap-2">
-                                    <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold text-xs heading-font">#{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                                    <span class="px-2 py-0.5 rounded {{ ($session && $session->isActive()) || $isWithinSchedule ? 'bg-emerald-50 text-emerald-700 font-bold' : 'bg-slate-100 text-slate-700 border border-slate-200 font-semibold' }} text-xs heading-font">#{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
                                     <span class="text-xs font-medium text-slate-500">Kelas {{ $sch->classroom->name }}</span>
                                 </div>
                                 <h4 class="text-base font-bold text-slate-900 tracking-tight heading-font truncate">{{ $sch->subject->name }}</h4>
@@ -340,9 +339,19 @@
         <article class="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-4 space-y-4 hover:border-slate-300/80 transition-colors">
             <div class="flex items-center justify-between gap-2 pb-3 border-b border-slate-100">
                 <h4 class="text-base font-bold text-slate-900 tracking-tight heading-font">Presensi Masuk & Pulang</h4>
-                <div class="flex items-center gap-1 px-2.5 py-1 rounded-full {{ $hasCheckedIn ? ($dailyAttendance?->check_out_time ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-700') : 'bg-slate-100 text-slate-600' }} shrink-0">
-                    <i data-lucide="{{ $hasCheckedIn ? ($dailyAttendance?->check_out_time ? 'check-circle-2' : 'clock') : 'clock' }}" class="w-3.5 h-3.5 {{ $hasCheckedIn ? ($dailyAttendance?->check_out_time ? 'text-emerald-700' : 'text-amber-600') : 'text-slate-400' }}"></i>
-                    <span class="text-xs font-medium">{{ $hasCheckedIn ? ($dailyAttendance?->check_out_time ? 'Sudah Pulang' : 'Menunggu Pulang') : 'Belum Presensi' }}</span>
+                <div class="flex items-center gap-1 px-2.5 py-1 rounded-full {{ $hasCheckedIn ? ($dailyAttendance?->check_out_time ? 'bg-emerald-100 text-emerald-800' : ($pendingSchedules->count() === 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-700')) : 'bg-slate-100 text-slate-600' }} shrink-0">
+                    <i data-lucide="{{ $hasCheckedIn ? ($dailyAttendance?->check_out_time ? 'check-circle-2' : ($pendingSchedules->count() === 0 ? 'log-out' : 'clock')) : 'clock' }}" class="w-3.5 h-3.5 {{ $hasCheckedIn ? ($dailyAttendance?->check_out_time ? 'text-emerald-700' : ($pendingSchedules->count() === 0 ? 'text-emerald-700' : 'text-amber-600')) : 'text-slate-400' }}"></i>
+                    <span class="text-xs font-medium">
+                        @if(!$hasCheckedIn)
+                            Belum Presensi
+                        @elseif($dailyAttendance?->check_out_time)
+                            Sudah Pulang
+                        @elseif($pendingSchedules->count() === 0)
+                            Siap Pulang
+                        @else
+                            Menunggu Pulang
+                        @endif
+                    </span>
                 </div>
             </div>
 
@@ -350,17 +359,17 @@
                 <!-- Masuk -->
                 <div class="bg-slate-50/80 border border-slate-100 rounded-xl p-3 flex flex-col justify-between min-h-[82px]">
                     <span class="text-xs text-slate-500 font-medium">Presensi Masuk</span>
-                    <div class="flex items-end justify-between gap-1.5 mt-1 min-h-[26px]">
-                        <div class="flex items-baseline gap-1">
-                            <span class="text-base font-bold text-slate-900 heading-font mono-font leading-none">{{ $hasCheckedIn ? substr($dailyAttendance->check_in_time ?? '', 0, 5) : '--:--' }}</span>
+                    <div class="flex items-end justify-between gap-1 mt-1 min-h-[26px]">
+                        <div class="flex items-baseline gap-0.5 shrink-0">
+                            <span class="text-base font-bold text-slate-900 heading-font mono-font leading-none whitespace-nowrap">{{ $hasCheckedIn ? substr($dailyAttendance->check_in_time ?? '', 0, 5) : '--:--' }}</span>
                             <span class="text-[10px] font-medium text-slate-400 leading-none">WIB</span>
                         </div>
                         @if($hasCheckedIn)
-                            <span class="px-2 py-0.5 rounded-md {{ ($dailyAttendance->check_in_status ?? 'HADIR') === 'TERLAMBAT' ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200' }} font-semibold text-[10px] shrink-0 leading-tight">
+                            <span class="px-1.5 py-0.5 rounded-md {{ ($dailyAttendance->check_in_status ?? 'HADIR') === 'TERLAMBAT' ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200' }} font-semibold text-[10px] shrink-0 leading-tight whitespace-nowrap">
                                 {{ ($dailyAttendance->check_in_status ?? 'HADIR') === 'TERLAMBAT' ? 'Terlambat' : 'Tepat Waktu' }}
                             </span>
                         @else
-                            <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200 font-semibold text-[10px] shrink-0 leading-tight">Menunggu</span>
+                            <span class="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200 font-semibold text-[10px] shrink-0 leading-tight whitespace-nowrap">Menunggu</span>
                         @endif
                     </div>
                 </div>
@@ -368,24 +377,30 @@
                 <!-- Pulang -->
                 <div class="bg-slate-50/80 border border-slate-100 rounded-xl p-3 flex flex-col justify-between min-h-[82px]">
                     <span class="text-xs text-slate-500 font-medium">Presensi Pulang</span>
-                    <div class="flex items-end justify-between gap-1.5 mt-1 min-h-[26px]">
+                    <div class="flex items-end justify-between gap-1 mt-1 min-h-[26px]">
                         @if($dailyAttendance?->check_out_time)
-                            <div class="flex items-baseline gap-1">
-                                <span class="text-base font-bold text-slate-900 heading-font mono-font leading-none">{{ substr($dailyAttendance->check_out_time, 0, 5) }}</span>
+                            <div class="flex items-baseline gap-0.5 shrink-0">
+                                <span class="text-base font-bold text-slate-900 heading-font mono-font leading-none whitespace-nowrap">{{ substr($dailyAttendance->check_out_time, 0, 5) }}</span>
                                 <span class="text-[10px] font-medium text-slate-400 leading-none">WIB</span>
                             </div>
-                            <span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-200 font-semibold text-[10px] shrink-0 leading-tight">Selesai</span>
+                            <span class="px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-200 font-semibold text-[10px] shrink-0 leading-tight whitespace-nowrap">Selesai</span>
                         @else
                             @php
-                                $pulangLocked = $pendingSchedules->count() > 0;
+                                $canCheckOut = $hasCheckedIn && $pendingSchedules->count() === 0;
                             @endphp
-                            <div class="flex items-baseline gap-1">
-                                <span class="text-base font-bold {{ $pulangLocked ? 'text-slate-400' : 'text-slate-900' }} heading-font mono-font leading-none">--:--</span>
-                                <span class="text-[10px] font-medium {{ $pulangLocked ? 'text-slate-400' : 'text-slate-900' }} leading-none">WIB</span>
+                            <div class="flex items-baseline gap-0.5 shrink-0">
+                                <span class="text-base font-bold {{ $canCheckOut ? 'text-slate-900' : 'text-slate-400' }} heading-font mono-font leading-none whitespace-nowrap">--:--</span>
+                                <span class="text-[10px] font-medium {{ $canCheckOut ? 'text-slate-900' : 'text-slate-400' }} leading-none">WIB</span>
                             </div>
-                            <span class="px-2 py-0.5 rounded-md {{ $pulangLocked ? 'bg-slate-100 text-slate-400 border border-slate-200' : 'bg-amber-100 text-amber-700 border border-amber-200' }} font-semibold text-[10px] shrink-0 leading-tight">
-                                {{ $pulangLocked ? 'Menunggu' : 'Siap Pulang' }}
-                            </span>
+                            @if($canCheckOut)
+                                <span class="px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700 border border-amber-200 font-semibold text-[10px] shrink-0 leading-tight whitespace-nowrap">
+                                    Siap Pulang
+                                </span>
+                            @else
+                                <span class="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-400 border border-slate-200 font-semibold text-[10px] shrink-0 leading-tight whitespace-nowrap">
+                                    Menunggu
+                                </span>
+                            @endif
                         @endif
                     </div>
                 </div>

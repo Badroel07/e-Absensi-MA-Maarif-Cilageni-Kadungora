@@ -64,10 +64,10 @@
                             $isDone = $isToday && $session && $session->isLocked();
                         @endphp
 
-                        <article class="bg-white rounded-2xl p-4 border {{ $isToday ? 'border-emerald-300 shadow-sm ring-1 ring-emerald-400/20' : 'border-slate-200/90 shadow-sm' }} hover:border-emerald-300 transition-colors">
+                        <article class="bg-white rounded-2xl p-4 border {{ $isCurrentSlot ? 'border-emerald-300 shadow-sm ring-1 ring-emerald-400/20' : 'border-slate-200/90 shadow-sm' }} hover:border-emerald-300 transition-colors">
                             <div class="flex items-start justify-between gap-2">
                                 <div class="flex items-start gap-3 min-w-0 flex-1">
-                                    <span class="inline-flex items-center justify-center px-2 py-1 rounded-lg text-xs font-bold {{ $isToday ? 'bg-emerald-700 text-white' : ($idx === 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-slate-100 text-slate-700 border border-slate-200') }} shrink-0 heading-font mono-font">
+                                    <span class="inline-flex items-center justify-center px-2 py-1 rounded-lg text-xs font-bold {{ $isCurrentSlot ? 'bg-emerald-700 text-white shadow-2xs' : 'bg-slate-100 text-slate-700 border border-slate-200' }} shrink-0 heading-font mono-font">
                                         #{{ str_pad($idx + 1, 2, '0', STR_PAD_LEFT) }}
                                     </span>
                                     <div class="min-w-0 flex-1">
