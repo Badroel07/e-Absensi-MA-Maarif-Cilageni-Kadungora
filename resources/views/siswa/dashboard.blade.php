@@ -39,7 +39,7 @@
         <div class="flex items-center gap-4">
           <!-- White Avatar Container (Contrast with emerald, matching Varian 2) -->
           <div class="relative flex-shrink-0">
-            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white text-[#047857] font-bold text-2xl sm:text-3xl flex items-center justify-center shadow-lg shadow-black/10 border-2 border-white/80 overflow-hidden">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white text-[#047857] font-bold text-2xl sm:text-3xl flex items-center justify-center shadow-lg shadow-black/10 overflow-hidden">
               @if($student->profile_photo_url)
                 <img src="{{ $student->profile_photo_url }}" loading="lazy" decoding="async" alt="{{ $student->name }}" class="w-full h-full object-cover">
               @else

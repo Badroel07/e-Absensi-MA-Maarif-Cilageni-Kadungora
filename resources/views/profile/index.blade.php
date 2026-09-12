@@ -24,7 +24,7 @@
                 <div class="flex flex-col items-center">
                     <div class="relative mb-4">
                         <!-- Squircle Avatar Container -->
-                        <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-[#065f46] to-[#044e3a] flex items-center justify-center text-white text-3xl font-extrabold shadow-md border-4 border-emerald-50/50 overflow-hidden relative">
+                        <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-[#065f46] to-[#044e3a] flex items-center justify-center text-white text-3xl font-extrabold shadow-md overflow-hidden relative">
                             <img id="preview-avatar-img"
                                  src="{{ $user->profile_photo_url ?? '' }}"
                                  alt="{{ $user->name }}"
