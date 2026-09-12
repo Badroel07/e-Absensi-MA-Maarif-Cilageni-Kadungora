@@ -60,49 +60,40 @@
         </div>
       </div>
 
-      <!-- Bottom Pill Matrix (Frosted Glass Container like Varian 2) -->
+      <!-- Bottom Pill Matrix (Location & Live Clock - Same as Guru Card) -->
       <div class="relative z-10 mt-5 pt-4 border-t border-white/10">
-        <div class="rounded-2xl p-3 sm:px-4 sm:py-3 border border-white/10 flex items-center justify-between gap-3 text-xs" 
-             style="background-color: rgba(0, 0, 0, 0.2); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
-          
-          <!-- Left Column: Status Radius / Madrasah Environment -->
-          <button type="button" onclick="initGeolocation(true)" id="geofenceBadge" title="Ketuk untuk memperbarui lokasi GPS" class="flex items-center gap-2.5 text-left focus:outline-none cursor-pointer">
-            <div class="w-8 h-8 rounded-xl flex items-center justify-center text-emerald-300 flex-shrink-0 border border-white/10" 
-                 style="background-color: rgba(255, 255, 255, 0.1);">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="gpsBadgeIcon">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        <div class="grid grid-cols-2 gap-2 bg-black/20 backdrop-blur-sm p-2.5 rounded-xl border border-white/10">
+          <!-- Lokasi -->
+          <button type="button" onclick="initGeolocation(true)" id="geofenceBadge" title="Ketuk untuk memperbarui lokasi GPS" class="flex items-center gap-2 px-1 text-left focus:outline-none cursor-pointer">
+            <div class="w-7 h-7 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-300 shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" id="gpsBadgeIcon">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
               </svg>
             </div>
-            <div>
-              <div class="text-[10px] uppercase tracking-wider text-emerald-300/80 font-semibold flex items-center gap-1.5">
-                <span>STATUS RADIUS</span>
-              </div>
-              <div class="font-bold text-white text-xs sm:text-sm">
-                <span id="geofenceBadgeText">Area Madrasah</span> <span id="geofenceBadgeDist" class="text-emerald-300 font-normal">(8m)</span>
-              </div>
+            <div class="min-w-0">
+              <span class="text-[9px] uppercase tracking-wider text-emerald-300 block font-semibold">Status Radius</span>
+              <span class="text-[11px] sm:text-xs font-semibold text-white leading-tight block">
+                <span id="geofenceBadgeText">Area Madrasah</span> <span id="geofenceBadgeDist" class="text-emerald-300 font-normal mono-font text-[10px] sm:text-[11px] whitespace-nowrap">(8m)</span>
+              </span>
             </div>
           </button>
 
-          <!-- Vertical Divider -->
-          <div class="h-8 w-[1px] bg-white/15"></div>
-
-          <!-- Right Column: Date & System Digital Time Clock -->
-          <div class="flex items-center gap-2.5 justify-end">
-            <div class="text-right">
-              <div class="text-[10px] uppercase tracking-wider text-emerald-300/80 font-semibold">{{ Str::upper($todayDay) }}, {{ Str::upper(now()->translatedFormat('d M')) }}</div>
-              <div class="font-mono font-bold text-white text-xs sm:text-sm tracking-wide">
-                <span id="liveClockDisplay" class="liveClockTicker">{{ now()->format('H:i:s') }}</span> <span class="text-[10px] font-sans text-emerald-200">WIB</span>
+          <!-- Jam Digital -->
+          <div class="flex items-center justify-end gap-2 px-1 border-l border-white/10 text-right">
+            <div class="min-w-0">
+              <span class="text-[9px] uppercase tracking-wider text-emerald-300 block font-semibold">{{ $todayDay }}, {{ now()->translatedFormat('d M') }}</span>
+              <div class="flex items-baseline justify-end gap-1">
+                <span class="font-bold text-white tracking-wider text-xs liveClockTicker" id="liveClockDisplay">{{ now()->format('H:i:s') }}</span>
+                <span class="text-[9px] text-emerald-300 font-bold">WIB</span>
               </div>
             </div>
-            <div class="w-8 h-8 rounded-xl flex items-center justify-center text-emerald-300 flex-shrink-0 border border-white/10"
-                 style="background-color: rgba(255, 255, 255, 0.1);">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            <div class="w-7 h-7 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-300 shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -687,7 +678,7 @@
             if (geofenceBadgeText) geofenceBadgeText.textContent = "Area Madrasah";
             if (geofenceBadgeDist) {
                 geofenceBadgeDist.textContent = `(${distStr})`;
-                geofenceBadgeDist.className = "text-emerald-300 font-normal mono-font text-[11px]";
+                geofenceBadgeDist.className = "text-emerald-300 font-normal mono-font text-[10px] sm:text-[11px] whitespace-nowrap";
                 geofenceBadgeDist.classList.remove('hidden');
             }
 
@@ -723,7 +714,7 @@
             if (geofenceBadgeText) geofenceBadgeText.textContent = "Di Luar Radius";
             if (geofenceBadgeDist) {
                 geofenceBadgeDist.textContent = `(${distStr})`;
-                geofenceBadgeDist.className = "text-rose-300 font-normal mono-font text-[11px]";
+                geofenceBadgeDist.className = "text-rose-300 font-normal mono-font text-[10px] sm:text-[11px] whitespace-nowrap";
                 geofenceBadgeDist.classList.remove('hidden');
             }
 

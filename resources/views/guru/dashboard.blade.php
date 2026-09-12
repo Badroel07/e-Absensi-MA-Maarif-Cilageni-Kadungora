@@ -56,8 +56,8 @@
                     </div>
                     <div class="min-w-0">
                         <span class="text-[9px] uppercase tracking-wider text-emerald-300 block font-semibold">Status Radius</span>
-                        <span class="text-xs font-semibold text-white truncate block">
-                            <span id="geofenceBadgeText">Area Madrasah</span> <span id="geofenceBadgeDist" class="text-emerald-300 font-normal mono-font text-[11px]">(8m)</span>
+                        <span class="text-[11px] sm:text-xs font-semibold text-white leading-tight block">
+                            <span id="geofenceBadgeText">Area Madrasah</span> <span id="geofenceBadgeDist" class="text-emerald-300 font-normal mono-font text-[10px] sm:text-[11px] whitespace-nowrap">(8m)</span>
                         </span>
                     </div>
                 </button>
@@ -651,7 +651,7 @@
             if (geofenceBadgeText) geofenceBadgeText.textContent = "Area Madrasah";
             if (geofenceBadgeDist) {
                 geofenceBadgeDist.textContent = `(${distStr})`;
-                geofenceBadgeDist.className = "text-emerald-300 font-normal mono-font text-[11px]";
+                geofenceBadgeDist.className = "text-emerald-300 font-normal mono-font text-[10px] sm:text-[11px] whitespace-nowrap";
                 geofenceBadgeDist.classList.remove('hidden');
             }
 
@@ -670,7 +670,7 @@
             if (geofenceBadgeText) geofenceBadgeText.textContent = "Di Luar Madrasah";
             if (geofenceBadgeDist) {
                 geofenceBadgeDist.textContent = `(${distStr})`;
-                geofenceBadgeDist.className = "text-rose-300 font-normal mono-font text-[11px]";
+                geofenceBadgeDist.className = "text-rose-300 font-normal mono-font text-[10px] sm:text-[11px] whitespace-nowrap";
                 geofenceBadgeDist.classList.remove('hidden');
             }
 
