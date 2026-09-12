@@ -16,6 +16,11 @@
 
     <link rel="manifest" href="/manifest.json">
 
+    <!-- Google Fonts: Lexend (Heading & Tabular Numbers) & DM Sans (Body & UI) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
     {{-- Critical above-the-fold: Vite injects CSS synchronously, JS with defer --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://unpkg.com/html5-qrcode" defer></script>
@@ -61,11 +66,14 @@
         };
     </script>
     <style>
+        body {
+            font-family: 'DM Sans', system-ui, sans-serif;
+        }
         .heading-font {
-            font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+            font-family: 'Lexend', 'DM Sans', system-ui, sans-serif;
         }
         .mono-font {
-            font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+            font-family: 'Lexend', 'DM Sans', system-ui, sans-serif;
             font-feature-settings: 'tnum', 'zero';
         }
         .safe-bottom {

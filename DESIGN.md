@@ -15,20 +15,19 @@ Sistem ini memadukan estetika **Madrasah Modern, Bersih, dan Terstruktur** denga
 
 ## 2. Arsitektur Tipografi (Font Stacks)
 
-Sistem menggunakan **single-font system** berbasis **`Inter`** murni di seluruh aplikasi, dengan fitur OpenType Tabular Numbers (`tnum`) untuk penyajian angka dan data tabular:
+Sistem menggunakan perpaduan **`Lexend`** dan **`DM Sans`** murni di seluruh aplikasi, dengan fitur OpenType Tabular Numbers (`tnum`) untuk penyajian angka dan data tabular:
 
 | Kategori Elemen | Family | Loaded Weights | Utility Class | Peran & Fitur Tipografi |
 |---|---|---|---|---|
-| **UI, Body & Heading** | `Inter`, system-ui, sans-serif | 400, 500, 600, 700, 800, 900 | `font-sans` (Default), `.heading-font` / `font-heading` | Teks isi, deskripsi, form input, tabel, navigasi, judul halaman, greeting nama siswa/guru, nama mata pelajaran, kartu hero, dan judul modal. Heading menggunakan `Inter` dengan weight 700–900 + `tracking-tight` untuk hierarki tegas. |
-| **Data, Angka & Jam (Tabular)** | `Inter`, system-ui, sans-serif | 400, 500, 600, 700, 800 | `.mono-font` / `font-mono` | Jam digital aktif, PIN presensi 4-digit, NISN/NIP, countdown timer, koordinat GPS, dan tag jam pelajaran. Menggunakan `font-feature-settings: 'tnum', 'zero'` agar angka berlebar tetap (*monospaced tabular numbers*) tanpa perlu font monospace terpisah. |
+| **Headings, Angka & Judul** | `Lexend`, 'DM Sans', sans-serif | 300, 400, 500, 600, 700, 800 | `.heading-font` / `font-heading` | Judul halaman, greeting nama siswa/guru, nama mata pelajaran, kartu hero, angka KPI metrik, dan judul modal. |
+| **UI, Body & Labels** | `DM Sans`, system-ui, sans-serif | 400, 500, 600, 700 | `font-sans` (Default) | Teks isi, deskripsi, form input, tabel, navigasi bar, badge status, dan catatan petunjuk. |
+| **Data, Angka & Jam (Tabular)** | `Lexend`, 'DM Sans', sans-serif | 400, 500, 600, 700, 800 | `.mono-font` / `font-mono` | Jam digital aktif, PIN presensi 4-digit, NISN/NIP, countdown timer, koordinat GPS, dan tag jam pelajaran. Menggunakan `font-feature-settings: 'tnum', 'zero'`. |
 
-> **Aturan keras**: Hanya 1 font family yang diizinkan di seluruh aplikasi — **`Inter`**. Font eksternal lain (`JetBrains Mono`, `Plus Jakarta Sans`, serif) dilarang.
-
-### Konfigurasi Google Fonts (Single Family):
+### Konfigurasi Google Fonts:
 ```html
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 ```
 Bunny Fonts (vite.config.js) juga hanya memuat family `Inter` via `laravel-vite-plugin/fonts`.
 

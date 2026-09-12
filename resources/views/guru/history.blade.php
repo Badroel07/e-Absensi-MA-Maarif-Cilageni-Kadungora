@@ -4,485 +4,317 @@
 @section('page-title', 'Riwayat Kelas Mengajar')
 
 @section('content')
-<div class="space-y-6">
+<div class="max-w-xl mx-auto space-y-5">
 
-    {{-- ── 1. HEADER HALAMAN (Unboxed, Pure Typography) ── --}}
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/70">
-        <div>
-            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 heading-font tracking-tight">
-                Riwayat Kelas Mengajar
-            </h1>
-            <p class="text-xs sm:text-sm text-slate-500 mt-1">
-                Rekaman seluruh sesi kelas yang telah dilaksanakan beserta status penyelesaiannya
-            </p>
+    <!-- BEGIN: TitleHeadingSection -->
+    <section class="space-y-1.5" data-purpose="page-title-overview">
+        <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight heading-font">Riwayat Kelas Mengajar</h2>
+        <p class="text-xs sm:text-sm text-slate-500 leading-relaxed">
+            Rekaman seluruh sesi kelas yang telah dilaksanakan beserta status penyelesaiannya
+        </p>
+        <div class="pt-1 flex items-center space-x-2">
+            <span class="text-xs font-medium text-slate-500">Total Terdata: <span class="font-semibold text-emerald-700 mono-font heading-font">{{ $totalSessions }} Sesi</span></span>
         </div>
-        <div class="flex items-center gap-3 text-xs self-start sm:self-auto">
-            <span class="text-slate-500 font-medium">Total Terdata:</span>
-            <span class="mono-font font-bold text-slate-900 text-sm">{{ $totalSessions }} Sesi</span>
-        </div>
-    </div>
+    </section>
+    <!-- END: TitleHeadingSection -->
 
-    {{-- ── 2. STATS BOARD (Human Crafted, Anti-Pill) ── --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4">
-
-        {{-- Hero: Persentase Selesai --}}
-        <div class="sm:col-span-2 lg:col-span-5 bg-gradient-to-br from-emerald-800 via-emerald-800 to-emerald-900 rounded-3xl p-5 sm:p-6 text-white shadow-sm flex flex-col justify-between relative overflow-hidden">
-            <div class="relative z-10">
-                <div class="flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2 text-emerald-200 text-xs font-semibold uppercase tracking-wider">
-                        <i data-lucide="book-open-check" class="w-4 h-4 text-emerald-300"></i>
-                        <span>Sesi Diselesaikan</span>
-                    </div>
-                    @if($persenSelesai >= 90)
-                        <span class="text-[11px] font-semibold text-emerald-200">
-                            Sangat Konsisten
-                        </span>
-                    @elseif($persenSelesai >= 70)
-                        <span class="text-[11px] font-semibold text-amber-200">
-                            Cukup Baik
-                        </span>
-                    @else
-                        <span class="text-[11px] font-semibold text-rose-200">
-                            Perlu Evaluasi
-                        </span>
-                    @endif
-                </div>
-
-                <div class="mt-4 flex items-baseline gap-2.5">
-                    <span class="text-4xl sm:text-5xl font-bold mono-font tracking-tight leading-none text-white">
-                        {{ $persenSelesai }}%
+    <!-- BEGIN: HeroMetricBanner -->
+    @php
+        $heroLabel = 'Sangat Konsisten';
+        if ($persenSelesai < 70) { $heroLabel = 'Perlu Evaluasi'; }
+        elseif ($persenSelesai < 90) { $heroLabel = 'Cukup Baik'; }
+    @endphp
+    <section class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-950 text-white p-5 shadow-lg shadow-emerald-900/10 border border-emerald-700/50" data-purpose="hero-progress-card">
+        <div class="absolute -right-8 -bottom-8 w-36 h-36 bg-emerald-500/15 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="relative z-10 space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <span class="p-1.5 bg-white/10 rounded-lg text-emerald-300 backdrop-blur-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
                     </span>
-                    <span class="text-xs font-semibold text-emerald-200/90 mono-font">
-                        ({{ $totalLocked }} Selesai)
-                    </span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-100 heading-font">SESI DISELESAIKAN</span>
                 </div>
+                <span class="text-xs font-medium text-emerald-200/90">{{ $heroLabel }}</span>
             </div>
-
-            <div class="mt-6 relative z-10">
-                <div class="w-full bg-white/20 rounded-full h-2 overflow-hidden">
-                    <div class="bg-emerald-400 h-2 rounded-full transition-all duration-500" style="width: {{ min($persenSelesai, 100) }}%"></div>
-                </div>
-                <div class="flex items-center justify-between text-[11px] text-emerald-100/90 mt-2 font-medium">
-                    <span>{{ $totalLocked }} dari {{ $totalSessions }} total sesi</span>
-                    <span class="mono-font">{{ $totalActive }} Sesi Aktif</span>
-                </div>
+            <div class="flex items-baseline space-x-2.5">
+                <span class="text-4xl font-extrabold tracking-tight text-white heading-font mono-font">{{ $persenSelesai }}%</span>
+                <span class="text-sm font-medium text-emerald-200/90">({{ $totalLocked }} Selesai)</span>
+            </div>
+            <div class="w-full bg-white/20 h-2 rounded-full overflow-hidden">
+                <div class="bg-emerald-400 h-2 rounded-full shadow-sm" style="width: {{ min($persenSelesai, 100) }}%"></div>
+            </div>
+            <div class="flex items-center justify-between text-xs text-emerald-100/90 pt-0.5 border-t border-white/10 font-medium">
+                <span>{{ $totalLocked }} dari {{ $totalSessions }} total sesi</span>
+                <span class="text-emerald-300 font-semibold mono-font">{{ $totalActive }} Sesi Aktif</span>
             </div>
         </div>
+    </section>
+    <!-- END: HeroMetricBanner -->
 
-        {{-- Secondary: Selesai, Aktif, Durasi --}}
-        <div class="sm:col-span-2 lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-4">
-
-            {{-- Selesai --}}
-            <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-emerald-300/80 transition-colors">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Selesai</span>
-                    <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600 shrink-0"></i>
-                </div>
-                <div class="mt-4">
-                    <span class="text-3xl font-bold text-emerald-600 mono-font leading-none block">
-                        {{ $totalLocked }}
-                    </span>
-                    <p class="text-[11px] text-slate-500 font-medium mt-1.5">
-                        Sesi ditutup & tersimpan
-                    </p>
+    <!-- BEGIN: QuickStatsCards -->
+    <section class="grid grid-cols-3 gap-3" data-purpose="summary-metric-cards">
+        <!-- Selesai -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200/70 shadow-sm flex flex-col justify-between hover:border-emerald-200 transition-all">
+            <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 heading-font">SELESAI</span>
+                <div class="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
                 </div>
             </div>
-
-            {{-- Aktif --}}
-            <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-amber-300/80 transition-colors">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Aktif</span>
-                    <i data-lucide="loader-2" class="w-5 h-5 text-amber-600 shrink-0"></i>
-                </div>
-                <div class="mt-4">
-                    <span class="text-3xl font-bold text-amber-600 mono-font leading-none block">
-                        {{ $totalActive }}
-                    </span>
-                    <p class="text-[11px] text-slate-500 font-medium mt-1.5">
-                        Sesi kelas belum ditutup
-                    </p>
-                </div>
-            </div>
-
-            {{-- Total Durasi --}}
-            <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-indigo-300/80 transition-colors">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Durasi</span>
-                    <i data-lucide="clock" class="w-5 h-5 text-indigo-600 shrink-0"></i>
-                </div>
-                <div class="mt-4">
-                    <span class="text-3xl font-bold text-indigo-600 mono-font leading-none block">
-                        {{ $totalDuration >= 60 ? floor($totalDuration / 60).'j' : $totalDuration.'m' }}
-                    </span>
-                    <p class="text-[11px] text-slate-500 font-medium mt-1.5">
-                        Total durasi mengajar
-                    </p>
-                </div>
+            <div class="mt-2">
+                <p class="text-2xl font-extrabold text-slate-900 heading-font mono-font">{{ $totalLocked }}</p>
+                <p class="text-[10px] leading-tight text-slate-400 mt-0.5 font-medium">Sesi ditutup &amp; tersimpan</p>
             </div>
         </div>
-    </div>
+        <!-- Aktif -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200/70 shadow-sm flex flex-col justify-between hover:border-amber-200 transition-all">
+            <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 heading-font">AKTIF</span>
+                <div class="w-6 h-6 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+                    <svg class="w-3.5 h-3.5 {{ $totalActive > 0 ? 'animate-spin' : '' }}" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="mt-2">
+                <p class="text-2xl font-extrabold text-amber-600 heading-font mono-font">{{ $totalActive }}</p>
+                <p class="text-[10px] leading-tight text-slate-400 mt-0.5 font-medium">Sesi belum ditutup</p>
+            </div>
+        </div>
+        <!-- Durasi -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200/70 shadow-sm flex flex-col justify-between hover:border-indigo-200 transition-all">
+            <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 heading-font">DURASI</span>
+                <div class="w-6 h-6 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="mt-2">
+                <p class="text-2xl font-extrabold text-indigo-600 heading-font mono-font">{{ $totalDuration >= 60 ? floor($totalDuration / 60) : $totalDuration }}<span class="text-base font-semibold">{{ $totalDuration >= 60 ? 'j' : 'm' }}</span></p>
+                <p class="text-[10px] leading-tight text-slate-400 mt-0.5 font-medium">Total durasi mengajar</p>
+            </div>
+        </div>
+    </section>
+    <!-- END: QuickStatsCards -->
 
-    {{-- ── 3. FILTER BAR (Clean Controls, Anti-Pill) ── --}}
-    <div class="bg-white rounded-3xl border border-slate-200/80 p-4 sm:p-5 shadow-xs space-y-4">
-
-        {{-- Status Tabs --}}
-        <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-medium scrollbar-none">
+    <!-- BEGIN: FilterAndSearchSection -->
+    <section class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm space-y-3.5" data-purpose="filter-and-search-box">
+        <!-- Filter Chips / Tabs -->
+        <div class="flex items-center space-x-2 overflow-x-auto no-scrollbar pb-0.5">
             @php
-                $statusTabs = [
-                    ''       => ['label' => 'Semua Sesi', 'count' => $totalSessions, 'icon' => 'list-filter'],
-                    'LOCKED' => ['label' => 'Selesai',    'count' => $totalLocked,   'icon' => 'check-circle-2'],
-                    'ACTIVE' => ['label' => 'Sesi Aktif', 'count' => $totalActive,   'icon' => 'loader-2'],
+                $filterChips = [
+                    ''       => ['label' => 'Semua Sesi',  'count' => $totalSessions, 'icon' => 'all'],
+                    'LOCKED' => ['label' => 'Selesai',     'count' => $totalLocked,   'icon' => 'done'],
+                    'ACTIVE' => ['label' => 'Sesi Aktif',  'count' => $totalActive,   'icon' => 'active'],
                 ];
             @endphp
-
-            @foreach($statusTabs as $val => $tab)
+            @foreach($filterChips as $val => $chip)
                 @php
                     $isActive = ($selectedStatus === $val) || (empty($selectedStatus) && $val === '');
-                    $tabUrl   = route('guru.history', array_merge(request()->except('page'), ['status' => $val ?: null]));
+                    $chipUrl  = route('guru.history', array_merge(request()->except('page'), ['status' => $val ?: null]));
                 @endphp
-                <a href="{{ $tabUrl }}"
-                   class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl transition-all duration-150 active:scale-95 shrink-0 select-none cursor-pointer {{ $isActive ? 'bg-slate-900 text-white shadow-2xs font-semibold' : 'bg-slate-100/80 hover:bg-slate-200/70 text-slate-600 font-medium' }}">
-                    <i data-lucide="{{ $tab['icon'] }}" class="w-3.5 h-3.5 {{ $isActive ? 'text-white' : 'text-slate-500' }}"></i>
-                    <span>{{ $tab['label'] }}</span>
-                    <span class="mono-font text-[11px] font-bold {{ $isActive ? 'text-emerald-300' : 'text-slate-500' }}">
-                        ({{ $tab['count'] }})
-                    </span>
-                </a>
+                @if($chip['icon'] === 'all')
+                    <a href="{{ $chipUrl }}" class="px-3.5 py-1.5 rounded-xl text-xs flex items-center space-x-1.5 shrink-0 shadow-sm transition-colors {{ $isActive ? 'bg-slate-900 text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold' }}">
+                        <svg class="w-3.5 h-3.5 {{ $isActive ? 'text-white' : 'text-slate-500' }}" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        <span>{{ $chip['label'] }} ({{ $chip['count'] }})</span>
+                    </a>
+                @elseif($chip['icon'] === 'done')
+                    <a href="{{ $chipUrl }}" class="px-3.5 py-1.5 rounded-xl text-xs flex items-center space-x-1 shrink-0 transition-colors {{ $isActive ? 'bg-slate-900 text-white font-bold shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold' }}">
+                        <svg class="w-3.5 h-3.5 {{ $isActive ? 'text-emerald-400' : 'text-emerald-600' }}" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        <span>{{ $chip['label'] }} ({{ $chip['count'] }})</span>
+                    </a>
+                @else
+                    <a href="{{ $chipUrl }}" class="px-3.5 py-1.5 rounded-xl text-xs flex items-center space-x-1 shrink-0 transition-colors {{ $isActive ? 'bg-slate-900 text-white font-bold shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold' }}">
+                        <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                        <span>{{ $chip['label'] }} ({{ $chip['count'] }})</span>
+                    </a>
+                @endif
             @endforeach
         </div>
 
-        {{-- Search & Date Filter --}}
-        <form method="GET" action="{{ route('guru.history') }}" data-loading-form class="grid grid-cols-1 sm:grid-cols-12 sm:items-end gap-3 pt-2 border-t border-slate-100 text-xs">
+        <!-- Search & Date Range -->
+        <form method="GET" action="{{ route('guru.history') }}" data-loading-form class="space-y-3">
             @if($selectedStatus)
                 <input type="hidden" name="status" value="{{ $selectedStatus }}">
             @endif
 
-            {{-- Search Input --}}
-            <div class="sm:col-span-5 relative">
-                <label for="search-input" class="sr-only">Cari Kelas atau Mata Pelajaran</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <i data-lucide="search" class="w-4 h-4"></i>
-                    </span>
-                    <input type="text" id="search-input" name="search" value="{{ $search }}"
-                           placeholder="Cari kelas atau mata pelajaran..."
-                           class="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-maarif-600 transition">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </div>
+                <input type="text" name="search" value="{{ $search }}" placeholder="Cari kelas atau mata pelajaran..." class="w-full pl-9 pr-3.5 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition">
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">DARI TANGGAL</label>
+                    <div class="relative w-full pl-3 pr-10 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-700 flex items-center min-h-[36px] cursor-pointer" data-date-wrap>
+                        <span data-date-label class="mono-font font-medium {{ $startDate ? 'text-slate-700' : 'text-slate-400' }}">
+                            {{ $startDate ? \Carbon\Carbon::parse($startDate)->format('d/m/Y') : 'dd/mm/yyyy' }}
+                        </span>
+                        <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </span>
+                        <input type="date" name="start_date" value="{{ $startDate }}" aria-label="Dari Tanggal" onchange="updateDateLabel(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">SAMPAI TANGGAL</label>
+                    <div class="relative w-full pl-3 pr-10 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-700 flex items-center min-h-[36px] cursor-pointer" data-date-wrap>
+                        <span data-date-label class="mono-font font-medium {{ $endDate ? 'text-slate-700' : 'text-slate-400' }}">
+                            {{ $endDate ? \Carbon\Carbon::parse($endDate)->format('d/m/Y') : 'dd/mm/yyyy' }}
+                        </span>
+                        <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </span>
+                        <input type="date" name="end_date" value="{{ $endDate }}" aria-label="Sampai Tanggal" onchange="updateDateLabel(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                    </div>
                 </div>
             </div>
 
-            {{-- Dari Tanggal (facade: native input transparent full-cover + custom calendar icon) --}}
-            <div class="sm:col-span-3 flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider pl-0.5">Dari Tanggal</label>
-                <div class="relative w-full pl-4 pr-10 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 text-xs transition focus-within:bg-white focus-within:ring-2 focus-within:ring-maarif-600 flex items-center min-h-[42px] cursor-pointer" data-date-wrap>
-                    <span data-date-label class="mono-font font-semibold {{ $startDate ? 'text-slate-800' : 'text-slate-400' }}">
-                        {{ $startDate ? \Carbon\Carbon::parse($startDate)->format('d/m/Y') : 'dd/mm/yyyy' }}
-                    </span>
-                    <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400">
-                        <i data-lucide="calendar" class="w-4 h-4"></i>
-                    </span>
-                    <input type="date" name="start_date" value="{{ $startDate }}" aria-label="Dari Tanggal"
-                           onchange="updateDateLabel(this)"
-                           class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                </div>
-            </div>
+            <button type="submit" class="w-full py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-2 active:scale-[0.99] transition-all shadow-sm shadow-slate-900/10 cursor-pointer">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span>Terapkan</span>
+            </button>
 
-            {{-- Sampai Tanggal (facade: native input transparent full-cover + custom calendar icon) --}}
-            <div class="sm:col-span-3 flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider pl-0.5">Sampai Tanggal</label>
-                <div class="relative w-full pl-4 pr-10 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 text-xs transition focus-within:bg-white focus-within:ring-2 focus-within:ring-maarif-600 flex items-center min-h-[42px] cursor-pointer" data-date-wrap>
-                    <span data-date-label class="mono-font font-semibold {{ $endDate ? 'text-slate-800' : 'text-slate-400' }}">
-                        {{ $endDate ? \Carbon\Carbon::parse($endDate)->format('d/m/Y') : 'dd/mm/yyyy' }}
-                    </span>
-                    <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400">
-                        <i data-lucide="calendar" class="w-4 h-4"></i>
-                    </span>
-                    <input type="date" name="end_date" value="{{ $endDate }}" aria-label="Sampai Tanggal"
-                           onchange="updateDateLabel(this)"
-                           class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                </div>
-            </div>
-
-            {{-- Actions --}}
-            <div class="sm:col-span-1 flex items-center gap-1.5">
-                <button type="submit"
-                        class="w-full py-2.5 px-3 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-semibold rounded-xl transition-all duration-150 active:scale-95 flex items-center justify-center gap-1 shadow-2xs cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 min-h-[42px]"
-                        title="Terapkan Filter">
-                    <i data-lucide="filter" class="w-4 h-4"></i>
-                    <span class="sm:hidden text-xs">Terapkan</span>
-                </button>
-
-                @if(!empty($search) || !empty($startDate) || !empty($endDate) || !empty($selectedStatus))
-                    <a href="{{ route('guru.history') }}"
-                       class="p-2.5 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-600 rounded-xl transition-all duration-150 active:scale-95 flex items-center justify-center shrink-0 cursor-pointer min-h-[42px] min-w-[42px]"
-                       title="Reset Seluruh Filter">
-                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                    </a>
-                @endif
-            </div>
-        </form>
-
-        {{-- Active Filter Text Indicators (Clean, Anti-Pill) --}}
-        @if(!empty($search) || !empty($startDate) || !empty($endDate) || !empty($selectedStatus))
-            <div class="flex flex-wrap items-center gap-3 pt-2 text-xs text-slate-500 font-medium border-t border-slate-100">
-                <span class="text-slate-400 font-semibold">Filter Diterapkan:</span>
-                @if(!empty($selectedStatus))
-                    <span class="text-emerald-700 font-semibold">
-                        Status: {{ $selectedStatus === 'LOCKED' ? 'Selesai' : 'Aktif' }}
-                    </span>
-                @endif
-                @if(!empty($search))
-                    <span class="text-slate-700 font-medium">
-                        Pencarian: "{{ $search }}"
-                    </span>
-                @endif
-                @if(!empty($startDate) || !empty($endDate))
-                    <span class="text-slate-700 mono-font font-medium">
-                        Rentang: {{ $startDate ?: 'Awal' }} s/d {{ $endDate ?: 'Hari Ini' }}
-                    </span>
-                @endif
-                <a href="{{ route('guru.history') }}" class="text-rose-600 hover:text-rose-700 font-semibold underline cursor-pointer ml-auto text-xs">
-                    Reset Filter
+            @if(!empty($search) || !empty($startDate) || !empty($endDate) || !empty($selectedStatus))
+                <a href="{{ route('guru.history') }}" class="w-full py-2 px-4 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 hover:bg-slate-50 transition cursor-pointer">
+                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <span>Reset Filter</span>
                 </a>
-            </div>
-        @endif
-    </div>
+            @endif
+        </form>
+    </section>
+    <!-- END: FilterAndSearchSection -->
 
-    {{-- ── 4. DAFTAR REKAM JEJAK SESI MENGAJAR ── --}}
-    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
-        <div class="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <!-- BEGIN: SessionRecordsList -->
+    <section class="space-y-3" data-purpose="teaching-sessions-timeline">
+        <div class="flex items-baseline justify-between px-1">
             <div>
-                <h3 class="font-bold text-slate-900 heading-font text-base sm:text-lg tracking-tight">
-                    Rekam Jejak Sesi Mengajar
-                </h3>
-                <p class="text-xs text-slate-500 mt-0.5">
-                    Riwayat kelas yang telah dilaksanakan beserta PIN sesi dan status penyelesaian
-                </p>
+                <h3 class="text-base font-bold text-slate-900 tracking-tight heading-font">Rekam Jejak Sesi Mengajar</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Riwayat kelas yang telah dilaksanakan beserta PIN sesi</p>
             </div>
-            <div class="self-start sm:self-auto">
-                <span class="text-xs text-slate-500 mono-font font-medium">Menampilkan {{ $sessions->count() }} dari {{ $sessions->total() }} sesi</span>
-            </div>
+            <span class="text-xs font-medium text-slate-500 shrink-0 mono-font">{{ $sessions->count() }} dari {{ $sessions->total() }} sesi</span>
         </div>
 
-        {{-- 4A. DESKTOP TABLE VIEW (Hidden on Mobile) --}}
-        <div class="hidden md:block overflow-x-auto p-4 sm:p-6">
-            <table class="w-full text-left border-separate border-spacing-y-3 text-xs">
-                <thead>
-                    <tr class="bg-slate-900 text-slate-200 font-semibold text-[11px] tracking-wider uppercase shadow-xs">
-                        <th class="py-4 px-6 rounded-l-2xl min-w-[155px] text-slate-300">Waktu & Tanggal</th>
-                        <th class="py-4 px-6 min-w-[110px] text-slate-300">Kelas</th>
-                        <th class="py-4 px-6 min-w-[220px] text-slate-300">Mata Pelajaran</th>
-                        <th class="py-4 px-6 min-w-[110px] text-slate-300">PIN Sesi</th>
-                        <th class="py-4 px-6 min-w-[100px] text-slate-300">Durasi</th>
-                        <th class="py-4 px-6 min-w-[120px] text-center text-slate-300">Status</th>
-                        <th class="py-4 px-6 rounded-r-2xl min-w-[150px] text-right text-slate-300">Tindakan</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($sessions as $ses)
-                        <tr class="bg-slate-50/70 hover:bg-slate-100/80 transition-colors shadow-2xs group">
-                            {{-- Tanggal & Waktu --}}
-                            <td class="py-4 px-6 align-middle whitespace-nowrap rounded-l-2xl border-y border-l border-slate-200/70">
-                                <div class="font-semibold text-slate-900 text-xs">
-                                    {{ $ses->created_at->translatedFormat('l') }}
-                                </div>
-                                <div class="text-[11px] text-slate-500 mono-font mt-0.5">
-                                    {{ $ses->created_at->translatedFormat('d M Y') }}
-                                </div>
-                                <div class="text-[11px] text-slate-400 mono-font">
-                                    {{ $ses->created_at->format('H:i') }} WIB
-                                </div>
-                            </td>
-
-                            {{-- Kelas (Clean Typography + Door Icon, Anti-Pill) --}}
-                            <td class="py-4 px-6 align-middle border-y border-slate-200/70">
-                                <span class="inline-flex items-center gap-1.5 font-bold text-slate-800 text-xs whitespace-nowrap">
-                                    <i data-lucide="door-closed" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
-                                    <span>Kelas {{ $ses->schedule->classroom->name ?? '-' }}</span>
-                                </span>
-                            </td>
-
-                            {{-- Mata Pelajaran --}}
-                            <td class="py-4 px-6 align-middle border-y border-slate-200/70">
-                                <div class="font-bold text-slate-900 text-sm leading-normal">
-                                    {{ $ses->schedule->subject->name ?? '-' }}
-                                </div>
-                                @if(!empty($ses->schedule->subject->code))
-                                    <div class="text-[11px] text-slate-400 mono-font mt-0.5">
-                                        Kode: {{ $ses->schedule->subject->code }}
-                                    </div>
-                                @endif
-                            </td>
-
-                            {{-- PIN Sesi --}}
-                            <td class="py-4 px-6 align-middle border-y border-slate-200/70">
-                                <span class="mono-font font-bold text-slate-900 text-sm tracking-wider">
-                                    {{ $ses->pin_code }}
-                                </span>
-                            </td>
-
-                            {{-- Durasi --}}
-                            <td class="py-4 px-6 align-middle border-y border-slate-200/70">
-                                <span class="text-xs text-slate-600 mono-font font-medium">{{ $ses->duration_minutes }} menit</span>
-                            </td>
-
-                            {{-- Status (Anti-Pill, Pure Typography) --}}
-                            <td class="py-4 px-6 align-middle text-center whitespace-nowrap border-y border-slate-200/70">
-                                @if($ses->status === 'LOCKED')
-                                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 justify-center">
-                                        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 shrink-0"></i>
-                                        <span>Selesai</span>
-                                    </span>
-                                @elseif($ses->isActive())
-                                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 justify-center">
-                                        <span class="relative flex h-2 w-2 shrink-0">
-                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                            <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                                        </span>
-                                        <span>Sesi Aktif</span>
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-700 justify-center">
-                                        <i data-lucide="alert-circle" class="w-4 h-4 text-rose-600 shrink-0"></i>
-                                        <span>Perlu Konfirmasi</span>
-                                    </span>
-                                @endif
-                            </td>
-
-                            {{-- Tindakan (Solid Button Standard) --}}
-                            <td class="py-4 px-6 align-middle text-right rounded-r-2xl border-y border-r border-slate-200/70">
-                                <a href="{{ route('guru.session.reconcile', $ses) }}"
-                                   class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-semibold transition-all duration-150 active:scale-[0.98] text-xs shadow-2xs cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 min-h-[38px]">
-                                    <span>Lihat Kehadiran</span>
-                                    <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center py-16 px-4">
-                                <div class="max-w-sm mx-auto flex flex-col items-center gap-2">
-                                    <i data-lucide="calendar-x-2" class="w-8 h-8 text-slate-300"></i>
-                                    @if(!empty($search) || !empty($startDate) || !empty($endDate) || !empty($selectedStatus))
-                                        <h4 class="text-sm font-semibold text-slate-800">Tidak Ada Sesi yang Cocok</h4>
-                                        <p class="text-xs text-slate-500">
-                                            Tidak ditemukan data yang sesuai dengan filter yang diterapkan.
-                                        </p>
-                                        <a href="{{ route('guru.history') }}"
-                                           class="mt-1 inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-semibold rounded-xl text-xs transition-all duration-150 active:scale-[0.98] shadow-xs cursor-pointer">
-                                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-                                            <span>Reset Filter</span>
-                                        </a>
-                                    @else
-                                        <h4 class="text-sm font-semibold text-slate-800">Belum Ada Riwayat Sesi</h4>
-                                        <p class="text-xs text-slate-500">
-                                            Sesi mengajar yang telah selesai akan otomatis tercatat di sini.
-                                        </p>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        {{-- 4B. MOBILE CARDS VIEW (Clean Structured, Anti-Pill, Pure Border) --}}
-        <div class="md:hidden p-4 space-y-3.5">
+        <div class="space-y-3">
             @forelse($sessions as $ses)
-                <div class="p-4 rounded-2xl border border-slate-200/80 bg-white hover:border-slate-300 shadow-xs space-y-3 transition">
-
-                    {{-- Top Row: Tanggal & Waktu + Status --}}
-                    <div class="flex items-start justify-between gap-2">
+                <article class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
                         <div>
-                            <span class="font-bold text-slate-900 text-xs">
-                                {{ $ses->created_at->translatedFormat('l, d M Y') }}
-                            </span>
-                            <span class="block text-[11px] text-slate-500 mono-font mt-0.5">
-                                {{ $ses->created_at->format('H:i') }} WIB
-                            </span>
+                            <p class="text-xs font-bold text-slate-800 heading-font mono-font">{{ $ses->created_at->translatedFormat('l, d M Y') }}</p>
+                            <p class="text-[11px] text-slate-500 font-medium mono-font">{{ $ses->created_at->format('H:i') }} WIB</p>
                         </div>
-
-                        {{-- Status Mobile (Pure Typography, Anti-Pill) --}}
                         @if($ses->status === 'LOCKED')
-                            <span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 shrink-0">
-                                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i>
+                            <span class="inline-flex items-center space-x-1 text-xs font-semibold text-emerald-600 heading-font">
+                                <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
                                 <span>Selesai</span>
                             </span>
                         @elseif($ses->isActive())
-                            <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 shrink-0">
-                                <span class="relative flex h-2 w-2 shrink-0">
+                            <span class="inline-flex items-center space-x-1 text-xs font-semibold text-amber-600 heading-font">
+                                <span class="relative flex h-2 w-2">
                                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
                                     <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
                                 </span>
                                 <span>Sesi Aktif</span>
                             </span>
                         @else
-                            <span class="inline-flex items-center gap-1 text-xs font-semibold text-rose-700 shrink-0">
-                                <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-rose-600"></i>
+                            <span class="inline-flex items-center space-x-1 text-xs font-semibold text-rose-600 heading-font">
+                                <svg class="w-3.5 h-3.5 text-rose-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
                                 <span>Perlu Konfirmasi</span>
                             </span>
                         @endif
                     </div>
-
-                    {{-- Middle Row: Mapel & Kelas --}}
-                    <div class="space-y-1">
-                        <h4 class="font-bold text-slate-900 text-sm leading-snug">
-                            {{ $ses->schedule->subject->name ?? '-' }}
-                        </h4>
-                        <div class="flex items-center gap-3 text-xs text-slate-500 flex-wrap">
-                            <span class="inline-flex items-center gap-1 font-semibold text-slate-700">
-                                <i data-lucide="door-closed" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
-                                <span>Kelas {{ $ses->schedule->classroom->name ?? '-' }}</span>
+                    <div class="mt-2.5">
+                        <h4 class="text-base font-extrabold text-slate-900 heading-font">{{ $ses->schedule->subject->name ?? '-' }}</h4>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <span class="inline-flex items-center text-xs font-medium text-slate-600">
+                                <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                                Kelas {{ $ses->schedule->classroom->name ?? '-' }}
                             </span>
-                            @if(!empty($ses->schedule->subject->code))
-                                <span class="mono-font text-[11px] text-slate-400">
+                            <span class="text-slate-300">•</span>
+                            <span class="text-xs text-slate-400 font-medium mono-font">
+                                @if(!empty($ses->schedule->subject->code))
                                     Kode: {{ $ses->schedule->subject->code }}
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-
-                    {{-- Bottom Row: PIN, Durasi & Tombol Aksi --}}
-                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-3 text-xs">
-                        <div class="space-y-0.5">
-                            <span class="text-[11px] text-slate-400 block font-medium">PIN Sesi:</span>
-                            <span class="mono-font font-bold text-slate-900 text-sm tracking-wider">
-                                {{ $ses->pin_code }}
+                                @endif
                             </span>
-                            <span class="text-[11px] text-slate-400 block mono-font">Durasi: {{ $ses->duration_minutes }}m</span>
                         </div>
-                        <a href="{{ route('guru.session.reconcile', $ses) }}"
-                           class="inline-flex items-center justify-center gap-1.5 font-semibold text-white bg-slate-900 hover:bg-slate-800 active:bg-slate-950 px-4 py-2 rounded-xl transition-all duration-150 active:scale-[0.98] shadow-2xs cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 min-h-[40px] text-xs shrink-0">
+                    </div>
+                    <div class="mt-3.5 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider heading-font">PIN SESI</p>
+                            <p class="text-sm font-extrabold text-slate-800 tracking-wider mono-font heading-font">{{ $ses->pin_code }}</p>
+                            <p class="text-[10px] text-slate-500 font-medium mono-font">Durasi: {{ $ses->duration_minutes }}m</p>
+                        </div>
+                        <a href="{{ route('guru.session.reconcile', $ses) }}" class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold inline-flex items-center space-x-1.5 shadow-sm active:scale-95 transition-all cursor-pointer">
                             <span>Lihat Kehadiran</span>
-                            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
                         </a>
                     </div>
-                </div>
+                </article>
             @empty
-                <div class="text-center py-12 px-4 space-y-2">
-                    <i data-lucide="calendar-x-2" class="w-8 h-8 text-slate-300 mx-auto"></i>
+                <div class="bg-white rounded-2xl p-8 text-center border border-slate-200/80 shadow-sm space-y-3">
+                    <svg class="w-10 h-10 text-slate-300 mx-auto" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
                     @if(!empty($search) || !empty($startDate) || !empty($endDate) || !empty($selectedStatus))
-                        <p class="text-xs font-semibold text-slate-700">Tidak ada sesi sesuai filter</p>
-                        <a href="{{ route('guru.history') }}" class="text-xs text-rose-600 font-semibold underline cursor-pointer">
-                            Reset Filter
-                        </a>
+                        <div class="space-y-2">
+                            <h4 class="text-sm font-bold text-slate-800 heading-font">Tidak Ada Sesi yang Cocok</h4>
+                            <p class="text-xs text-slate-500">Tidak ditemukan data yang sesuai dengan filter yang diterapkan.</p>
+                            <a href="{{ route('guru.history') }}" class="mt-1 inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl text-xs transition-all shadow-sm cursor-pointer">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                                <span>Reset Filter</span>
+                            </a>
+                        </div>
                     @else
-                        <p class="text-xs text-slate-500">Belum ada riwayat sesi mengajar.</p>
+                        <div class="space-y-1">
+                            <h4 class="text-sm font-bold text-slate-800 heading-font">Belum Ada Riwayat Sesi</h4>
+                            <p class="text-xs text-slate-500">Sesi mengajar yang telah selesai akan otomatis tercatat di sini.</p>
+                        </div>
                     @endif
                 </div>
             @endforelse
         </div>
 
-        {{-- Pagination --}}
         @if($sessions->hasPages())
-            <div class="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/50">
+            <div class="pt-2 flex justify-center">
                 {{ $sessions->links() }}
             </div>
         @endif
-    </div>
+    </section>
+    <!-- END: SessionRecordsList -->
 
 </div>
-@endsection
 
 @push('scripts')
 <script>
@@ -494,13 +326,13 @@
             var parts = input.value.split('-');
             label.textContent = parts[2] + '/' + parts[1] + '/' + parts[0];
             label.classList.remove('text-slate-400');
-            label.classList.add('text-slate-800');
+            label.classList.add('text-slate-700');
         } else {
             label.textContent = 'dd/mm/yyyy';
-            label.classList.remove('text-slate-800');
+            label.classList.remove('text-slate-700');
             label.classList.add('text-slate-400');
         }
     }
 </script>
 @endpush
-
+@endsection

@@ -9,7 +9,7 @@
                         <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('siswa.dashboard') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
                             <i data-lucide="layout-dashboard" class="w-5 h-5 {{ request()->routeIs('siswa.dashboard') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
                         </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 {{ request()->routeIs('siswa.dashboard') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Dashboard</span>
+                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('siswa.dashboard') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Dashboard</span>
                     </a>
 
                     <!-- 2. Jadwal -->
@@ -17,7 +17,7 @@
                         <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('siswa.schedule') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
                             <i data-lucide="calendar" class="w-5 h-5 {{ request()->routeIs('siswa.schedule') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
                         </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 {{ request()->routeIs('siswa.schedule') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Jadwal</span>
+                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('siswa.schedule') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Jadwal</span>
                     </a>
 
                     <!-- 3. Riwayat -->
@@ -25,7 +25,7 @@
                         <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('siswa.history') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
                             <i data-lucide="history" class="w-5 h-5 {{ request()->routeIs('siswa.history') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
                         </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 {{ request()->routeIs('siswa.history') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Riwayat</span>
+                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('siswa.history') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Riwayat</span>
                     </a>
 
                     <!-- 4. Profil -->
@@ -33,7 +33,7 @@
                         <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('profile') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
                             <i data-lucide="user" class="w-5 h-5 {{ request()->routeIs('profile') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
                         </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 {{ request()->routeIs('profile') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Profil</span>
+                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('profile') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Profil</span>
                     </a>
                 </div>
             @elseif(Auth::user()->role === 'guru')
@@ -43,7 +43,7 @@
                         <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('guru.dashboard') && !request()->has('jadwal') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
                             <i data-lucide="layout-dashboard" class="w-5 h-5 {{ request()->routeIs('guru.dashboard') && !request()->has('jadwal') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
                         </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 {{ request()->routeIs('guru.dashboard') && !request()->has('jadwal') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Dashboard</span>
+                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('guru.dashboard') && !request()->has('jadwal') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Dashboard</span>
                     </a>
 
                     <!-- 2. Jadwal Mengajar -->
@@ -51,7 +51,7 @@
                         <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('guru.schedule') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
                             <i data-lucide="calendar" class="w-5 h-5 {{ request()->routeIs('guru.schedule') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
                         </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 {{ request()->routeIs('guru.schedule') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Jadwal</span>
+                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('guru.schedule') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Jadwal</span>
                     </a>
                     
                     <!-- 3. Pindai QR (True Center Elevated Button) -->
@@ -59,7 +59,7 @@
                         <div class="w-12 h-12 rounded-full {{ request()->routeIs('guru.scan') ? 'bg-amber-300 text-slate-900 ring-4 ring-emerald-800 shadow-xl shadow-amber-950/40' : 'bg-white text-emerald-800 ring-4 ring-emerald-800 shadow-lg shadow-black/30' }} flex items-center justify-center group-active:scale-95 group-hover:scale-105 transition-all duration-150">
                             <i data-lucide="qr-code" class="w-5 h-5 {{ request()->routeIs('guru.scan') ? 'stroke-[2.5]' : 'stroke-[2.2]' }}"></i>
                         </div>
-                        <span class="text-[10px] font-semibold mt-1 tracking-tight {{ request()->routeIs('guru.scan') ? 'text-amber-300' : 'text-emerald-200/80 group-hover:text-white' }}">Pindai QR</span>
+                        <span class="text-[10px] font-semibold mt-1 tracking-tight heading-font {{ request()->routeIs('guru.scan') ? 'text-amber-300' : 'text-emerald-200/80 group-hover:text-white' }}">Pindai QR</span>
                     </a>
 
                     <!-- 4. Riwayat -->
@@ -67,7 +67,7 @@
                         <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('guru.history') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
                             <i data-lucide="history" class="w-5 h-5 {{ request()->routeIs('guru.history') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
                         </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 {{ request()->routeIs('guru.history') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Riwayat</span>
+                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('guru.history') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Riwayat</span>
                     </a>
                     
                     <!-- 5. Profil -->
@@ -75,7 +75,7 @@
                         <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('profile') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
                             <i data-lucide="user" class="w-5 h-5 {{ request()->routeIs('profile') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
                         </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 {{ request()->routeIs('profile') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Profil</span>
+                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('profile') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Profil</span>
                     </a>
                 </div>
             @elseif(Auth::user()->role === 'admin')
@@ -85,7 +85,7 @@
                         <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.dashboard') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
                             <i data-lucide="layout-dashboard" class="w-5 h-5 {{ request()->routeIs('admin.dashboard') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
                         </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 {{ request()->routeIs('admin.dashboard') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Dashboard</span>
+                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('admin.dashboard') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Dashboard</span>
                     </a>
 
                     <!-- 2. Siswa -->
@@ -93,7 +93,7 @@
                         <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.siswa.*') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
                             <i data-lucide="users" class="w-5 h-5 {{ request()->routeIs('admin.siswa.*') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
                         </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 {{ request()->routeIs('admin.siswa.*') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Siswa</span>
+                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('admin.siswa.*') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Siswa</span>
                     </a>
 
                     <!-- 3. Guru -->
@@ -101,7 +101,7 @@
                         <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.guru.*') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
                             <i data-lucide="graduation-cap" class="w-5 h-5 {{ request()->routeIs('admin.guru.*') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
                         </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 {{ request()->routeIs('admin.guru.*') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Guru</span>
+                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('admin.guru.*') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Guru</span>
                     </a>
 
                     <!-- 4. Profil -->
@@ -109,7 +109,7 @@
                         <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('profile') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
                             <i data-lucide="user" class="w-5 h-5 {{ request()->routeIs('profile') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
                         </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 {{ request()->routeIs('profile') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Profil</span>
+                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('profile') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Profil</span>
                     </a>
                 </div>
             @endif

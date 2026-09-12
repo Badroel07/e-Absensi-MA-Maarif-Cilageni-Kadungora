@@ -1,4 +1,4 @@
-@php
+﻿@php
     $isSimulated = \App\Services\TimeSimulatorService::isSimulated();
     $currentAppTime = \Carbon\Carbon::now();
     $activeSchool = \App\Models\SchoolLocation::getActiveLocation();
@@ -20,28 +20,31 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             font-feature-settings: 'tnum', 'zero';
         }
-        /* Floating Trigger Pill */
+        /* Floating Trigger Pill (Clean & Non-overlapping with Bottom Nav) */
         #dev-pill-trigger {
             position: fixed;
-            bottom: 5.5rem; /* above mobile nav */
-            right: 1rem;
+            top: 0.75rem;
+            right: 0.75rem;
             z-index: 9999;
             background: #09090b !important;
             border: 1px solid #27272a;
             color: #e4e4e7;
-            padding: 7px 13px;
+            padding: 5px 10px;
             border-radius: 9999px;
             box-shadow: 0 10px 25px -5px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             cursor: pointer;
             transition: all 0.15s ease;
         }
         @media (min-width: 768px) {
             #dev-pill-trigger {
+                top: auto;
                 bottom: 1.25rem;
                 right: 1.25rem;
+                padding: 7px 13px;
+                gap: 8px;
             }
         }
         #dev-pill-trigger:hover {
