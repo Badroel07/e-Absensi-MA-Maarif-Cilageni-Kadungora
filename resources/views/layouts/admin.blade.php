@@ -37,6 +37,9 @@
         .custom-sidebar-scroll {
             scrollbar-width: thin;
             scrollbar-color: #cbd5e1 transparent;
+            overscroll-behavior: contain;
+            overscroll-behavior-y: contain;
+            -ms-scroll-chaining: none;
         }
         .custom-sidebar-scroll::-webkit-scrollbar {
             width: 5px;
@@ -108,7 +111,7 @@
         @include('partials.sidebar')
 
         <!-- Right Content Area Wrapper -->
-        <div class="flex-1 flex flex-col min-w-0 min-h-screen bg-slate-50">
+        <div class="flex-1 flex flex-col min-w-0 min-h-screen bg-slate-50 md:pl-64 lg:pl-72">
 
             <!-- 1. DESKTOP TOP HEADER BAR (Synchronized h-[72px] with Sidebar Brand) -->
             <header class="hidden md:flex sticky top-0 z-20 h-[72px] px-6 sm:px-8 bg-emerald-800 border-b border-emerald-900/20 items-center justify-between text-white shrink-0" style="height: 72px; min-height: 72px;">

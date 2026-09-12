@@ -1,4 +1,4 @@
-<aside id="main-sidebar" class="hidden md:flex w-64 lg:w-72 bg-white text-slate-800 flex-col shrink-0 sticky top-0 h-screen z-40 select-none">
+<aside id="main-sidebar" class="hidden md:flex w-64 lg:w-72 bg-white text-slate-800 flex-col shrink-0 fixed inset-y-0 left-0 z-40 select-none overscroll-contain">
     <!-- Top Brand Section (Overlapping above topbar header) -->
     <div class="h-[72px] px-5 bg-emerald-800 border-b border-r border-emerald-900/20 flex items-center shrink-0" style="height: 72px; min-height: 72px;">
         <a href="{{ Auth::check() ? (Auth::user()->role === 'admin' ? route('admin.dashboard') : (Auth::user()->role === 'guru' ? route('guru.dashboard') : route('siswa.dashboard'))) : url('/') }}" class="flex items-center space-x-3.5 group min-w-0 w-full">
@@ -15,9 +15,9 @@
     </div>
 
     <!-- Sidebar Lower Body -->
-    <div class="flex-1 flex flex-col min-h-0 bg-white border-r border-slate-200">
+    <div class="flex-1 flex flex-col min-h-0 bg-white border-r border-slate-200 overflow-hidden overscroll-contain">
         <!-- Navigation Links by Role -->
-        <nav id="sidebar-nav" class="flex-1 px-4 py-5 space-y-5 overflow-y-auto custom-sidebar-scroll text-xs">
+        <nav id="sidebar-nav" class="flex-1 px-4 py-5 space-y-5 overflow-y-auto overscroll-contain custom-sidebar-scroll text-xs">
         @auth
             @if(Auth::user()->role === 'admin')
                 <!-- 1. ADMIN NAVIGATION -->

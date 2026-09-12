@@ -26,43 +26,46 @@
 <div class="space-y-6 font-sans-card">
 
     <!-- 1. PROFILE SECTION (Card Design) -->
-    <section class="bg-white rounded-2xl border border-slate-200/70 p-4 shadow-sm" data-purpose="user-card">
-        <div class="flex items-start gap-3.5">
-            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center justify-center font-bold text-lg heading-font shrink-0 overflow-hidden">
-                @if($student->profile_photo_url)
-                    <img src="{{ $student->profile_photo_url }}" loading="lazy" decoding="async" alt="{{ $student->name }}" class="w-full h-full object-cover">
-                @else
-                    <span class="select-none">{{ substr($student->name, 0, 1) }}</span>
-                @endif
-            </div>
-            <div class="min-w-0 flex-1">
-                <h2 class="text-base font-bold text-slate-900 tracking-tight heading-font truncate">{{ $student->name }}</h2>
-                <div class="flex items-center gap-2 mt-1 text-xs text-slate-500 flex-wrap">
-                    <span class="text-slate-600 font-medium">Kelas {{ $student->classroom->name ?? '-' }}</span>
-                    <span class="text-slate-300">•</span>
-                    <span class="text-slate-500 mono-font font-medium">T.A. {{ $student->classroom->academic_year ?? '-' }}</span>
-                    <span class="text-slate-300">•</span>
-                    <button type="button" onclick="initGeolocation(true)" id="geofenceBadge" title="Ketuk untuk memperbarui lokasi GPS" class="text-emerald-700 font-medium flex items-center gap-1 hover:text-emerald-800 transition-colors cursor-pointer focus:outline-none">
-                        <i data-lucide="map-pin" class="w-3.5 h-3.5 shrink-0" id="gpsBadgeIcon"></i>
-                        <span id="geofenceBadgeText">Mendeteksi Lokasi...</span>
-                        <span id="geofenceBadgeDist" class="hidden text-[11px] mono-font opacity-85"></span>
-                        <span class="hidden">
-                            <span id="geofenceBadgeDot"></span>
-                            <span id="geofenceBadgePing"></span>
-                        </span>
-                    </button>
+    <section class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#064e3b] via-[#065f46] to-[#022c22] text-white p-4 shadow-sm border border-emerald-600/30" data-purpose="user-card">
+        <div class="absolute -right-8 -bottom-8 w-44 h-44 bg-emerald-400/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="relative z-10">
+            <div class="flex items-start gap-3.5">
+                <div class="w-12 h-12 rounded-xl bg-white/10 text-white border border-white/20 flex items-center justify-center font-bold text-lg heading-font shrink-0 overflow-hidden shadow-xs">
+                    @if($student->profile_photo_url)
+                        <img src="{{ $student->profile_photo_url }}" loading="lazy" decoding="async" alt="{{ $student->name }}" class="w-full h-full object-cover">
+                    @else
+                        <span class="select-none">{{ substr($student->name, 0, 1) }}</span>
+                    @endif
+                </div>
+                <div class="min-w-0 flex-1">
+                    <h2 class="text-base font-bold text-white tracking-tight heading-font truncate">{{ $student->name }}</h2>
+                    <div class="flex items-center gap-2 mt-1 text-xs text-emerald-200/90 flex-wrap">
+                        <span class="text-emerald-100 font-medium">Kelas {{ $student->classroom->name ?? '-' }}</span>
+                        <span class="text-emerald-400/60">•</span>
+                        <span class="text-emerald-200/80 mono-font font-medium">T.A. {{ $student->classroom->academic_year ?? '-' }}</span>
+                        <span class="text-emerald-400/60">•</span>
+                        <button type="button" onclick="initGeolocation(true)" id="geofenceBadge" title="Ketuk untuk memperbarui lokasi GPS" class="text-emerald-300 font-medium flex items-center gap-1 hover:text-white transition-colors cursor-pointer focus:outline-none">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5 shrink-0" id="gpsBadgeIcon"></i>
+                            <span id="geofenceBadgeText">Mendeteksi Lokasi...</span>
+                            <span id="geofenceBadgeDist" class="hidden text-[11px] mono-font opacity-85"></span>
+                            <span class="hidden">
+                                <span id="geofenceBadgeDot"></span>
+                                <span id="geofenceBadgePing"></span>
+                            </span>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="mt-3.5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <div class="flex items-center gap-1.5">
-                <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
-                <span class="font-medium text-slate-600">{{ $todayDay }}, {{ now()->translatedFormat('d M Y') }}</span>
-            </div>
-            <div class="flex items-center gap-1 text-slate-900">
-                <span id="liveClockDisplay" class="liveClockTicker font-bold heading-font mono-font text-sm">{{ now()->format('H:i:s') }}</span>
-                <span class="text-[10px] text-slate-400 font-medium">WIB</span>
+            <div class="mt-3.5 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-emerald-100/90 font-medium">
+                <div class="flex items-center gap-1.5">
+                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-emerald-300/80"></i>
+                    <span>{{ $todayDay }}, {{ now()->translatedFormat('d M Y') }}</span>
+                </div>
+                <div class="flex items-center gap-1 text-white">
+                    <span id="liveClockDisplay" class="liveClockTicker font-bold heading-font mono-font text-sm text-white">{{ now()->format('H:i:s') }}</span>
+                    <span class="text-[10px] text-emerald-300/90 font-medium">WIB</span>
+                </div>
             </div>
         </div>
     </section>
@@ -428,9 +431,8 @@
             const h = String(now.getHours()).padStart(2, '0');
             const m = String(now.getMinutes()).padStart(2, '0');
             const s = String(now.getSeconds()).padStart(2, '0');
-            const html = `${h}:${m}:${s} <span class="text-xs font-semibold text-slate-500">WIB</span>`;
             document.querySelectorAll('.liveClockTicker').forEach(el => {
-                el.innerHTML = html;
+                el.textContent = `${h}:${m}:${s}`;
             });
         };
         update();
@@ -484,7 +486,7 @@
             if (gpsSearchingNotice) gpsSearchingNotice.classList.add('hidden');
             if (sessionCard) sessionCard.classList.add('hidden');
             if (geofenceBadge) {
-                geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-rose-600 hover:text-rose-700 transition-colors cursor-pointer focus:outline-none";
+                geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-rose-300 hover:text-rose-200 transition-colors cursor-pointer focus:outline-none";
             }
             if (geofenceBadgePing) geofenceBadgePing.classList.add('hidden');
             if (geofenceBadgeDot) {
@@ -671,11 +673,11 @@
         if (data.is_within_geofence) {
             isWithinGeofence = true;
             if (geofenceBadge) {
-                geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-emerald-700 hover:text-emerald-800 transition-colors cursor-pointer focus:outline-none";
+                geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-emerald-300 hover:text-white transition-colors cursor-pointer focus:outline-none";
             }
             if (geofenceBadgePing) geofenceBadgePing.classList.add('hidden');
             if (geofenceBadgeDot) {
-                geofenceBadgeDot.className = "relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-xs shadow-emerald-500/50";
+                geofenceBadgeDot.className = "relative inline-flex rounded-full h-2 w-2 bg-emerald-400 shadow-xs shadow-emerald-400/50";
             }
             if (geofenceBadgeText) geofenceBadgeText.textContent = "Di Area Madrasah";
             if (geofenceBadgeDist) {
@@ -709,11 +711,11 @@
         } else {
             isWithinGeofence = false;
             if (geofenceBadge) {
-                geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-rose-600 hover:text-rose-700 transition-colors cursor-pointer focus:outline-none";
+                geofenceBadge.className = "group inline-flex items-center gap-2 text-xs font-semibold text-rose-300 hover:text-rose-200 transition-colors cursor-pointer focus:outline-none";
             }
             if (geofenceBadgePing) geofenceBadgePing.classList.add('hidden');
             if (geofenceBadgeDot) {
-                geofenceBadgeDot.className = "relative inline-flex rounded-full h-2 w-2 bg-rose-500 shadow-xs shadow-rose-500/50";
+                geofenceBadgeDot.className = "relative inline-flex rounded-full h-2 w-2 bg-rose-400 shadow-xs shadow-rose-400/50";
             }
             if (geofenceBadgeText) geofenceBadgeText.textContent = "Di Luar Radius";
             if (geofenceBadgeDist) {

@@ -87,6 +87,26 @@
             min-height: 48px;
             min-width: 48px;
         }
+        .custom-sidebar-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+            overscroll-behavior: contain;
+            overscroll-behavior-y: contain;
+            -ms-scroll-chaining: none;
+        }
+        .custom-sidebar-scroll::-webkit-scrollbar {
+            width: 5px;
+        }
+        .custom-sidebar-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-sidebar-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        .custom-sidebar-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
     </style>
 
     <div id="page-styles-container" class="contents">
@@ -102,7 +122,7 @@
         @include('partials.sidebar')
 
         <!-- Right Content Area Wrapper -->
-        <div class="flex-1 flex flex-col min-w-0 min-h-screen bg-slate-50">
+        <div class="flex-1 flex flex-col min-w-0 min-h-screen bg-slate-50 md:pl-64 lg:pl-72">
 
             <!-- 1. DESKTOP TOP HEADER BAR (Synchronized h-[72px] with Sidebar Brand & Crisp Elevated Bottom Shadow) -->
             <header class="hidden md:flex sticky top-0 z-20 h-[72px] px-6 sm:px-8 bg-emerald-800 border-b border-emerald-900/20 items-center justify-between text-white shrink-0" style="height: 72px; min-height: 72px;">
