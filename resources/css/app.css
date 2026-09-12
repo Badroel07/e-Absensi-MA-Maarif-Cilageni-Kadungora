@@ -228,7 +228,13 @@
         animation: btn-spin 0.7s linear infinite;
         color: white;
     }
-    @keyframes btn-spin {
-        to { transform: rotate(360deg); }
+    /* ─── SCROLLBAR UTILITIES ────────────────────────────────────────── */
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
     }
 }
+

@@ -29,15 +29,8 @@
                 @endif
             </div>
             <div class="min-w-0 flex-1">
-                <div>
-                    <p class="text-[11px] font-medium text-slate-400 tracking-wide mono-font">NIP {{ $teacher->identity_number }}</p>
-                </div>
-                <h2 class="text-base font-bold text-slate-900 tracking-tight heading-font truncate mt-0.5">{{ $teacher->name }}</h2>
+                <h2 class="text-base font-bold text-slate-900 tracking-tight heading-font truncate">{{ $teacher->name }}</h2>
                 <div class="flex items-center gap-2 mt-1 text-xs text-slate-500">
-                    @if($schedules->first())
-                        <span class="text-slate-600 font-medium">Kelas {{ $schedules->first()->classroom->name }}</span>
-                        <span class="text-slate-300">•</span>
-                    @endif
                     <button type="button" onclick="initGeolocation(true)" id="geofenceBadge" title="Ketuk untuk memperbarui lokasi GPS" class="text-emerald-700 font-medium flex items-center gap-1 hover:text-emerald-800 transition-colors cursor-pointer focus:outline-none">
                         <i data-lucide="map-pin" class="w-3.5 h-3.5 shrink-0"></i>
                         <span id="geofenceBadgeText">Mendeteksi Lokasi...</span>
@@ -129,50 +122,50 @@
         </div>
         <div class="grid grid-cols-2 gap-3">
             <!-- Total Jadwal -->
-            <div class="bg-white rounded-2xl border border-slate-200/70 p-3.5 shadow-sm flex flex-col justify-between h-24">
-                <div class="flex items-center justify-between text-slate-400">
-                    <span class="text-xs font-medium text-slate-500">Total Jadwal</span>
-                    <i data-lucide="book-open" class="w-4 h-4 text-slate-400"></i>
+            <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 shadow-sm flex flex-col justify-between h-24 hover:border-slate-300 transition-all">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-slate-700">Jadwal Hari Ini</span>
+                    <i data-lucide="book-open" class="w-4 h-4 text-slate-500"></i>
                 </div>
                 <div class="flex items-baseline gap-1.5">
                     <span class="text-2xl font-bold text-slate-900 tracking-tight heading-font mono-font">{{ $schedules->count() }}</span>
-                    <span class="text-xs text-slate-500">Kelas</span>
+                    <span class="text-xs text-slate-600 font-medium">Kelas</span>
                 </div>
             </div>
 
             <!-- Sesi Aktif -->
-            <div class="bg-white rounded-2xl border border-slate-200/70 p-3.5 shadow-sm flex flex-col justify-between h-24">
-                <div class="flex items-center justify-between text-slate-400">
-                    <span class="text-xs font-medium text-slate-500">Sesi Aktif</span>
-                    <i data-lucide="radio" class="w-4 h-4 text-slate-400"></i>
+            <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 shadow-sm flex flex-col justify-between h-24 hover:border-amber-200 transition-all">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-slate-700">Sesi Aktif</span>
+                    <i data-lucide="radio" class="w-4 h-4 text-amber-600"></i>
                 </div>
                 <div class="flex items-baseline gap-1.5">
-                    <span class="text-2xl font-bold text-slate-900 tracking-tight heading-font mono-font">{{ $activeSessionsCount }}</span>
-                    <span class="text-xs text-slate-500">Berlangsung</span>
+                    <span class="text-2xl font-bold text-amber-700 tracking-tight heading-font mono-font">{{ $activeSessionsCount }}</span>
+                    <span class="text-xs text-amber-700 font-semibold">Berlangsung</span>
                 </div>
             </div>
 
             <!-- Tuntas -->
-            <div class="bg-white rounded-2xl border border-slate-200/70 p-3.5 shadow-sm flex flex-col justify-between h-24">
-                <div class="flex items-center justify-between text-slate-400">
-                    <span class="text-xs font-medium text-slate-500">Tuntas</span>
-                    <i data-lucide="check" class="w-4 h-4 text-slate-400"></i>
+            <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 shadow-sm flex flex-col justify-between h-24 hover:border-emerald-200 transition-all">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-slate-700">Tuntas</span>
+                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
                 </div>
                 <div class="flex items-baseline gap-1.5">
                     <span class="text-2xl font-bold text-emerald-700 tracking-tight heading-font mono-font">{{ $lockedSessionsCount }}</span>
-                    <span class="text-xs text-emerald-700 font-medium">Selesai</span>
+                    <span class="text-xs text-emerald-700 font-semibold">Selesai</span>
                 </div>
             </div>
 
             <!-- Sisa Jadwal -->
-            <div class="bg-white rounded-2xl border border-slate-200/70 p-3.5 shadow-sm flex flex-col justify-between h-24">
-                <div class="flex items-center justify-between text-slate-400">
-                    <span class="text-xs font-medium text-slate-500">Sisa Jadwal</span>
-                    <i data-lucide="clock" class="w-4 h-4 text-slate-400"></i>
+            <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 shadow-sm flex flex-col justify-between h-24 hover:border-slate-300 transition-all">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-slate-700">Sisa Jadwal</span>
+                    <i data-lucide="clock" class="w-4 h-4 text-slate-500"></i>
                 </div>
                 <div class="flex items-baseline gap-1.5">
                     <span class="text-2xl font-bold text-slate-900 tracking-tight heading-font mono-font">{{ $pendingSchedules->count() }}</span>
-                    <span class="text-xs text-slate-500">{{ $pendingSchedules->count() > 0 ? 'Menunggu' : 'Tuntas' }}</span>
+                    <span class="text-xs text-slate-600 font-medium">{{ $pendingSchedules->count() > 0 ? 'Menunggu' : 'Tuntas' }}</span>
                 </div>
             </div>
         </div>

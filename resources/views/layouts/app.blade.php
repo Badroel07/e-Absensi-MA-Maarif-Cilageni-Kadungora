@@ -52,6 +52,10 @@
     @if($fontsFile)
         <link rel="stylesheet" href="{{ asset('build/' . $fontsFile) }}">
     @endif
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
     <noscript>
         <style>
             [x-cloak] { display: block !important; }

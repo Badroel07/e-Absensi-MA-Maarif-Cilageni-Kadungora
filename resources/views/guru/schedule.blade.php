@@ -19,20 +19,26 @@
         $todayName = $indonesianDays[now()->format('l')] ?? 'SENIN';
     @endphp
 
-    <!-- Section: Page Heading & Teacher Brief -->
-    <section class="space-y-1.5" data-purpose="heading-section">
-        <h2 class="text-2xl font-bold tracking-tight text-slate-900 heading-font">Jadwal Mengajar</h2>
-        <p class="text-[13px] leading-relaxed text-slate-600">
-            Jadwal kegiatan belajar mengajar mingguan untuk <span class="font-semibold text-slate-800">{{ $teacher->name }}</span>
+    <!-- BEGIN: TitleHeadingSection -->
+    <section class="space-y-1.5" data-purpose="page-title-overview">
+        <div class="flex items-center justify-between">
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight heading-font">Jadwal Mengajar</h2>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-500 leading-relaxed">
+            Jadwal kegiatan belajar mengajar mingguan untuk <span class="font-semibold text-slate-700">{{ $teacher->name }}</span>
         </p>
+        <div class="pt-0.5 flex items-center space-x-2">
+            <span class="text-xs font-medium text-slate-500">Total Terdata: <span class="font-bold text-emerald-700 mono-font heading-font">{{ $schedules->flatten()->count() }} Sesi Perminggu</span></span>
+        </div>
     </section>
+    <!-- END: TitleHeadingSection -->
 
     <!-- Section: Day Quick Filters / Chips -->
-    <section class="overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0" data-purpose="quick-day-selector">
-        <div class="flex items-center gap-2 w-max pb-1">
-            <a class="px-3.5 py-1.5 rounded-full bg-emerald-700 text-white text-xs font-semibold shadow-sm transition hover:bg-emerald-800" href="#semua">Semua</a>
+    <section class="overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 py-1" data-purpose="quick-day-selector">
+        <div class="flex items-center space-x-2 w-max pb-1">
+            <a class="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold shadow-sm transition hover:bg-slate-800 shrink-0" href="#semua">Semua</a>
             @foreach($schedules as $day => $items)
-                <a class="px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-slate-700 text-xs font-medium hover:border-emerald-500 hover:text-emerald-700 transition" href="#{{ strtolower($day) }}">
+                <a class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-semibold hover:bg-slate-200 transition shrink-0" href="#{{ strtolower($day) }}">
                     {{ ucfirst(strtolower($day)) }}
                 </a>
             @endforeach

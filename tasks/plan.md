@@ -1,55 +1,54 @@
-# Implementation Plan: Revamp UI Mobile Dashboard Guru
+# Implementation Plan: Penyeragaman UI Halaman Siswa dengan UI Halaman Guru
 
 ## Overview
-Revamp antarmuka Dashboard Guru (`resources/views/guru/dashboard.blade.php` dan komponen terkait) agar mobile-first, bersih dari redundansi visual, menghapus konflik navigasi/trigger, serta merapikan hierarki tipografi dan ruang sesuai hasil kritik UX.
+Harmonisasi antarmuka portal siswa (`resources/views/siswa/dashboard.blade.php`, `resources/views/siswa/schedule.blade.php`, dan `resources/views/siswa/history.blade.php`) agar mengadopsi standar visual, ergonomi mobile-first, dan hierarki informasi yang sudah diterapkan pada portal guru (`resources/views/guru/*`) serta panduan `DESIGN.md`.
 
-## Architecture & Design Decisions
-1. **Unifikasi Jadwal & Riwayat Kelas (Single Source of Truth Card Flow)**
-   - Gabungkan blok *Jadwal Mengajar Hari Ini* dan *Riwayat Kelas Hari Ini* menjadi satu timeline kartu kelas terpadu.
-   - Setiap kartu merepresentasikan 1 sesi ajar dengan status dinamis: *Belum Dibuka*, *Sesi Aktif (PIN)*, *Perlu Konfirmasi Rekap*, atau *Tuntas (Rekap Disimpan)*.
-2. **Kompak Metrik Bar (Horizontal Micro-Pills / Inline Badges)**
-   - Ganti grid kartu stat 2x2 / 4-card yang memakan ruang layar vertikal dengan ringkasan horizontal ringkas (inline pill metrics / compact status bar).
-3. **Pembersihan Header & GPS Status Integration**
-   - Rampingkan header profil guru: nama, NIP, status GPS live menyatu rapi tanpa tumpukan teks rapat.
-   - Singkirkan teks narasi bertele-tele di warning/status gating; gunakan microcopy aksi langsung.
-4. **Pemberesan Floating Pill & Eliminasi Duplikasi CTA Scan**
-   - Pindahkan info dev simulator / live status agar tidak melayang menabrak tab bar bawah (`bottom-nav`).
-   - Jadikan tombol utama bottom-nav sebagai pusat akses scan QR madrasah, atau sesuaikan tombol pada status harian agar kontekstual tanpa bersaing visual dengan bottom floating button.
-5. **Standardisasi Ikonografi & Komponen UI**
-   - Hapus karakter checklist unicode (`☐`, `☑`) dan ganti dengan ikon Lucide (`check-circle-2`, `clock`, `alert-circle`, `play-circle`) dan badge status bersistem warna konsisten.
+## Architecture Decisions
+1. **Tipografi & Token Font**: Gunakan `DM Sans` + `Lexend`, `.heading-font`, `.font-sans-card`, dan `.mono-font`.
+2. **Kartu Profil & Status GPS Kompak**: Mengganti unboxed hero lebar dengan kartu profil 12x12 avatar, tombol GPS inline, dan tanggal/jam ticker WIB.
+3. **Metrik 2x2 Kompak**: Mengubah 4-kolom lebar menjadi 2x2 micro-card `h-24` dengan bare icon.
+4. **Unifikasi Jadwal & Riwayat di Dashboard**: Menyatukan jadwal dan kehadiran hari ini menjadi single timeline card flow ("Jadwal & Presensi Kelas Hari Ini").
+5. **Quick Day Selector pada Jadwal Mingguan**: Menambahkan bilah chip hari horizontal (`Semua`, `Senin`, `Selasa`, dst.).
+6. **Kartu Riwayat Presensi Terpadu**: Mengganti tabel desktop vs mobile card dengan kartu kronologis terpadu, hero progress banner emerald gradien, dan quick stats 3 kolom.
 
 ## Task List
 
-### Phase 1: Information Architecture & Structural Cleanup
-- [ ] Task 1: Desain ulang Header & Compact Status Bar Guru
-- [ ] Task 2: Ganti Stat Card 2x2 dengan Micro-Metric Bar Horizontal
+### Phase 1: Dashboard Siswa (`siswa/dashboard.blade.php`)
+- [ ] Task 1: Harmonisasi Profil, GPS, Alert & Accordion Panduan Siswa
+- [ ] Task 2: Re-layout Metrik 2x2 & Desain Ulang Modal/Card PIN Presensi
+- [ ] Task 3: Unifikasi Jadwal & Riwayat Hari Ini Menjadi Single Class Timeline
 
-### Checkpoint 1: Header & Metric Section
-- [ ] Header tampak ramping di mobile (<390px) & desktop
-- [ ] GPS badge terintegrasi alami tanpa tabrakan layout
+### Checkpoint 1: Dashboard Siswa Selesai
+- [ ] Profil, GPS badge, dan jam WIB kompak dan selaras dengan Guru
+- [ ] Ringkasan 2x2 rapi dan hemat ruang layar
+- [ ] Timeline kelas satu pintu berjalan
+- [ ] Input PIN dan verifikasi kehadiran berfungsi normal
 
-### Phase 2: Card Flow Unification & Micro-Interactions
-- [ ] Task 3: Gabungkan Kartu Jadwal dan Riwayat Sesi Kelas
-- [ ] Task 4: Perbaiki Ikonografi & Aksi State (Hilangkan unicode checklist, integrasikan countdown & direct action)
+### Phase 2: Jadwal Mingguan Siswa (`siswa/schedule.blade.php`)
+- [ ] Task 4: Tambahkan Quick Day Selector Chips & Harmonisasi Kartu Jadwal
 
-### Checkpoint 2: Class Session Timeline
-- [ ] Tidak ada duplikasi baris kelas antara jadwal dan riwayat
-- [ ] Transisi status kelas (buka presensi -> sesi live -> rekap -> tuntas) bekerja mulus
+### Phase 3: Riwayat Presensi Siswa (`siswa/history.blade.php`)
+- [ ] Task 5: Redesain Hero Banner, Quick Stats 3 Kolom & Filter Bar
+- [ ] Task 6: Unifikasi List Rekam Jejak Menjadi Kartu Sesi Responsif
 
-### Phase 3: Conflict Resolution (Floating Elements & CTA Scan)
-- [ ] Task 5: Relokasi/Repositioning Floating Pill Dev Simulator di Mobile Viewport
-- [ ] Task 6: Harmonisasi CTA Presensi Masuk/Pulang dengan Bottom Navigation Bar
+### Checkpoint 2: Jadwal & Riwayat Siswa Selesai
+- [ ] Bilah chip filter hari pada Jadwal berfungsi mulus
+- [ ] Kartu riwayat presensi memiliki tampilan seragam antara mobile & desktop
+- [ ] Filter status, pencarian, dan rentang tanggal riwayat berfungsi akurat
 
-### Checkpoint 3: Final Mobile Usability & Polish
-- [ ] Tidak ada elemen mengambang yang menutupi navigasi bawah
-- [ ] Sintaks Blade valid dan lulus verifikasi `pest` / `pint`
+### Phase 4: Verifikasi Kualitas, Formatting & Regresi
+- [ ] Task 7: Linting, Formatting Pint & Verifikasi Komprehensif
+
+### Checkpoint 3: Verifikasi Final
+- [ ] `vendor/bin/pint --format agent` bersih
+- [ ] 100% Pest test suite lulus hijau
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |
-|------|--------|------------|
-| Script geofence realtime / timer clock rusak saat restrukturisasi DOM | High | Pertahankan ID elemen DOM kunci (`geofenceBadge`, `liveClockTicker`, form open session) atau sesuaikan handler JS dengan presisi. |
-| Tombol open session terganggu saat GPS gating | High | Pastikan class `.sessionSubmitBtn` dan interaksi `disabled` tetap sinkron dengan script lokasi. |
-| Tampilan desktop regresi saat mobile dioptimalkan | Medium | Gunakan teknik Tailwind responsive standard (`flex-col md:flex-row`, `grid-cols-1 md:grid-cols-2`). |
+|---|---|---|
+| Hilangnya DOM ID kunci yang dipakai script JS siswa | High | Pertahankan seluruh ID dan class fungsional (`#geofenceBadge`, `#sessionCard`, `#digit0`-`#digit3`, `#outsideWarning`, dsb.). |
+| Test suite gagal karena selector Blade | Medium | Jalankan `rtk vendor/bin/pest --filter=Student` di tiap tahapan. |
+| Kerusakan layout responsif pada layar kecil | Medium | Gunakan token Tailwind responsive standar (`min-w-0`, `truncate`, `flex-wrap`). |
 
 ## Open Questions
-- Tidak ada blocker fungsional; seluruh flow data backend sudah tersedia via `TeacherAttendanceService`.
+- Tidak ada pertanyaan penghambat. Seluruh komponen dan data backend telah tersedia.
