@@ -1,118 +1,196 @@
 <!-- 4. MOBILE BOTTOM NAVIGATION BAR (Strictly hidden on md: and above) -->
 @auth
     <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 inset-x-0 z-50 flex justify-center pointer-events-none">
-        <div id="mobile-bottom-nav-inner" class="w-full bg-gradient-to-r from-emerald-800 via-maarif-700 to-emerald-800 border-t border-emerald-900/80 shadow-[0_-4px_24px_rgba(0,0,0,0.25)] px-3 pt-2 safe-bottom pointer-events-auto">
-            @if(Auth::user()->role === 'siswa')
-                <div class="grid grid-cols-4 items-center max-w-md mx-auto">
+        <div id="mobile-bottom-nav-inner" class="pointer-events-auto w-full bg-gradient-to-r from-emerald-800 via-maarif-700 to-emerald-800 border-t border-emerald-900/80 shadow-[0_-4px_24px_rgba(0,0,0,0.25)] px-2 pt-2.5 pb-2 safe-bottom">
+            <div aria-label="Sleek Minimal Navigation" class="flex items-center justify-around">
+                @if(Auth::user()->role === 'siswa')
                     <!-- 1. Dashboard -->
-                    <a href="{{ route('siswa.dashboard') }}" class="group flex flex-col items-center justify-center py-1 transition-all duration-150 {{ request()->routeIs('siswa.dashboard') ? 'text-white font-semibold' : 'text-emerald-200/75 hover:text-white font-medium' }}">
-                        <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('siswa.dashboard') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
-                            <i data-lucide="layout-dashboard" class="w-5 h-5 {{ request()->routeIs('siswa.dashboard') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
-                        </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('siswa.dashboard') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Dashboard</span>
+                    <a href="{{ route('siswa.dashboard') }}" aria-current="{{ request()->routeIs('siswa.dashboard') ? 'page' : 'false' }}" class="relative flex-1 flex flex-col items-center justify-center py-1 group">
+                        @if(request()->routeIs('siswa.dashboard'))
+                            <span class="absolute -top-2.5 w-8 h-[2px] bg-gradient-to-r from-emerald-400 to-teal-300 shadow-[0_0_8px_#34d399] rounded-full"></span>
+                            <div class="text-emerald-200 transition-colors">
+                                <i data-lucide="layout-dashboard" class="w-5 h-5 drop-shadow-[0_0_6px_rgba(52,211,153,0.6)] stroke-[2.2]"></i>
+                            </div>
+                            <span class="text-[10px] font-bold text-white mt-1 tracking-tight">Dashboard</span>
+                        @else
+                            <i data-lucide="layout-dashboard" class="w-5 h-5 text-emerald-100/60 group-hover:text-white transition-colors stroke-[1.8]"></i>
+                            <span class="text-[10px] font-medium text-emerald-100/70 mt-1 tracking-tight group-hover:text-white">Dashboard</span>
+                        @endif
                     </a>
 
                     <!-- 2. Jadwal -->
-                    <a href="{{ route('siswa.schedule') }}" class="group flex flex-col items-center justify-center py-1 transition-all duration-150 {{ request()->routeIs('siswa.schedule') ? 'text-white font-semibold' : 'text-emerald-200/75 hover:text-white font-medium' }}">
-                        <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('siswa.schedule') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
-                            <i data-lucide="calendar" class="w-5 h-5 {{ request()->routeIs('siswa.schedule') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
-                        </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('siswa.schedule') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Jadwal</span>
+                    <a href="{{ route('siswa.schedule') }}" aria-current="{{ request()->routeIs('siswa.schedule') ? 'page' : 'false' }}" class="relative flex-1 flex flex-col items-center justify-center py-1 group">
+                        @if(request()->routeIs('siswa.schedule'))
+                            <span class="absolute -top-2.5 w-8 h-[2px] bg-gradient-to-r from-emerald-400 to-teal-300 shadow-[0_0_8px_#34d399] rounded-full"></span>
+                            <div class="text-emerald-200 transition-colors">
+                                <i data-lucide="calendar" class="w-5 h-5 drop-shadow-[0_0_6px_rgba(52,211,153,0.6)] stroke-[2.2]"></i>
+                            </div>
+                            <span class="text-[10px] font-bold text-white mt-1 tracking-tight">Jadwal</span>
+                        @else
+                            <i data-lucide="calendar" class="w-5 h-5 text-emerald-100/60 group-hover:text-white transition-colors stroke-[1.8]"></i>
+                            <span class="text-[10px] font-medium text-emerald-100/70 mt-1 tracking-tight group-hover:text-white">Jadwal</span>
+                        @endif
                     </a>
 
                     <!-- 3. Riwayat -->
-                    <a href="{{ route('siswa.history') }}" class="group flex flex-col items-center justify-center py-1 transition-all duration-150 {{ request()->routeIs('siswa.history') ? 'text-white font-semibold' : 'text-emerald-200/75 hover:text-white font-medium' }}">
-                        <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('siswa.history') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
-                            <i data-lucide="history" class="w-5 h-5 {{ request()->routeIs('siswa.history') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
-                        </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('siswa.history') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Riwayat</span>
+                    <a href="{{ route('siswa.history') }}" aria-current="{{ request()->routeIs('siswa.history') ? 'page' : 'false' }}" class="relative flex-1 flex flex-col items-center justify-center py-1 group">
+                        @if(request()->routeIs('siswa.history'))
+                            <span class="absolute -top-2.5 w-8 h-[2px] bg-gradient-to-r from-emerald-400 to-teal-300 shadow-[0_0_8px_#34d399] rounded-full"></span>
+                            <div class="text-emerald-200 transition-colors">
+                                <i data-lucide="history" class="w-5 h-5 drop-shadow-[0_0_6px_rgba(52,211,153,0.6)] stroke-[2.2]"></i>
+                            </div>
+                            <span class="text-[10px] font-bold text-white mt-1 tracking-tight">Riwayat</span>
+                        @else
+                            <i data-lucide="history" class="w-5 h-5 text-emerald-100/60 group-hover:text-white transition-colors stroke-[1.8]"></i>
+                            <span class="text-[10px] font-medium text-emerald-100/70 mt-1 tracking-tight group-hover:text-white">Riwayat</span>
+                        @endif
                     </a>
 
                     <!-- 4. Profil -->
-                    <a href="{{ route('profile') }}" class="group flex flex-col items-center justify-center py-1 transition-all duration-150 {{ request()->routeIs('profile') ? 'text-white font-semibold' : 'text-emerald-200/75 hover:text-white font-medium' }}">
-                        <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('profile') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
-                            <i data-lucide="user" class="w-5 h-5 {{ request()->routeIs('profile') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
-                        </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('profile') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Profil</span>
-                    </a>
-                </div>
-            @elseif(Auth::user()->role === 'guru')
-                <div class="grid grid-cols-5 items-center max-w-md mx-auto">
-                    <!-- 1. Dashboard -->
-                    <a href="{{ route('guru.dashboard') }}" class="group flex flex-col items-center justify-center py-1 transition-all duration-150 {{ request()->routeIs('guru.dashboard') && !request()->has('jadwal') ? 'text-white font-semibold' : 'text-emerald-200/75 hover:text-white font-medium' }}">
-                        <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('guru.dashboard') && !request()->has('jadwal') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
-                            <i data-lucide="layout-dashboard" class="w-5 h-5 {{ request()->routeIs('guru.dashboard') && !request()->has('jadwal') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
-                        </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('guru.dashboard') && !request()->has('jadwal') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Dashboard</span>
+                    <a href="{{ route('profile') }}" aria-current="{{ request()->routeIs('profile') ? 'page' : 'false' }}" class="relative flex-1 flex flex-col items-center justify-center py-1 group">
+                        @if(request()->routeIs('profile'))
+                            <span class="absolute -top-2.5 w-8 h-[2px] bg-gradient-to-r from-emerald-400 to-teal-300 shadow-[0_0_8px_#34d399] rounded-full"></span>
+                            <div class="text-emerald-200 transition-colors">
+                                <i data-lucide="user" class="w-5 h-5 drop-shadow-[0_0_6px_rgba(52,211,153,0.6)] stroke-[2.2]"></i>
+                            </div>
+                            <span class="text-[10px] font-bold text-white mt-1 tracking-tight">Profil</span>
+                        @else
+                            <i data-lucide="user" class="w-5 h-5 text-emerald-100/60 group-hover:text-white transition-colors stroke-[1.8]"></i>
+                            <span class="text-[10px] font-medium text-emerald-100/70 mt-1 tracking-tight group-hover:text-white">Profil</span>
+                        @endif
                     </a>
 
-                    <!-- 2. Jadwal Mengajar -->
-                    <a href="{{ route('guru.schedule') }}" class="group flex flex-col items-center justify-center py-1 transition-all duration-150 {{ request()->routeIs('guru.schedule') ? 'text-white font-semibold' : 'text-emerald-200/75 hover:text-white font-medium' }}">
-                        <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('guru.schedule') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
-                            <i data-lucide="calendar" class="w-5 h-5 {{ request()->routeIs('guru.schedule') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
-                        </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('guru.schedule') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Jadwal</span>
+                @elseif(Auth::user()->role === 'guru')
+                    <!-- Guru menu items -->
+                    <!-- 1. Dashboard -->
+                    <a href="{{ route('guru.dashboard') }}" aria-current="{{ request()->routeIs('guru.dashboard') && !request()->has('jadwal') ? 'page' : 'false' }}" class="relative flex-1 flex flex-col items-center justify-center py-1 group">
+                        @if(request()->routeIs('guru.dashboard') && !request()->has('jadwal'))
+                            <span class="absolute -top-2.5 w-8 h-[2px] bg-gradient-to-r from-emerald-400 to-teal-300 shadow-[0_0_8px_#34d399] rounded-full"></span>
+                            <div class="text-emerald-200 transition-colors">
+                                <i data-lucide="layout-dashboard" class="w-5 h-5 drop-shadow-[0_0_6px_rgba(52,211,153,0.6)] stroke-[2.2]"></i>
+                            </div>
+                            <span class="text-[10px] font-bold text-white mt-1 tracking-tight">Dashboard</span>
+                        @else
+                            <i data-lucide="layout-dashboard" class="w-5 h-5 text-emerald-100/60 group-hover:text-white transition-colors stroke-[1.8]"></i>
+                            <span class="text-[10px] font-medium text-emerald-100/70 mt-1 tracking-tight group-hover:text-white">Dashboard</span>
+                        @endif
                     </a>
-                    
-                    <!-- 3. Pindai QR (True Center Elevated Button) -->
-                    <a href="{{ route('guru.scan') }}" class="group relative flex flex-col items-center justify-center -mt-6">
-                        <div class="w-12 h-12 rounded-full {{ request()->routeIs('guru.scan') ? 'bg-amber-300 text-slate-900 ring-4 ring-emerald-800 shadow-xl shadow-amber-950/40' : 'bg-white text-emerald-800 ring-4 ring-emerald-800 shadow-lg shadow-black/30' }} flex items-center justify-center group-active:scale-95 group-hover:scale-105 transition-all duration-150">
-                            <i data-lucide="qr-code" class="w-5 h-5 {{ request()->routeIs('guru.scan') ? 'stroke-[2.5]' : 'stroke-[2.2]' }}"></i>
-                        </div>
-                        <span class="text-[10px] font-semibold mt-1 tracking-tight heading-font {{ request()->routeIs('guru.scan') ? 'text-amber-300' : 'text-emerald-200/80 group-hover:text-white' }}">Pindai QR</span>
+
+                    <!-- 2. Jadwal -->
+                    <a href="{{ route('guru.schedule') }}" aria-current="{{ request()->routeIs('guru.schedule') ? 'page' : 'false' }}" class="relative flex-1 flex flex-col items-center justify-center py-1 group">
+                        @if(request()->routeIs('guru.schedule'))
+                            <span class="absolute -top-2.5 w-8 h-[2px] bg-gradient-to-r from-emerald-400 to-teal-300 shadow-[0_0_8px_#34d399] rounded-full"></span>
+                            <div class="text-emerald-200 transition-colors">
+                                <i data-lucide="calendar" class="w-5 h-5 drop-shadow-[0_0_6px_rgba(52,211,153,0.6)] stroke-[2.2]"></i>
+                            </div>
+                            <span class="text-[10px] font-bold text-white mt-1 tracking-tight">Jadwal</span>
+                        @else
+                            <i data-lucide="calendar" class="w-5 h-5 text-emerald-100/60 group-hover:text-white transition-colors stroke-[1.8]"></i>
+                            <span class="text-[10px] font-medium text-emerald-100/70 mt-1 tracking-tight group-hover:text-white">Jadwal</span>
+                        @endif
+                    </a>
+
+                    <!-- 3. Pindai QR -->
+                    <a href="{{ route('guru.scan') }}" aria-current="{{ request()->routeIs('guru.scan') ? 'page' : 'false' }}" class="relative flex-1 flex flex-col items-center justify-center py-1 group">
+                        @if(request()->routeIs('guru.scan'))
+                            <span class="absolute -top-2.5 w-8 h-[2px] bg-gradient-to-r from-emerald-400 to-teal-300 shadow-[0_0_8px_#34d399] rounded-full"></span>
+                            <div class="text-emerald-200 transition-colors">
+                                <i data-lucide="qr-code" class="w-5 h-5 drop-shadow-[0_0_6px_rgba(52,211,153,0.6)] stroke-[2.2]"></i>
+                            </div>
+                            <span class="text-[10px] font-bold text-white mt-1 tracking-tight">Pindai</span>
+                        @else
+                            <i data-lucide="qr-code" class="w-5 h-5 text-emerald-100/60 group-hover:text-white transition-colors stroke-[1.8]"></i>
+                            <span class="text-[10px] font-medium text-emerald-100/70 mt-1 tracking-tight group-hover:text-white">Pindai</span>
+                        @endif
                     </a>
 
                     <!-- 4. Riwayat -->
-                    <a href="{{ route('guru.history') }}" class="group flex flex-col items-center justify-center py-1 transition-all duration-150 {{ request()->routeIs('guru.history') ? 'text-white font-semibold' : 'text-emerald-200/75 hover:text-white font-medium' }}">
-                        <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('guru.history') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
-                            <i data-lucide="history" class="w-5 h-5 {{ request()->routeIs('guru.history') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
-                        </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('guru.history') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Riwayat</span>
+                    <a href="{{ route('guru.history') }}" aria-current="{{ request()->routeIs('guru.history') ? 'page' : 'false' }}" class="relative flex-1 flex flex-col items-center justify-center py-1 group">
+                        @if(request()->routeIs('guru.history'))
+                            <span class="absolute -top-2.5 w-8 h-[2px] bg-gradient-to-r from-emerald-400 to-teal-300 shadow-[0_0_8px_#34d399] rounded-full"></span>
+                            <div class="text-emerald-200 transition-colors">
+                                <i data-lucide="history" class="w-5 h-5 drop-shadow-[0_0_6px_rgba(52,211,153,0.6)] stroke-[2.2]"></i>
+                            </div>
+                            <span class="text-[10px] font-bold text-white mt-1 tracking-tight">Riwayat</span>
+                        @else
+                            <i data-lucide="history" class="w-5 h-5 text-emerald-100/60 group-hover:text-white transition-colors stroke-[1.8]"></i>
+                            <span class="text-[10px] font-medium text-emerald-100/70 mt-1 tracking-tight group-hover:text-white">Riwayat</span>
+                        @endif
                     </a>
-                    
+
                     <!-- 5. Profil -->
-                    <a href="{{ route('profile') }}" class="group flex flex-col items-center justify-center py-1 transition-all duration-150 {{ request()->routeIs('profile') ? 'text-white font-semibold' : 'text-emerald-200/75 hover:text-white font-medium' }}">
-                        <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('profile') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
-                            <i data-lucide="user" class="w-5 h-5 {{ request()->routeIs('profile') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
-                        </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('profile') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Profil</span>
+                    <a href="{{ route('profile') }}" aria-current="{{ request()->routeIs('profile') ? 'page' : 'false' }}" class="relative flex-1 flex flex-col items-center justify-center py-1 group">
+                        @if(request()->routeIs('profile'))
+                            <span class="absolute -top-2.5 w-8 h-[2px] bg-gradient-to-r from-emerald-400 to-teal-300 shadow-[0_0_8px_#34d399] rounded-full"></span>
+                            <div class="text-emerald-200 transition-colors">
+                                <i data-lucide="user" class="w-5 h-5 drop-shadow-[0_0_6px_rgba(52,211,153,0.6)] stroke-[2.2]"></i>
+                            </div>
+                            <span class="text-[10px] font-bold text-white mt-1 tracking-tight">Profil</span>
+                        @else
+                            <i data-lucide="user" class="w-5 h-5 text-emerald-100/60 group-hover:text-white transition-colors stroke-[1.8]"></i>
+                            <span class="text-[10px] font-medium text-emerald-100/70 mt-1 tracking-tight group-hover:text-white">Profil</span>
+                        @endif
                     </a>
-                </div>
-            @elseif(Auth::user()->role === 'admin')
-                <div class="grid grid-cols-4 items-center max-w-md mx-auto">
+                
+                @elseif(Auth::user()->role === 'admin')
+                    <!-- Admin menu items -->
                     <!-- 1. Dashboard Admin -->
-                    <a href="{{ route('admin.dashboard') }}" class="group flex flex-col items-center justify-center py-1 transition-all duration-150 {{ request()->routeIs('admin.dashboard') ? 'text-white font-semibold' : 'text-emerald-200/75 hover:text-white font-medium' }}">
-                        <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.dashboard') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
-                            <i data-lucide="layout-dashboard" class="w-5 h-5 {{ request()->routeIs('admin.dashboard') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
-                        </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('admin.dashboard') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Dashboard</span>
+                    <a href="{{ route('admin.dashboard') }}" aria-current="{{ request()->routeIs('admin.dashboard') ? 'page' : 'false' }}" class="relative flex-1 flex flex-col items-center justify-center py-1 group">
+                        @if(request()->routeIs('admin.dashboard'))
+                            <span class="absolute -top-2.5 w-8 h-[2px] bg-gradient-to-r from-emerald-400 to-teal-300 shadow-[0_0_8px_#34d399] rounded-full"></span>
+                            <div class="text-emerald-200 transition-colors">
+                                <i data-lucide="layout-dashboard" class="w-5 h-5 drop-shadow-[0_0_6px_rgba(52,211,153,0.6)] stroke-[2.2]"></i>
+                            </div>
+                            <span class="text-[10px] font-bold text-white mt-1 tracking-tight">Dashboard</span>
+                        @else
+                            <i data-lucide="layout-dashboard" class="w-5 h-5 text-emerald-100/60 group-hover:text-white transition-colors stroke-[1.8]"></i>
+                            <span class="text-[10px] font-medium text-emerald-100/70 mt-1 tracking-tight group-hover:text-white">Dashboard</span>
+                        @endif
                     </a>
 
                     <!-- 2. Siswa -->
-                    <a href="{{ route('admin.siswa.index') }}" class="group flex flex-col items-center justify-center py-1 transition-all duration-150 {{ request()->routeIs('admin.siswa.*') ? 'text-white font-semibold' : 'text-emerald-200/75 hover:text-white font-medium' }}">
-                        <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.siswa.*') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
-                            <i data-lucide="users" class="w-5 h-5 {{ request()->routeIs('admin.siswa.*') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
-                        </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('admin.siswa.*') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Siswa</span>
+                    <a href="{{ route('admin.siswa.index') }}" aria-current="{{ request()->routeIs('admin.siswa.*') ? 'page' : 'false' }}" class="relative flex-1 flex flex-col items-center justify-center py-1 group">
+                        @if(request()->routeIs('admin.siswa.*'))
+                            <span class="absolute -top-2.5 w-8 h-[2px] bg-gradient-to-r from-emerald-400 to-teal-300 shadow-[0_0_8px_#34d399] rounded-full"></span>
+                            <div class="text-emerald-200 transition-colors">
+                                <i data-lucide="users" class="w-5 h-5 drop-shadow-[0_0_6px_rgba(52,211,153,0.6)] stroke-[2.2]"></i>
+                            </div>
+                            <span class="text-[10px] font-bold text-white mt-1 tracking-tight">Siswa</span>
+                        @else
+                            <i data-lucide="users" class="w-5 h-5 text-emerald-100/60 group-hover:text-white transition-colors stroke-[1.8]"></i>
+                            <span class="text-[10px] font-medium text-emerald-100/70 mt-1 tracking-tight group-hover:text-white">Siswa</span>
+                        @endif
                     </a>
 
                     <!-- 3. Guru -->
-                    <a href="{{ route('admin.guru.index') }}" class="group flex flex-col items-center justify-center py-1 transition-all duration-150 {{ request()->routeIs('admin.guru.*') ? 'text-white font-semibold' : 'text-emerald-200/75 hover:text-white font-medium' }}">
-                        <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.guru.*') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
-                            <i data-lucide="graduation-cap" class="w-5 h-5 {{ request()->routeIs('admin.guru.*') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
-                        </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('admin.guru.*') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Guru</span>
+                    <a href="{{ route('admin.guru.index') }}" aria-current="{{ request()->routeIs('admin.guru.*') ? 'page' : 'false' }}" class="relative flex-1 flex flex-col items-center justify-center py-1 group">
+                        @if(request()->routeIs('admin.guru.*'))
+                            <span class="absolute -top-2.5 w-8 h-[2px] bg-gradient-to-r from-emerald-400 to-teal-300 shadow-[0_0_8px_#34d399] rounded-full"></span>
+                            <div class="text-emerald-200 transition-colors">
+                                <i data-lucide="graduation-cap" class="w-5 h-5 drop-shadow-[0_0_6px_rgba(52,211,153,0.6)] stroke-[2.2]"></i>
+                            </div>
+                            <span class="text-[10px] font-bold text-white mt-1 tracking-tight">Guru</span>
+                        @else
+                            <i data-lucide="graduation-cap" class="w-5 h-5 text-emerald-100/60 group-hover:text-white transition-colors stroke-[1.8]"></i>
+                            <span class="text-[10px] font-medium text-emerald-100/70 mt-1 tracking-tight group-hover:text-white">Guru</span>
+                        @endif
                     </a>
 
                     <!-- 4. Profil -->
-                    <a href="{{ route('profile') }}" class="group flex flex-col items-center justify-center py-1 transition-all duration-150 {{ request()->routeIs('profile') ? 'text-white font-semibold' : 'text-emerald-200/75 hover:text-white font-medium' }}">
-                        <div class="relative p-1.5 rounded-xl transition-all duration-200 {{ request()->routeIs('profile') ? 'bg-white/20 text-white shadow-xs backdrop-blur-xs ring-1 ring-white/25' : 'text-emerald-200/75 group-hover:text-white group-hover:bg-white/10' }}">
-                            <i data-lucide="user" class="w-5 h-5 {{ request()->routeIs('profile') ? 'stroke-[2.4]' : 'stroke-[1.8]' }}"></i>
-                        </div>
-                        <span class="text-[10px] tracking-tight mt-0.5 heading-font {{ request()->routeIs('profile') ? 'text-white font-semibold' : 'text-emerald-200/75 group-hover:text-white' }}">Profil</span>
+                    <a href="{{ route('profile') }}" aria-current="{{ request()->routeIs('profile') ? 'page' : 'false' }}" class="relative flex-1 flex flex-col items-center justify-center py-1 group">
+                        @if(request()->routeIs('profile'))
+                            <span class="absolute -top-2.5 w-8 h-[2px] bg-gradient-to-r from-emerald-400 to-teal-300 shadow-[0_0_8px_#34d399] rounded-full"></span>
+                            <div class="text-emerald-200 transition-colors">
+                                <i data-lucide="user" class="w-5 h-5 drop-shadow-[0_0_6px_rgba(52,211,153,0.6)] stroke-[2.2]"></i>
+                            </div>
+                            <span class="text-[10px] font-bold text-white mt-1 tracking-tight">Profil</span>
+                        @else
+                            <i data-lucide="user" class="w-5 h-5 text-emerald-100/60 group-hover:text-white transition-colors stroke-[1.8]"></i>
+                            <span class="text-[10px] font-medium text-emerald-100/70 mt-1 tracking-tight group-hover:text-white">Profil</span>
+                        @endif
                     </a>
-                </div>
-            @endif
+                @endif
+            </div>
         </div>
     </nav>
 @endauth
