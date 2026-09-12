@@ -170,14 +170,16 @@
     </div>
 
     <!-- Standby / No Active Session Notice -->
-    <div id="noSessionNotice" class="hidden bg-white rounded-2xl p-4 border border-slate-200/70 shadow-sm text-center space-y-1.5">
-        <div class="flex items-center justify-center gap-1.5 text-slate-400">
-            <i data-lucide="clock" class="w-4 h-4"></i>
-            <h4 class="text-xs font-semibold text-slate-700 heading-font">Belum Ada Presensi Kelas yang Dibuka</h4>
+    <div id="noSessionNotice" class="hidden bg-white rounded-2xl py-6 px-6 sm:px-8 border border-slate-200/80 shadow-sm text-center space-y-2.5">
+        <div class="w-10 h-10 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center mx-auto border border-slate-100">
+            <i data-lucide="clock" class="w-5 h-5 text-slate-400"></i>
         </div>
-        <p class="text-[11px] text-slate-500 leading-relaxed max-w-sm mx-auto">
-            Bapak/Ibu Guru belum membuka presensi kelas. Kotak PIN akan otomatis muncul ketika presensi dibuka.
-        </p>
+        <div class="space-y-1">
+            <h4 class="text-sm font-bold text-slate-800 heading-font">Belum Ada Presensi Kelas yang Dibuka</h4>
+            <p class="text-xs text-slate-500 leading-relaxed max-w-md mx-auto">
+                Bapak/Ibu Guru belum membuka presensi kelas. Kotak PIN akan otomatis muncul ketika presensi dibuka.
+            </p>
+        </div>
     </div>
 
     <!-- 2. PANDUAN RINGKAS ALUR PRESENSI -->
