@@ -273,10 +273,10 @@
         </div>
     </section>
 
-    <!-- 4. JADWAL & PRESENSI KELAS HARI INI (Unified Timeline Card Flow) -->
+    <!-- 4. JADWAL HARI INI (Unified Timeline Card Flow) -->
     <section class="space-y-3.5 pt-2" data-purpose="schedule-section">
         <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-bold text-slate-900 tracking-tight heading-font">Jadwal & Presensi Kelas Hari Ini</h3>
+            <h3 class="text-xs font-bold uppercase tracking-wider heading-font text-slate-900">Jadwal Hari Ini</h3>
             <a href="{{ route('siswa.schedule') }}" class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800 transition-colors">
                 <span>Jadwal Mingguan</span>
                 <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>

@@ -171,10 +171,10 @@
         </div>
     </section>
 
-    <!-- 4. JADWAL & SESI KELAS HARI INI -->
+    <!-- 4. JADWAL HARI INI -->
     <section class="space-y-3.5 pt-2" data-purpose="schedule-section">
         <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-bold text-slate-900 tracking-tight heading-font">Jadwal & Sesi Kelas Hari Ini</h3>
+            <h3 class="text-xs font-bold uppercase tracking-wider heading-font text-slate-900">Jadwal Hari Ini</h3>
             <span class="text-xs font-semibold text-emerald-700">{{ $schedules->count() }} Jadwal</span>
         </div>
 
@@ -326,7 +326,7 @@
     <!-- 5. STATUS PRESENSI GURU (Attendance Card) -->
     <section class="space-y-3.5 pt-2" data-purpose="teacher-attendance">
         <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-bold text-slate-900 tracking-tight heading-font">Status Presensi Guru</h3>
+            <h3 class="text-xs font-bold uppercase tracking-wider heading-font text-slate-900">Status Presensi Guru</h3>
         </div>
 
         <article class="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-4 space-y-4 hover:border-slate-300/80 transition-colors">
