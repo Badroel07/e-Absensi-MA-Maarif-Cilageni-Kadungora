@@ -201,12 +201,12 @@
                     <article class="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-4 space-y-3.5 hover:border-slate-300/80 transition-colors">
                         <!-- Top Row: Badge Number + Class + Subject + Time Badge -->
                         <div class="flex items-start justify-between gap-3">
-                            <div class="space-y-1 min-w-0">
+                            <div class="space-y-1 min-w-0 flex-1">
                                 <div class="flex items-center gap-2">
                                     <span class="px-2 py-0.5 rounded {{ ($session && $session->isActive()) || $isWithinSchedule ? 'bg-emerald-50 text-emerald-700 font-bold' : 'bg-slate-100 text-slate-700 border border-slate-200 font-semibold' }} text-xs heading-font">#{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
                                     <span class="text-xs font-medium text-slate-500">Kelas {{ $sch->classroom->name }}</span>
                                 </div>
-                                <h4 class="text-base font-bold text-slate-900 tracking-tight heading-font truncate">{{ $sch->subject->name }}</h4>
+                                <h4 class="text-base font-bold text-slate-900 tracking-tight heading-font leading-snug">{{ $sch->subject->name }}</h4>
                             </div>
                             <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-100 text-xs font-medium text-slate-600 shrink-0">
                                 <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i>

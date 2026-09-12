@@ -99,6 +99,87 @@
         </div>
     @endif
 
+    <!-- ACTIVE CLASS SESSION & PIN INPUT CARD -->
+    <div id="sessionCard" class="hidden bg-white rounded-2xl p-4 sm:p-5 border-2 border-emerald-600 shadow-md shadow-emerald-700/10 space-y-4 transition-all duration-300">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5 text-xs text-emerald-700 font-bold heading-font">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span>Sesi Presensi Terbuka</span>
+                </div>
+                <h3 id="sessionSubject" class="text-base sm:text-lg font-bold text-slate-900 heading-font leading-snug mt-0.5">--</h3>
+                <p id="sessionTeacher" class="text-xs text-slate-500 font-medium truncate">Bapak/Ibu Guru: --</p>
+            </div>
+            <div class="text-right pl-3 shrink-0">
+                <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Sisa Waktu</p>
+                <div id="sessionCountdown" class="text-xl sm:text-2xl font-bold text-amber-600 mono-font">--:--</div>
+            </div>
+        </div>
+
+        <!-- PIN Input Keypad Section -->
+        <div id="pinSection" class="space-y-3.5">
+            <div class="text-center">
+                <label class="text-xs font-semibold text-slate-700">Masukkan 4 Angka PIN Presensi</label>
+                <p class="text-[11px] text-slate-400 mt-0.5">Ketik kode PIN yang diinstruksikan oleh guru di kelas</p>
+                
+                <!-- 4-Digit Display Boxes -->
+                <div class="flex items-center justify-center gap-2.5 my-3">
+                    <div id="digit0" class="w-12 h-14 sm:w-14 sm:h-16 rounded-xl border-2 border-emerald-600 bg-white shadow-xs flex items-center justify-center text-xl sm:text-2xl font-bold text-slate-800 mono-font shrink-0 ring-2 ring-emerald-500/20 transition-all"></div>
+                    <div id="digit1" class="w-12 h-14 sm:w-14 sm:h-16 rounded-xl border-2 border-slate-200 bg-slate-50/50 shadow-xs flex items-center justify-center text-xl sm:text-2xl font-bold text-slate-800 mono-font shrink-0 transition-all"></div>
+                    <div id="digit2" class="w-12 h-14 sm:w-14 sm:h-16 rounded-xl border-2 border-slate-200 bg-slate-50/50 shadow-xs flex items-center justify-center text-xl sm:text-2xl font-bold text-slate-800 mono-font shrink-0 transition-all"></div>
+                    <div id="digit3" class="w-12 h-14 sm:w-14 sm:h-16 rounded-xl border-2 border-slate-200 bg-slate-50/50 shadow-xs flex items-center justify-center text-xl sm:text-2xl font-bold text-slate-800 mono-font shrink-0 transition-all"></div>
+                </div>
+                <p id="pinFeedback" class="text-xs font-semibold text-rose-600 h-5"></p>
+            </div>
+
+            <!-- Ergonomic Touch Keypad (3x4 Grid) -->
+            <div class="grid grid-cols-3 gap-2 pt-0.5 max-w-[280px] mx-auto">
+                @foreach([1, 2, 3, 4, 5, 6, 7, 8, 9] as $n)
+                    <button type="button" onclick="pressKey('{{ $n }}')" class="keypad-btn bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-slate-800 rounded-xl border border-slate-200 shadow-2xs transition-all duration-150 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
+                        {{ $n }}
+                    </button>
+                @endforeach
+                <button type="button" onclick="clearPin()" aria-label="Hapus semua angka PIN" class="keypad-btn bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-slate-500 text-xs font-bold rounded-xl border border-slate-200 shadow-2xs transition-all duration-150 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+                    C
+                </button>
+                <button type="button" onclick="pressKey('0')" class="keypad-btn bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-slate-800 rounded-xl border border-slate-200 shadow-2xs transition-all duration-150 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
+                    0
+                </button>
+                <button type="button" onclick="backspacePin()" aria-label="Hapus satu angka" class="keypad-btn bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-slate-700 rounded-xl border border-slate-200 shadow-2xs transition-all duration-150 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-7.172a2 2 0 00-1.414.586L3 12z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Success Verification Display -->
+        <div id="successSection" class="hidden py-4 text-center space-y-2">
+            <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
+                <i data-lucide="check" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h4 class="text-base font-bold text-slate-900 heading-font">Kehadiran Berhasil Dicatat!</h4>
+                <p class="text-xs text-emerald-700 font-semibold mt-0.5">Status kehadiran kamu: <strong>HADIR</strong> pada pelajaran ini.</p>
+                <p class="text-[11px] text-slate-400 mt-1">Presensi jam pertama otomatis mencatat kehadiran harian kamu.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Standby / No Active Session Notice -->
+    <div id="noSessionNotice" class="hidden bg-white rounded-2xl p-4 border border-slate-200/70 shadow-sm text-center space-y-1.5">
+        <div class="flex items-center justify-center gap-1.5 text-slate-400">
+            <i data-lucide="clock" class="w-4 h-4"></i>
+            <h4 class="text-xs font-semibold text-slate-700 heading-font">Belum Ada Presensi Kelas yang Dibuka</h4>
+        </div>
+        <p class="text-[11px] text-slate-500 leading-relaxed max-w-sm mx-auto">
+            Bapak/Ibu Guru belum membuka presensi kelas. Kotak PIN akan otomatis muncul ketika presensi dibuka.
+        </p>
+    </div>
+
     <!-- 2. PANDUAN RINGKAS ALUR PRESENSI -->
     <section data-purpose="guide-section">
         <details class="group bg-white rounded-2xl border border-slate-200/70 shadow-sm overflow-hidden transition-all duration-200">
@@ -190,88 +271,7 @@
         </div>
     </section>
 
-    <!-- 4. ACTIVE CLASS SESSION & PIN INPUT CARD -->
-    <div id="sessionCard" class="hidden bg-white rounded-2xl p-4 sm:p-5 border-2 border-emerald-600 shadow-md shadow-emerald-700/10 space-y-4 transition-all duration-300">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-            <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-1.5 text-xs text-emerald-700 font-bold heading-font">
-                    <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    <span>Sesi Presensi Terbuka</span>
-                </div>
-                <h3 id="sessionSubject" class="text-base sm:text-lg font-bold text-slate-900 heading-font truncate mt-0.5">--</h3>
-                <p id="sessionTeacher" class="text-xs text-slate-500 font-medium truncate">Bapak/Ibu Guru: --</p>
-            </div>
-            <div class="text-right pl-3 shrink-0">
-                <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Sisa Waktu</p>
-                <div id="sessionCountdown" class="text-xl sm:text-2xl font-bold text-amber-600 mono-font">--:--</div>
-            </div>
-        </div>
-
-        <!-- PIN Input Keypad Section -->
-        <div id="pinSection" class="space-y-3.5">
-            <div class="text-center">
-                <label class="text-xs font-semibold text-slate-700">Masukkan 4 Angka PIN Presensi</label>
-                <p class="text-[11px] text-slate-400 mt-0.5">Ketik kode PIN yang diinstruksikan oleh guru di kelas</p>
-                
-                <!-- 4-Digit Display Boxes -->
-                <div class="flex items-center justify-center gap-2.5 my-3">
-                    <div id="digit0" class="w-12 h-14 sm:w-14 sm:h-16 rounded-xl border-2 border-emerald-600 bg-white shadow-xs flex items-center justify-center text-xl sm:text-2xl font-bold text-slate-800 mono-font shrink-0 ring-2 ring-emerald-500/20 transition-all"></div>
-                    <div id="digit1" class="w-12 h-14 sm:w-14 sm:h-16 rounded-xl border-2 border-slate-200 bg-slate-50/50 shadow-xs flex items-center justify-center text-xl sm:text-2xl font-bold text-slate-800 mono-font shrink-0 transition-all"></div>
-                    <div id="digit2" class="w-12 h-14 sm:w-14 sm:h-16 rounded-xl border-2 border-slate-200 bg-slate-50/50 shadow-xs flex items-center justify-center text-xl sm:text-2xl font-bold text-slate-800 mono-font shrink-0 transition-all"></div>
-                    <div id="digit3" class="w-12 h-14 sm:w-14 sm:h-16 rounded-xl border-2 border-slate-200 bg-slate-50/50 shadow-xs flex items-center justify-center text-xl sm:text-2xl font-bold text-slate-800 mono-font shrink-0 transition-all"></div>
-                </div>
-                <p id="pinFeedback" class="text-xs font-semibold text-rose-600 h-5"></p>
-            </div>
-
-            <!-- Ergonomic Touch Keypad (3x4 Grid) -->
-            <div class="grid grid-cols-3 gap-2 pt-0.5 max-w-[280px] mx-auto">
-                @foreach([1, 2, 3, 4, 5, 6, 7, 8, 9] as $n)
-                    <button type="button" onclick="pressKey('{{ $n }}')" class="keypad-btn bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-slate-800 rounded-xl border border-slate-200 shadow-2xs transition-all duration-150 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
-                        {{ $n }}
-                    </button>
-                @endforeach
-                <button type="button" onclick="clearPin()" aria-label="Hapus semua angka PIN" class="keypad-btn bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-slate-500 text-xs font-bold rounded-xl border border-slate-200 shadow-2xs transition-all duration-150 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
-                    C
-                </button>
-                <button type="button" onclick="pressKey('0')" class="keypad-btn bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-slate-800 rounded-xl border border-slate-200 shadow-2xs transition-all duration-150 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
-                    0
-                </button>
-                <button type="button" onclick="backspacePin()" aria-label="Hapus satu angka" class="keypad-btn bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-slate-700 rounded-xl border border-slate-200 shadow-2xs transition-all duration-150 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-7.172a2 2 0 00-1.414.586L3 12z" />
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-        <!-- Success Verification Display -->
-        <div id="successSection" class="hidden py-4 text-center space-y-2">
-            <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
-                <i data-lucide="check" class="w-6 h-6"></i>
-            </div>
-            <div>
-                <h4 class="text-base font-bold text-slate-900 heading-font">Kehadiran Berhasil Dicatat!</h4>
-                <p class="text-xs text-emerald-700 font-semibold mt-0.5">Status kehadiran kamu: <strong>HADIR</strong> pada pelajaran ini.</p>
-                <p class="text-[11px] text-slate-400 mt-1">Presensi jam pertama otomatis mencatat kehadiran harian kamu.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Standby / No Active Session Notice -->
-    <div id="noSessionNotice" class="hidden bg-white rounded-2xl p-4 border border-slate-200/70 shadow-sm text-center space-y-1.5">
-        <div class="flex items-center justify-center gap-1.5 text-slate-400">
-            <i data-lucide="clock" class="w-4 h-4"></i>
-            <h4 class="text-xs font-semibold text-slate-700 heading-font">Belum Ada Presensi Kelas yang Dibuka</h4>
-        </div>
-        <p class="text-[11px] text-slate-500 leading-relaxed max-w-sm mx-auto">
-            Bapak/Ibu Guru belum membuka presensi kelas. Kotak PIN akan otomatis muncul ketika presensi dibuka.
-        </p>
-    </div>
-
-    <!-- 5. JADWAL & PRESENSI KELAS HARI INI (Unified Timeline Card Flow) -->
+    <!-- 4. JADWAL & PRESENSI KELAS HARI INI (Unified Timeline Card Flow) -->
     <section class="space-y-3.5 pt-2" data-purpose="schedule-section">
         <div class="flex items-center justify-between mb-3">
             <h3 class="text-sm font-bold text-slate-900 tracking-tight heading-font">Jadwal & Presensi Kelas Hari Ini</h3>
@@ -307,7 +307,7 @@
                                     <span class="px-2 py-0.5 rounded {{ $isCurrentSlot ? 'bg-emerald-50 text-emerald-700 font-bold' : 'bg-slate-100 text-slate-700 border border-slate-200 font-semibold' }} text-xs heading-font mono-font">#{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
                                     <span class="text-xs font-medium text-slate-500 truncate">{{ $sch->teacher->name }}</span>
                                 </div>
-                                <h4 class="text-base font-bold text-slate-900 tracking-tight heading-font truncate">{{ $sch->subject->name }}</h4>
+                                <h4 class="text-base font-bold text-slate-900 tracking-tight heading-font leading-snug">{{ $sch->subject->name }}</h4>
                             </div>
                             <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-100 text-xs font-medium text-slate-600 shrink-0">
                                 <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i>

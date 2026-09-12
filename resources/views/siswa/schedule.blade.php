@@ -81,7 +81,7 @@
                                     </span>
                                     <div class="min-w-0 flex-1">
                                         <div class="flex items-center gap-1.5 flex-wrap">
-                                            <h4 class="text-[15px] font-bold text-slate-900 leading-snug heading-font truncate">
+                                            <h4 class="text-[15px] font-bold text-slate-900 leading-snug heading-font">
                                                 {{ $sch->subject->name ?? 'Mata Pelajaran' }}
                                             </h4>
                                             @if($isToday)
