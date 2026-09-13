@@ -6,7 +6,9 @@ use App\Models\Classroom;
 use App\Models\ClassSchedule;
 use App\Models\LessonAttendance;
 use App\Models\SchoolLocation;
+use App\Models\Student;
 use App\Models\Subject;
+use App\Models\Teacher;
 use App\Models\User;
 use App\Services\TeacherAttendanceService;
 use Carbon\Carbon;
@@ -20,8 +22,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(MaarifRealScheduleSeeder::class);
+
         // 1. Lokasi Madrasah
-        $location = SchoolLocation::updateOrCreate(
+        SchoolLocation::updateOrCreate(
             ['name' => "MA Ma'arif Cilageni Kadungora"],
             [
                 'latitude' => -7.1147000,
@@ -72,66 +76,52 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        // 4. Pengguna: Admin TU & Guru Piket
+        // 4. Pengguna: Admin TU & Guru Piket (akun login + profil pegawai)
         $admin = User::updateOrCreate(
-            ['identity_number' => '198501012010011001'],
+            ['email' => 'admin@maarif.sch.id'],
             [
                 'name' => 'Ahmad Subandi, S.AP (Staf TU)',
-                'email' => 'admin@maarif.sch.id',
-                'birth_date' => '1985-01-01',
-                'password' => Hash::make('password'),
                 'password' => Hash::make('p@55w0rd'),
                 'role' => 'admin',
-                'phone_number' => '081234567890',
                 'is_active' => true,
             ]
         );
+        $this->upsertTeacherProfile($admin, ['nip' => '198501012010011001', 'jabatan' => 'Staf TU', 'birth_date' => '1985-01-01', 'phone_number' => '081234567890']);
 
-        // 5. Pengguna: Dewan Guru
         $guru1 = User::updateOrCreate(
-            ['identity_number' => '197505122000031002'],
+            ['email' => 'ahmad.dahlan@maarif.sch.id'],
             [
                 'name' => 'Ust. H. Ahmad Dahlan, S.Pd.I',
-                'email' => 'ahmad.dahlan@maarif.sch.id',
-                'birth_date' => '1975-05-12',
-                'password' => Hash::make('12051975'),
                 'password' => Hash::make('akunguru@maarif'),
                 'role' => 'guru',
-                'phone_number' => '081223344551',
                 'is_active' => true,
             ]
         );
+        $teacher1 = $this->upsertTeacherProfile($guru1, ['nip' => '197505122000031002', 'jabatan' => 'Guru Mapel', 'birth_date' => '1975-05-12', 'phone_number' => '081223344551']);
 
         $guru2 = User::updateOrCreate(
-            ['identity_number' => '198208152005012003'],
+            ['email' => 'siti.maryam@maarif.sch.id'],
             [
                 'name' => 'Usth. Siti Maryam, S.Pd',
-                'email' => 'siti.maryam@maarif.sch.id',
-                'birth_date' => '1982-08-15',
-                'password' => Hash::make('15081982'),
                 'password' => Hash::make('akunguru@maarif'),
                 'role' => 'guru',
-                'phone_number' => '081223344552',
                 'is_active' => true,
             ]
         );
+        $teacher2 = $this->upsertTeacherProfile($guru2, ['nip' => '198208152005012003', 'jabatan' => 'Guru Mapel', 'birth_date' => '1982-08-15', 'phone_number' => '081223344552']);
 
         $guru3 = User::updateOrCreate(
-            ['identity_number' => '198810202012011004'],
+            ['email' => 'ridwan@maarif.sch.id'],
             [
                 'name' => 'Ust. M. Ridwan, M.Pd',
-                'email' => 'ridwan@maarif.sch.id',
-                'birth_date' => '1988-10-20',
-                'password' => Hash::make('20101988'),
                 'password' => Hash::make('akunguru@maarif'),
                 'role' => 'guru',
-                'phone_number' => '081223344553',
                 'is_active' => true,
             ]
         );
+        $teacher3 = $this->upsertTeacherProfile($guru3, ['nip' => '198810202012011004', 'jabatan' => 'Guru Mapel', 'birth_date' => '1988-10-20', 'phone_number' => '081223344553']);
 
-        // 6. Pengguna: Siswa Kelas 7A & 8A
-        // 6. Pengguna: Siswa Kelas 10A & 11A
+        // 6. Pengguna: Siswa Kelas 10A & 11A (akun login + profil siswa)
         $students10A = [
             ['nisn' => '0091234501', 'name' => 'Muhammad Al-Fatih', 'birth_date' => '2011-05-10', 'phone' => '085100000001'],
             ['nisn' => '0091234502', 'name' => 'Aisyah Nur Rohmah', 'birth_date' => '2011-03-15', 'phone' => '085100000002'],
@@ -139,24 +129,6 @@ class DatabaseSeeder extends Seeder
             ['nisn' => '0091234504', 'name' => 'Fatimah Az-Zahra', 'birth_date' => '2011-11-05', 'phone' => '085100000004'],
             ['nisn' => '0091234505', 'name' => 'Hamzah Asadullah', 'birth_date' => '2011-01-30', 'phone' => '085100000005'],
         ];
-
-        foreach ($students10A as $st) {
-            $dob = Carbon::parse($st['birth_date']);
-            User::updateOrCreate(
-                ['identity_number' => $st['nisn']],
-                [
-                    'name' => $st['name'],
-                    'email' => $st['nisn'].'@siswa.maarif.sch.id',
-                    'birth_date' => $st['birth_date'],
-                    'password' => Hash::make($dob->format('dmY')),
-                    'password' => Hash::make('akunsiswa@maarif'),
-                    'role' => 'siswa',
-                    'classroom_id' => $classModels['10A']->id,
-                    'phone_number' => $st['phone'],
-                    'is_active' => true,
-                ]
-            );
-        }
 
         $students11A = [
             ['nisn' => '0081234501', 'name' => 'Umar Abdul Aziz', 'birth_date' => '2010-04-12', 'phone' => '085200000001'],
@@ -166,94 +138,49 @@ class DatabaseSeeder extends Seeder
             ['nisn' => '0081234505', 'name' => 'Salman Al-Farisi', 'birth_date' => '2010-02-14', 'phone' => '085200000005'],
         ];
 
-        foreach ($students11A as $st) {
-            $dob = Carbon::parse($st['birth_date']);
-            User::updateOrCreate(
-                ['identity_number' => $st['nisn']],
-                [
-                    'name' => $st['name'],
-                    'email' => $st['nisn'].'@siswa.maarif.sch.id',
-                    'birth_date' => $st['birth_date'],
-                    'password' => Hash::make($dob->format('dmY')),
-                    'password' => Hash::make('akunsiswa@maarif'),
-                    'role' => 'siswa',
-                    'classroom_id' => $classModels['11A']->id,
-                    'phone_number' => $st['phone'],
-                    'is_active' => true,
-                ]
-            );
+        foreach (['10A' => $students10A, '11A' => $students11A] as $className => $students) {
+            foreach ($students as $st) {
+                $user = User::updateOrCreate(
+                    ['email' => $st['nisn'].'@siswa.maarif.sch.id'],
+                    [
+                        'name' => $st['name'],
+                        'password' => Hash::make('akunsiswa@maarif'),
+                        'role' => 'siswa',
+                        'is_active' => true,
+                    ]
+                );
+
+                Student::updateOrCreate(
+                    ['user_id' => $user->id],
+                    [
+                        'nisn' => $st['nisn'],
+                        'classroom_id' => $classModels[$className]->id,
+                        'phone_number' => $st['phone'],
+                        'birth_date' => $st['birth_date'],
+                        'status' => 'AKTIF',
+                    ]
+                );
+            }
         }
 
-        // 7. Master Jadwal Pelajaran (Mingguan)
+        // 7. Master Jadwal Pelajaran (Mingguan) — teacher_id menunjuk profil guru
         $todayDay = TeacherAttendanceService::getIndonesianDayName(Carbon::today());
         $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
-        // Make sure today has active schedules for testing & demo!
         $schedulesSeed = [
-            // Today's schedule for 10A and 11A
-            [
-                'classroom_id' => $classModels['10A']->id,
-                'subject_id' => $subjectModels['PAI-FKH']->id,
-                'teacher_id' => $guru1->id,
-                'day_of_week' => $todayDay,
-                'start_time' => '07:30:00',
-                'end_time' => '09:00:00',
-            ],
-            [
-                'classroom_id' => $classModels['10A']->id,
-                'subject_id' => $subjectModels['MTK']->id,
-                'teacher_id' => $guru2->id,
-                'day_of_week' => $todayDay,
-                'start_time' => '09:15:00',
-                'end_time' => '10:45:00',
-            ],
-            [
-                'classroom_id' => $classModels['11A']->id,
-                'subject_id' => $subjectModels['BINDO']->id,
-                'teacher_id' => $guru3->id,
-                'day_of_week' => $todayDay,
-                'start_time' => '07:30:00',
-                'end_time' => '09:00:00',
-            ],
-            [
-                'classroom_id' => $classModels['11A']->id,
-                'subject_id' => $subjectModels['PAI-FKH']->id,
-                'teacher_id' => $guru1->id,
-                'day_of_week' => $todayDay,
-                'start_time' => '10:00:00',
-                'end_time' => '11:30:00',
-            ],
+            ['classroom_id' => $classModels['10A']->id, 'subject_id' => $subjectModels['PAI-FKH']->id, 'teacher_id' => $teacher1->id, 'day_of_week' => $todayDay, 'start_time' => '07:30:00', 'end_time' => '09:00:00'],
+            ['classroom_id' => $classModels['10A']->id, 'subject_id' => $subjectModels['MTK']->id, 'teacher_id' => $teacher2->id, 'day_of_week' => $todayDay, 'start_time' => '09:15:00', 'end_time' => '10:45:00'],
+            ['classroom_id' => $classModels['11A']->id, 'subject_id' => $subjectModels['BINDO']->id, 'teacher_id' => $teacher3->id, 'day_of_week' => $todayDay, 'start_time' => '07:30:00', 'end_time' => '09:00:00'],
+            ['classroom_id' => $classModels['11A']->id, 'subject_id' => $subjectModels['PAI-FKH']->id, 'teacher_id' => $teacher1->id, 'day_of_week' => $todayDay, 'start_time' => '10:00:00', 'end_time' => '11:30:00'],
         ];
 
-        // Also add schedules for other days
         foreach ($days as $day) {
             if ($day === $todayDay) {
                 continue;
             }
-            $schedulesSeed[] = [
-                'classroom_id' => $classModels['10A']->id,
-                'subject_id' => $subjectModels['PAI-QH']->id,
-                'teacher_id' => $guru1->id,
-                'day_of_week' => $day,
-                'start_time' => '07:30:00',
-                'end_time' => '09:00:00',
-            ];
-            $schedulesSeed[] = [
-                'classroom_id' => $classModels['10A']->id,
-                'subject_id' => $subjectModels['IPA']->id,
-                'teacher_id' => $guru2->id,
-                'day_of_week' => $day,
-                'start_time' => '09:15:00',
-                'end_time' => '10:45:00',
-            ];
-            $schedulesSeed[] = [
-                'classroom_id' => $classModels['11A']->id,
-                'subject_id' => $subjectModels['BARAB']->id,
-                'teacher_id' => $guru3->id,
-                'day_of_week' => $day,
-                'start_time' => '07:30:00',
-                'end_time' => '09:00:00',
-            ];
+            $schedulesSeed[] = ['classroom_id' => $classModels['10A']->id, 'subject_id' => $subjectModels['PAI-QH']->id, 'teacher_id' => $teacher1->id, 'day_of_week' => $day, 'start_time' => '07:30:00', 'end_time' => '09:00:00'];
+            $schedulesSeed[] = ['classroom_id' => $classModels['10A']->id, 'subject_id' => $subjectModels['IPA']->id, 'teacher_id' => $teacher2->id, 'day_of_week' => $day, 'start_time' => '09:15:00', 'end_time' => '10:45:00'];
+            $schedulesSeed[] = ['classroom_id' => $classModels['11A']->id, 'subject_id' => $subjectModels['BARAB']->id, 'teacher_id' => $teacher3->id, 'day_of_week' => $day, 'start_time' => '07:30:00', 'end_time' => '09:00:00'];
         }
 
         foreach ($schedulesSeed as $sch) {
@@ -270,7 +197,7 @@ class DatabaseSeeder extends Seeder
 
         // 8. Sample historical data for reports
         $yesterday = Carbon::yesterday();
-        $sampleStudents = User::where('role', 'siswa')->get();
+        $sampleStudents = Student::all();
         $sampleSchedule = ClassSchedule::first();
 
         if ($sampleSchedule) {
@@ -290,5 +217,13 @@ class DatabaseSeeder extends Seeder
                 );
             }
         }
+    }
+
+    private function upsertTeacherProfile(User $user, array $data): Teacher
+    {
+        return Teacher::updateOrCreate(
+            ['user_id' => $user->id],
+            $data
+        );
     }
 }

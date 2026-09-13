@@ -122,7 +122,7 @@
     </div>
 
     {{-- ── MODAL TAMBAH KELAS ───────────────────────────────────────── --}}
-    <div id="modalAddKelas" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 hidden transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalAddTitle">
+    <div id="modalAddKelas" class="fixed inset-0 z-[60] bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 hidden transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalAddTitle">
         <div class="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden transform transition-all">
             <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/60">
                 <div class="flex items-center gap-3.5">
@@ -186,7 +186,7 @@
     </div>
 
     {{-- ── MODAL EDIT KELAS ─────────────────────────────────────────── --}}
-    <div id="modalEditKelas" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 hidden transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalEditTitle">
+    <div id="modalEditKelas" class="fixed inset-0 z-[60] bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 hidden transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalEditTitle">
         <div class="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden transform transition-all">
             <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/60">
                 <div class="flex items-center gap-3.5">

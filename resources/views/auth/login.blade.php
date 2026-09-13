@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#14532d">
-    <title>Masuk - Presensi MA Ma'arif Cilageni</title>
+    <title>Masuk — SIMADMA</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}">
@@ -12,7 +12,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -34,8 +34,8 @@
                         }
                     },
                     fontFamily: {
-                        sans:    ['Inter', 'system-ui', 'sans-serif'],
-                        display: ['Inter', 'system-ui', 'sans-serif'],
+                        sans:    ['DM Sans', 'system-ui', 'sans-serif'],
+                        display: ['Lexend', 'DM Sans', 'system-ui', 'sans-serif'],
                     }
                 }
             }
@@ -70,7 +70,7 @@
 
                     <div class="pt-1">
                         <h2 class="text-2xl sm:text-3xl lg:text-3xl font-bold text-white leading-tight font-display">
-                            Presensi Harian Guru &amp; Siswa
+                            SIMADMA — Sistem Informasi Madrasah
                         </h2>
                         <p class="text-xs sm:text-sm text-emerald-100/80 leading-relaxed mt-3 max-w-md">
                             Catat kehadiran mengajar dan belajar di madrasah dengan verifikasi radius lokasi serta PIN sesi kelas.

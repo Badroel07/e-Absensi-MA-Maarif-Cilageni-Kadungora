@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Dashboard Admin — Sistem Presensi Madrasah')
+@section('title', 'Dashboard Admin — SIMADMA')
 @section('page-title', 'Dashboard Utama')
 
 @section('content')
@@ -87,6 +87,7 @@
                         <div class="bg-emerald-500 h-1.5 rounded-full" style="width: {{ $persenGuruHadir }}%"></div>
                     </div>
                     <p class="text-[11px] text-slate-500 font-medium mt-1.5">{{ $persenGuruHadir }}% dari total guru</p>
+                    <p class="text-[11px] text-slate-400 font-medium mt-0.5">Sesi mengajar terabsen: {{ ($guruSesiHadir ?? 0) + ($guruSesiTerlambat ?? 0) }} <span class="text-amber-600">({{ $guruSesiTerlambat ?? 0 }} terlambat)</span></p>
                 </div>
             </div>
 
@@ -135,7 +136,7 @@
                         Presensi Dewan Guru
                         <span class="ml-2 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200 align-middle">10 Terbaru</span>
                     </h3>
-                    <p class="text-[11px] text-slate-500 mt-0.5">Kehadiran dan kepulangan guru di lingkungan madrasah hari ini.</p>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Kedatangan guru (scan QR) di lingkungan madrasah hari ini.</p>
                 </div>
             </div>
             <a href="{{ route('admin.presensi-guru.index') }}"
@@ -151,7 +152,6 @@
                     <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 uppercase font-semibold text-[10px] tracking-widest">
                         <th class="py-3 px-5">Guru / NIP</th>
                         <th class="py-3 px-5 text-center">Jam Masuk</th>
-                        <th class="py-3 px-5 text-center">Jam Pulang</th>
                         <th class="py-3 px-5 text-center">Status</th>
                     </tr>
                 </thead>
@@ -169,15 +169,6 @@
                                     </span>
                                 @else
                                     <span class="text-slate-300 font-medium">—</span>
-                                @endif
-                            </td>
-                            <td class="py-3.5 px-5 text-center">
-                                @if($gAtt->check_out_time)
-                                    <span class="inline-block font-semibold text-emerald-700 bg-emerald-50 mono-font px-2.5 py-1 rounded-lg border border-emerald-200/70 text-xs">
-                                        {{ \Carbon\Carbon::parse($gAtt->check_out_time)->format('H:i') }} WIB
-                                    </span>
-                                @else
-                                    <span class="text-slate-400 italic font-medium text-xs">Belum</span>
                                 @endif
                             </td>
                             <td class="py-3.5 px-5 text-center whitespace-nowrap">
@@ -205,7 +196,7 @@
                                         <i data-lucide="user-x" class="w-6 h-6 text-slate-400"></i>
                                     </span>
                                     <p class="text-sm font-semibold text-slate-600">Belum ada presensi guru hari ini</p>
-                                    <p class="text-xs text-slate-400">Guru perlu check-in melalui GPS dari area madrasah.</p>
+                                    <p class="text-xs text-slate-400">Guru perlu melakukan scan QR presensi masuk.</p>
                                 </div>
                             </td>
                         </tr>

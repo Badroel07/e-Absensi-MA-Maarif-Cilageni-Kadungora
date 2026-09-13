@@ -82,7 +82,7 @@ class KioskService
      */
     public function getRecentAttendances(int $limit = 5): Collection
     {
-        return DailyAttendance::with('user')
+        return DailyAttendance::with('user.teacher')
             ->whereDate('attendance_date', Carbon::today())
             ->whereNotNull('check_in_time')
             ->orderByDesc('updated_at')
@@ -144,11 +144,9 @@ class KioskService
         $recentAttendances = $this->getRecentAttendances(5)->map(function ($att) {
             return [
                 'name' => $att->user?->name ?? 'Dewan Guru',
-                'identity_number' => $att->user?->identity_number ?? '',
+                'identity_number' => $att->user?->teacher?->nip ?? '',
                 'check_in_time' => substr($att->check_in_time ?? '', 0, 5),
                 'check_in_status' => $att->check_in_status ?? 'HADIR',
-                'check_out_time' => $att->check_out_time ? substr($att->check_out_time, 0, 5) : null,
-                'is_completed' => ! empty($att->check_out_time),
             ];
         });
 

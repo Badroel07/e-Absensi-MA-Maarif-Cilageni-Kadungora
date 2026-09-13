@@ -1,37 +1,44 @@
-<!-- Global Confirmation & Alert Modal (Ma'arif Design System) -->
+<!-- Global Confirmation & Alert Modal (Ma'arif Design System — Minimalist Confirmation Dialogs) -->
+<style>
+    #confirmModalMessage strong {
+        font-weight: 500;
+        color: #1e293b;
+    }
+</style>
 <div id="globalConfirmModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 transition-all duration-200 opacity-0 pointer-events-none select-none" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
-    <!-- Darkened Blurred Backdrop -->
-    <div id="confirmModalBackdrop" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity duration-200"></div>
+    <!-- Darkened Backdrop (tanpa blur agar ringan) -->
+    <div id="confirmModalBackdrop" class="fixed inset-0 bg-slate-950/60 transition-opacity duration-200"></div>
 
     <!-- Modal Card Box -->
-    <div id="confirmModalCard" class="relative w-full max-w-sm sm:max-w-md bg-white rounded-3xl p-6 sm:p-7 shadow-2xl border border-slate-100 flex flex-col space-y-4 sm:space-y-5 transition-all duration-200 transform scale-95 opacity-0 z-10">
-        
+    <div id="confirmModalCard" class="relative w-full max-w-md bg-white rounded-2xl p-7 sm:p-8 border border-slate-100 shadow-[0_20px_25px_-5px_rgba(15,23,42,0.08),0_8px_10px_-6px_rgba(15,23,42,0.04)] flex flex-col transition-all duration-200 transform scale-95 opacity-0 z-10">
+
         <!-- Header Row: Icon Badge & Close Button -->
-        <div class="flex items-start justify-between">
-            <div id="confirmModalIconWrapper" class="w-12 h-12 rounded-2xl flex items-center justify-center border shadow-inner transition-colors">
-                <i id="confirmModalIcon" data-lucide="help-circle" class="w-6 h-6"></i>
+        <div id="confirmModalHeaderRow" class="flex items-start justify-between mb-5">
+            <div id="confirmModalIconWrapper" class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors">
+                <i id="confirmModalIcon" data-lucide="help-circle" class="w-5 h-5"></i>
             </div>
-            <button type="button" id="confirmModalCloseX" class="p-2 -mr-1 -mt-1 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400" aria-label="Tutup modal">
-                <i data-lucide="x" class="w-5 h-5"></i>
+            <button type="button" id="confirmModalCloseX" class="text-slate-400 hover:text-slate-600 transition-colors p-1.5 rounded-lg hover:bg-slate-50 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400" aria-label="Tutup modal">
+                <i data-lucide="x" class="w-4 h-4"></i>
             </button>
         </div>
 
         <!-- Text Content -->
-        <div class="space-y-1.5">
-            <h3 id="confirmModalTitle" class="text-base sm:text-lg font-semibold text-slate-900 heading-font tracking-tight">
+        <div id="confirmModalBody" class="mb-6">
+            <span id="confirmModalEyebrow" class="text-[11px] font-semibold tracking-wider heading-font uppercase mb-1.5 inline-block">Konfirmasi</span>
+            <h3 id="confirmModalTitle" class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight heading-font">
                 Konfirmasi Tindakan
             </h3>
-            <div id="confirmModalMessage" class="text-xs sm:text-sm text-slate-600 leading-relaxed font-sans">
+            <div id="confirmModalMessage" class="text-slate-500 text-sm leading-relaxed mt-2.5 font-sans">
                 Apakah Anda yakin ingin melanjutkan tindakan ini?
             </div>
         </div>
 
         <!-- Action Buttons Footer -->
-        <div class="pt-2 flex items-center gap-2.5 sm:gap-3">
-            <button type="button" id="confirmModalCancelBtn" class="flex-1 py-3 px-4 rounded-xl sm:rounded-2xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-semibold text-xs sm:text-sm border border-slate-200/60 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+        <div id="confirmModalFooter" class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
+            <button type="button" id="confirmModalCancelBtn" class="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium heading-font text-sm transition-colors text-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
                 Batal
             </button>
-            <button type="button" id="confirmModalSubmitBtn" class="flex-1 py-3 px-4 rounded-xl sm:rounded-2xl font-semibold text-xs sm:text-sm transition-all duration-150 active:scale-[0.98] shadow-md flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2">
+            <button type="button" id="confirmModalSubmitBtn" class="px-5 py-2 rounded-xl text-white font-medium heading-font text-sm transition-colors inline-flex items-center justify-center gap-2 text-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-400">
                 <span id="confirmModalSubmitText">Lanjutkan</span>
             </button>
         </div>
@@ -43,8 +50,12 @@
     const modal = document.getElementById('globalConfirmModal');
     const backdrop = document.getElementById('confirmModalBackdrop');
     const card = document.getElementById('confirmModalCard');
+    const headerRow = document.getElementById('confirmModalHeaderRow');
+    const bodyEl = document.getElementById('confirmModalBody');
+    const eyebrowEl = document.getElementById('confirmModalEyebrow');
     const titleEl = document.getElementById('confirmModalTitle');
     const messageEl = document.getElementById('confirmModalMessage');
+    const footerEl = document.getElementById('confirmModalFooter');
     const iconWrapper = document.getElementById('confirmModalIconWrapper');
     const cancelBtn = document.getElementById('confirmModalCancelBtn');
     const submitBtn = document.getElementById('confirmModalSubmitBtn');
@@ -53,83 +64,131 @@
 
     let currentResolver = null;
 
+    const ICON_WRAPPER_BASE = 'w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors';
+    const EYEBROW_BASE = 'text-[11px] font-semibold tracking-wider heading-font uppercase mb-1.5 inline-block';
+    const CANCEL_BASE = 'px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium heading-font text-sm transition-colors text-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400';
+    const SUBMIT_BASE = 'px-5 py-2 rounded-xl text-white font-medium heading-font text-sm transition-colors inline-flex items-center justify-center gap-2 text-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-400';
+
     const TYPE_CONFIG = {
         danger: {
-            wrapperClass: 'bg-rose-100 text-rose-600 border-rose-200/80',
-            submitClass: 'bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white shadow-rose-600/25 focus-visible:ring-rose-500',
+            wrapperClass: 'bg-rose-50 text-rose-600',
+            eyebrowText: 'Tindakan Permanen',
+            eyebrowClass: 'text-rose-600',
+            submitClass: 'bg-rose-600 hover:bg-rose-700 active:bg-rose-800 focus-visible:ring-rose-500',
             defaultIcon: 'trash-2',
             defaultConfirm: 'Ya, Hapus'
         },
         delete: {
-            wrapperClass: 'bg-rose-100 text-rose-600 border-rose-200/80',
-            submitClass: 'bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white shadow-rose-600/25 focus-visible:ring-rose-500',
+            wrapperClass: 'bg-rose-50 text-rose-600',
+            eyebrowText: 'Tindakan Permanen',
+            eyebrowClass: 'text-rose-600',
+            submitClass: 'bg-rose-600 hover:bg-rose-700 active:bg-rose-800 focus-visible:ring-rose-500',
             defaultIcon: 'trash-2',
             defaultConfirm: 'Ya, Hapus'
         },
         warning: {
-            wrapperClass: 'bg-amber-100 text-amber-700 border-amber-200/80',
-            submitClass: 'bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white shadow-amber-600/25 focus-visible:ring-amber-500',
+            wrapperClass: 'bg-amber-50 text-amber-600',
+            eyebrowText: 'Perhatian Khusus',
+            eyebrowClass: 'text-amber-700',
+            submitClass: 'bg-amber-600 hover:bg-amber-700 active:bg-amber-800 focus-visible:ring-amber-500',
             defaultIcon: 'alert-triangle',
             defaultConfirm: 'Ya, Lanjutkan'
         },
         primary: {
-            wrapperClass: 'bg-maarif-100 text-maarif-700 border-maarif-200/80',
-            submitClass: 'bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white shadow-maarif-700/25 focus-visible:ring-maarif-600',
+            wrapperClass: 'bg-emerald-50 text-emerald-700',
+            eyebrowText: 'Alur Final Presensi',
+            eyebrowClass: 'text-emerald-700',
+            submitClass: 'bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 focus-visible:ring-emerald-600',
             defaultIcon: 'save',
             defaultConfirm: 'Ya, Simpan'
         },
         save: {
-            wrapperClass: 'bg-maarif-100 text-maarif-700 border-maarif-200/80',
-            submitClass: 'bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white shadow-maarif-700/25 focus-visible:ring-maarif-600',
+            wrapperClass: 'bg-emerald-50 text-emerald-700',
+            eyebrowText: 'Alur Final Presensi',
+            eyebrowClass: 'text-emerald-700',
+            submitClass: 'bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 focus-visible:ring-emerald-600',
             defaultIcon: 'save',
             defaultConfirm: 'Ya, Simpan'
         },
         lock: {
-            wrapperClass: 'bg-maarif-100 text-maarif-700 border-maarif-200/80',
-            submitClass: 'bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white shadow-maarif-700/25 focus-visible:ring-maarif-600',
+            wrapperClass: 'bg-emerald-50 text-emerald-700',
+            eyebrowText: 'Alur Final Presensi',
+            eyebrowClass: 'text-emerald-700',
+            submitClass: 'bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 focus-visible:ring-emerald-600',
             defaultIcon: 'lock',
             defaultConfirm: 'Ya, Simpan & Kunci'
         },
         logout: {
-            wrapperClass: 'bg-amber-100 text-amber-700 border-amber-200/80',
-            submitClass: 'bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white shadow-amber-600/25 focus-visible:ring-amber-500',
+            wrapperClass: 'bg-rose-50 text-rose-600',
+            eyebrowText: 'Sesi Akun',
+            eyebrowClass: 'text-rose-600',
+            submitClass: 'bg-rose-600 hover:bg-rose-700 active:bg-rose-800 focus-visible:ring-rose-500',
             defaultIcon: 'log-out',
             defaultConfirm: 'Ya, Keluar'
         },
         key: {
-            wrapperClass: 'bg-amber-100 text-amber-700 border-amber-200/80',
-            submitClass: 'bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white shadow-amber-600/25 focus-visible:ring-amber-500',
+            wrapperClass: 'bg-amber-50 text-amber-600',
+            eyebrowText: 'Perhatian Khusus',
+            eyebrowClass: 'text-amber-700',
+            submitClass: 'bg-amber-600 hover:bg-amber-700 active:bg-amber-800 focus-visible:ring-amber-500',
             defaultIcon: 'key-round',
             defaultConfirm: 'Ya, Reset Sandi'
         },
         success: {
-            wrapperClass: 'bg-emerald-100 text-emerald-700 border-emerald-200/80',
-            submitClass: 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white shadow-emerald-600/25 focus-visible:ring-emerald-500',
+            wrapperClass: 'bg-emerald-50 text-emerald-600',
+            eyebrowText: 'Sinkronisasi Selesai',
+            eyebrowClass: 'text-emerald-700',
+            submitClass: 'bg-slate-900 hover:bg-slate-800 active:bg-slate-950 focus-visible:ring-slate-500',
             defaultIcon: 'check-circle-2',
-            defaultConfirm: 'Ya, Lanjutkan'
+            defaultConfirm: 'Ya, Lanjutkan',
+            centered: true
         },
         info: {
-            wrapperClass: 'bg-sky-100 text-sky-700 border-sky-200/80',
-            submitClass: 'bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white shadow-sky-600/25 focus-visible:ring-sky-500',
+            wrapperClass: 'bg-sky-50 text-sky-600',
+            eyebrowText: 'Petunjuk Teknis',
+            eyebrowClass: 'text-sky-700',
+            submitClass: 'bg-slate-900 hover:bg-slate-800 active:bg-slate-950 focus-visible:ring-slate-500',
             defaultIcon: 'info',
-            defaultConfirm: 'Mengerti'
+            defaultConfirm: 'Saya Mengerti'
         }
     };
 
-    function setModalIcon(iconName) {
+    function setModalIcon(iconName, sizeClass) {
         if (!iconWrapper) return;
-        iconWrapper.innerHTML = `<i data-lucide="${iconName}" class="w-6 h-6"></i>`;
+        iconWrapper.innerHTML = `<i data-lucide="${iconName}" class="${sizeClass}"></i>`;
         if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
             lucide.createIcons({
                 root: iconWrapper
             });
+        } else if (typeof window.reinitLucideIcons === 'function') {
+            // Vite build (app layout): lucide lives in the module bundle, not
+            // on window. app.js exposes createIcons as reinitLucideIcons.
+            window.reinitLucideIcons();
         }
     }
 
     function resetStyles() {
-        iconWrapper.className = 'w-12 h-12 rounded-2xl flex items-center justify-center border shadow-inner transition-colors';
-        submitBtn.className = 'flex-1 py-3 px-4 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all duration-150 active:scale-[0.98] shadow-md flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
+        headerRow.classList.remove('justify-center');
+        closeXBtn.classList.remove('hidden');
+        iconWrapper.className = ICON_WRAPPER_BASE;
+        bodyEl.classList.remove('text-center', 'pt-2');
+        footerEl.classList.remove('justify-center');
+        eyebrowEl.className = EYEBROW_BASE;
+        submitBtn.className = SUBMIT_BASE;
+        cancelBtn.className = CANCEL_BASE;
         cancelBtn.classList.remove('hidden');
+    }
+
+    function applyLayout(config) {
+        if (!config.centered) {
+            return;
+        }
+        headerRow.classList.add('justify-center');
+        closeXBtn.classList.add('hidden');
+        iconWrapper.classList.add('w-12', 'h-12', 'rounded-full', 'mx-auto', 'mb-4');
+        bodyEl.classList.add('text-center', 'pt-2');
+        footerEl.classList.add('justify-center');
+        submitBtn.classList.add('w-full');
     }
 
     function openModal() {
@@ -177,11 +236,14 @@
 
             // Icon wrapper & button styles
             iconWrapper.className += ' ' + config.wrapperClass;
+            eyebrowEl.className += ' ' + config.eyebrowClass;
+            eyebrowEl.textContent = config.eyebrowText;
             submitBtn.className += ' ' + config.submitClass;
+            applyLayout(config);
 
             // Render fresh Lucide icon
             const iconName = options.icon || config.defaultIcon;
-            setModalIcon(iconName);
+            setModalIcon(iconName, config.centered ? 'w-6 h-6' : 'w-5 h-5');
 
             // Title and message
             titleEl.textContent = options.title || 'Konfirmasi Tindakan';
@@ -204,10 +266,13 @@
             const config = TYPE_CONFIG[type];
 
             iconWrapper.className += ' ' + config.wrapperClass;
+            eyebrowEl.className += ' ' + config.eyebrowClass;
+            eyebrowEl.textContent = config.eyebrowText;
             submitBtn.className += ' ' + config.submitClass;
+            applyLayout(config);
 
             const iconName = options.icon || config.defaultIcon;
-            setModalIcon(iconName);
+            setModalIcon(iconName, config.centered ? 'w-6 h-6' : 'w-5 h-5');
 
             titleEl.textContent = options.title || 'Pemberitahuan';
             messageEl.innerHTML = options.message || '';

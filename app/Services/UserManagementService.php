@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Models\Student;
+use App\Models\Teacher;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
@@ -16,88 +18,100 @@ class UserManagementService
      */
     public function getStudentsPaginated(?string $search = null, ?string $classroomId = null, int $perPage = 15): LengthAwarePaginator
     {
-        $query = User::with('classroom')->where('role', 'siswa');
+        $query = Student::query()
+            ->select('students.*')
+            ->join('users', 'users.id', '=', 'students.user_id')
+            ->with(['user', 'classroom']);
 
         if (! empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('identity_number', 'like', "%{$search}%");
+                $q->where('users.name', 'like', "%{$search}%")
+                    ->orWhere('students.nisn', 'like', "%{$search}%");
             });
         }
 
         if (! empty($classroomId)) {
-            $query->where('classroom_id', $classroomId);
+            $query->where('students.classroom_id', $classroomId);
         }
 
-        return $query->orderBy('name')->paginate($perPage)->withQueryString();
+        return $query->orderBy('users.name')->paginate($perPage)->withQueryString();
     }
 
     /**
-     * Create a new student account with automatic DDMMYYYY default password
-     * Create a new student account with default password 'akunsiswa@maarif'
+     * Create a new student account (akun login + profil siswa) with default password
      *
      * @param  array<string, mixed>  $data
      * @return array{user: User, default_password: string}
      */
     public function createStudent(array $data): array
     {
-        $defaultPassword = Carbon::parse($data['birth_date'])->format('dmY');
         $defaultPassword = 'akunsiswa@maarif';
-        $email = ! empty($data['email']) ? $data['email'] : $data['identity_number'].'@siswa.maarif.sch.id';
+        $email = ! empty($data['email']) ? $data['email'] : $data['nisn'].'@siswa.maarif.sch.id';
 
         $photoPath = null;
         if (isset($data['photo']) && $data['photo'] instanceof UploadedFile) {
             $photoPath = $data['photo']->store('profile-photos', 'public');
         }
 
-        $user = User::create([
-            'identity_number' => $data['identity_number'],
-            'name' => $data['name'],
-            'email' => $email,
-            'birth_date' => $data['birth_date'],
-            'password' => Hash::make($defaultPassword),
-            'role' => 'siswa',
-            'classroom_id' => $data['classroom_id'],
-            'phone_number' => $data['phone_number'] ?? null,
-            'profile_photo_path' => $photoPath,
-            'is_active' => true,
-        ]);
+        return DB::transaction(function () use ($data, $defaultPassword, $email, $photoPath) {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $email,
+                'password' => Hash::make($defaultPassword),
+                'role' => 'siswa',
+                'profile_photo_path' => $photoPath,
+                'is_active' => true,
+            ]);
 
-        return [
-            'user' => $user,
-            'default_password' => $defaultPassword,
-        ];
+            $user->student()->create([
+                'nisn' => $data['nisn'],
+                'classroom_id' => $data['classroom_id'],
+                'phone_number' => $data['phone_number'] ?? null,
+                'birth_date' => $data['birth_date'],
+                'status' => 'AKTIF',
+            ]);
+
+            return [
+                'user' => $user,
+                'default_password' => $defaultPassword,
+            ];
+        });
     }
 
     /**
-     * Update an existing student record
+     * Update an existing student (akun + profil)
      *
      * @param  array<string, mixed>  $data
      */
     public function updateStudent(User $user, array $data): bool
     {
-        $updateData = [
-            'identity_number' => $data['identity_number'],
+        $userUpdate = [
             'name' => $data['name'],
-            'birth_date' => $data['birth_date'],
-            'classroom_id' => $data['classroom_id'],
-            'phone_number' => $data['phone_number'] ?? null,
             'is_active' => (bool) ($data['is_active'] ?? true),
         ];
 
         if (isset($data['email'])) {
-            $updateData['email'] = $data['email'];
+            $userUpdate['email'] = $data['email'];
         }
 
         if (! empty($data['remove_photo'])) {
             $this->deletePhysicalPhoto($user->profile_photo_path);
-            $updateData['profile_photo_path'] = null;
+            $userUpdate['profile_photo_path'] = null;
         } elseif (isset($data['photo']) && $data['photo'] instanceof UploadedFile) {
             $this->deletePhysicalPhoto($user->profile_photo_path);
-            $updateData['profile_photo_path'] = $data['photo']->store('profile-photos', 'public');
+            $userUpdate['profile_photo_path'] = $data['photo']->store('profile-photos', 'public');
         }
 
-        return $user->update($updateData);
+        return DB::transaction(function () use ($user, $data, $userUpdate) {
+            $user->update($userUpdate);
+
+            return (bool) $user->student->update([
+                'nisn' => $data['nisn'],
+                'classroom_id' => $data['classroom_id'],
+                'phone_number' => $data['phone_number'] ?? null,
+                'birth_date' => $data['birth_date'],
+            ]);
+        });
     }
 
     /**
@@ -105,29 +119,30 @@ class UserManagementService
      */
     public function getTeachersPaginated(?string $search = null, int $perPage = 15): LengthAwarePaginator
     {
-        $query = User::where('role', 'guru');
+        $query = Teacher::query()
+            ->select('teachers.*')
+            ->join('users', 'users.id', '=', 'teachers.user_id')
+            ->with('user');
 
         if (! empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('identity_number', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                $q->where('users.name', 'like', "%{$search}%")
+                    ->orWhere('teachers.nip', 'like', "%{$search}%")
+                    ->orWhere('users.email', 'like', "%{$search}%");
             });
         }
 
-        return $query->orderBy('name')->paginate($perPage)->withQueryString();
+        return $query->orderBy('users.name')->paginate($perPage)->withQueryString();
     }
 
     /**
-     * Create a new teacher account with automatic DDMMYYYY default password
-     * Create a new teacher account with default password 'akunguru@maarif'
+     * Create a new teacher account (akun login + profil guru) with default password
      *
      * @param  array<string, mixed>  $data
      * @return array{user: User, default_password: string}
      */
     public function createTeacher(array $data): array
     {
-        $defaultPassword = Carbon::parse($data['birth_date'])->format('dmY');
         $defaultPassword = 'akunguru@maarif';
 
         $photoPath = null;
@@ -135,53 +150,66 @@ class UserManagementService
             $photoPath = $data['photo']->store('profile-photos', 'public');
         }
 
-        $user = User::create([
-            'identity_number' => $data['identity_number'],
-            'name' => $data['name'],
-            'email' => $data['email'] ?? null,
-            'birth_date' => $data['birth_date'],
-            'password' => Hash::make($defaultPassword),
-            'role' => 'guru',
-            'phone_number' => $data['phone_number'] ?? null,
-            'profile_photo_path' => $photoPath,
-            'is_active' => true,
-        ]);
+        return DB::transaction(function () use ($data, $defaultPassword, $photoPath) {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'] ?? $data['nip'].'@maarif.sch.id',
+                'password' => Hash::make($defaultPassword),
+                'role' => 'guru',
+                'profile_photo_path' => $photoPath,
+                'is_active' => true,
+            ]);
 
-        return [
-            'user' => $user,
-            'default_password' => $defaultPassword,
-        ];
+            $user->teacher()->create([
+                'nip' => $data['nip'],
+                'jabatan' => $data['jabatan'] ?? null,
+                'phone_number' => $data['phone_number'] ?? null,
+                'birth_date' => $data['birth_date'],
+                'status_kepegawaian' => 'AKTIF',
+            ]);
+
+            return [
+                'user' => $user,
+                'default_password' => $defaultPassword,
+            ];
+        });
     }
 
     /**
-     * Update an existing teacher record
+     * Update an existing teacher (akun + profil)
      *
      * @param  array<string, mixed>  $data
      */
     public function updateTeacher(User $user, array $data): bool
     {
-        $updateData = [
-            'identity_number' => $data['identity_number'],
+        $userUpdate = [
             'name' => $data['name'],
             'email' => $data['email'] ?? null,
-            'birth_date' => $data['birth_date'],
-            'phone_number' => $data['phone_number'] ?? null,
             'is_active' => (bool) ($data['is_active'] ?? true),
         ];
 
         if (! empty($data['remove_photo'])) {
             $this->deletePhysicalPhoto($user->profile_photo_path);
-            $updateData['profile_photo_path'] = null;
+            $userUpdate['profile_photo_path'] = null;
         } elseif (isset($data['photo']) && $data['photo'] instanceof UploadedFile) {
             $this->deletePhysicalPhoto($user->profile_photo_path);
-            $updateData['profile_photo_path'] = $data['photo']->store('profile-photos', 'public');
+            $userUpdate['profile_photo_path'] = $data['photo']->store('profile-photos', 'public');
         }
 
-        return $user->update($updateData);
+        return DB::transaction(function () use ($user, $data, $userUpdate) {
+            $user->update($userUpdate);
+
+            return (bool) $user->teacher->update([
+                'nip' => $data['nip'],
+                'jabatan' => $data['jabatan'] ?? $user->teacher->jabatan,
+                'phone_number' => $data['phone_number'] ?? null,
+                'birth_date' => $data['birth_date'],
+            ]);
+        });
     }
 
     /**
-     * Delete a user record
+     * Delete a user record (profil domain ikut terhapus via cascade)
      */
     public function deleteUser(User $user): bool
     {

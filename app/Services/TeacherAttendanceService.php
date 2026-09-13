@@ -5,8 +5,11 @@ namespace App\Services;
 use App\Models\ClassSchedule;
 use App\Models\DailyAttendance;
 use App\Models\SchoolLocation;
+use App\Models\Teacher;
+use App\Models\TeacherSessionAttendance;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -59,9 +62,10 @@ class TeacherAttendanceService
         $hasCheckedIn = $this->hasCheckedInToday($teacher);
         $dailyAttendance = $this->getTodayDailyAttendance($teacher);
         $todayDay = self::getIndonesianDayName(Carbon::today());
+        $teacherProfileId = $teacher->teacher?->id;
 
-        $schedules = ClassSchedule::with(['classroom', 'subject', 'todaySession.attendances'])
-            ->where('teacher_id', $teacher->id)
+        $schedules = ClassSchedule::with(['classroom', 'subject', 'todaySession.attendances', 'todayTeacherAttendance'])
+            ->where('teacher_id', $teacherProfileId)
             ->where('day_of_week', $todayDay)
             ->orderBy('start_time')
             ->get();
@@ -113,7 +117,7 @@ class TeacherAttendanceService
     }
 
     /**
-     * Teaching Completion Lock: Get all today's schedules that are not yet LOCKED
+     * Get all today's schedules that do not yet have a LOCKED session (used for the "Sisa Jadwal" info metric)
      */
     public function getPendingSchedulesToday(User $teacher, ?Carbon $date = null): Collection
     {
@@ -123,7 +127,7 @@ class TeacherAttendanceService
         $schedules = ClassSchedule::with(['classroom', 'subject', 'sessions' => function ($q) use ($date) {
             $q->whereDate('created_at', $date);
         }])
-            ->where('teacher_id', $teacher->id)
+            ->where('teacher_id', $teacher->teacher?->id)
             ->where('day_of_week', $todayDay)
             ->get();
 
@@ -213,172 +217,27 @@ class TeacherAttendanceService
         ];
     }
 
-    public function checkOut(User $teacher, string $qrToken, ?float $lat = null, ?float $lng = null): array
-    {
-        if ($lat === null || $lng === null) {
-            return [
-                'success' => false,
-                'code' => 'GEOFENCE_REQUIRED',
-                'message' => 'Presensi ditolak. Lokasi GPS tidak terdeteksi. Harap aktifkan GPS dan izinkan akses lokasi pada peramban HP Bapak/Ibu Guru.',
-            ];
-        }
-
-        $geofence = $this->checkGeofence($lat, $lng);
-        if (! $geofence['is_within_geofence']) {
-            $distance = $geofence['distance'] ?? 0;
-            $radius = $geofence['radius'] ?? 75;
-
-            return [
-                'success' => false,
-                'code' => 'OUTSIDE_GEOFENCE',
-                'distance' => $distance,
-                'radius' => $radius,
-                'message' => "Presensi ditolak. Anda berada di luar area madrasah (Jarak: {$distance} meter, Batas Maksimal: {$radius} meter).",
-            ];
-        }
-
-        if (! $this->kioskService->validateToken($qrToken)) {
-            return [
-                'success' => false,
-                'code' => 'INVALID_QR_TOKEN',
-                'message' => 'Kode QR telah berganti atau kedaluwarsa. Silakan arahkan kamera ke Layar Presensi Madrasah untuk memindai kode QR terbaru.',
-            ];
-        }
-
-        $today = Carbon::today();
-        $daily = DailyAttendance::where('user_id', $teacher->id)
-            ->whereDate('attendance_date', $today)
-            ->first();
-
-        if (! $daily || ! $daily->check_in_time) {
-            return [
-                'success' => false,
-                'code' => 'NOT_CHECKED_IN',
-                'message' => 'Bapak/Ibu Guru belum melakukan presensi masuk hari ini.',
-            ];
-        }
-
-        // Teaching Completion Lock enforcement
-        $pendingSchedules = $this->getPendingSchedulesToday($teacher, $today);
-        if ($pendingSchedules->isNotEmpty()) {
-            $scheduleNames = $pendingSchedules->map(function ($s) {
-                return ($s->subject->name ?? 'Mapel').' ('.($s->classroom->name ?? 'Kelas').')';
-            })->values()->all();
-
-            return [
-                'success' => false,
-                'code' => 'TEACHING_COMPLETION_LOCKED',
-                'pending_schedules' => $scheduleNames,
-                'message' => 'Presensi Pulang Terkunci: Masih ada '.count($scheduleNames).' jadwal kelas yang belum tuntas dikonfirmasi keterangannya: '.implode(', ', $scheduleNames).'. Silakan selesaikan sesi dan konfirmasi keterangan kehadiran siswa terlebih dahulu.',
-            ];
-        }
-
-        if (! empty($daily->check_out_time)) {
-            return [
-                'success' => false,
-                'code' => 'ALREADY_CHECKED_OUT',
-                'check_out_time' => $daily->check_out_time,
-                'message' => 'Bapak/Ibu Guru sudah melakukan presensi pulang hari ini pada pukul '.substr($daily->check_out_time, 0, 5).' WIB.',
-            ];
-        }
-
-        $now = Carbon::now();
-        $daily->check_out_time = $now->format('H:i:s');
-        $daily->check_out_status = 'TEPAT_WAKTU';
-        if ($lat && $lng) {
-            $daily->check_out_latitude = $lat;
-            $daily->check_out_longitude = $lng;
-        }
-        $daily->save();
-
-        Cache::put('kiosk_latest_event', [
-            'id' => (string) Str::uuid(),
-            'type' => 'check_out',
-            'teacher_name' => $teacher->name,
-            'time' => $now->format('H:i:s'),
-            'status' => 'TEPAT_WAKTU',
-            'title' => 'Selamat Pulang!',
-            'message' => 'Terima kasih atas dedikasi dan keikhlasan mendidik siswa-siswi hari ini. Hati-hati di perjalanan pulang!',
-            'timestamp_ms' => $now->getTimestampMs(),
-        ], 120);
-
-        return [
-            'success' => true,
-            'check_out_time' => $daily->check_out_time,
-            'message' => 'Presensi pulang berhasil dicatat pada '.$now->format('H:i:s').' WIB. Seluruh jadwal mengajar hari ini telah tuntas.',
-        ];
-    }
-
     /**
-     * Single auto endpoint: determines masuk vs pulang automatically.
-     * - !hasCheckedIn -> checkIn
-     * - hasCheckedIn && pending not empty -> TEACHING_COMPLETION_LOCKED
-     * - hasCheckedIn && check_out null -> checkOut
-     * - already checked out -> ALREADY_CHECKED_OUT
+     * Build a "schedule_id|Y-m-d" keyed map of teacher session attendances for a set of ClassSessions
+     *
+     * @param  LengthAwarePaginator<int, ClassSession>|Collection<int, ClassSession>  $sessions
+     * @return array<string, TeacherSessionAttendance>
      */
-    public function autoAttend(User $teacher, string $qrToken, ?float $lat = null, ?float $lng = null): array
+    public function getSessionAttendanceMapForSessions($sessions): array
     {
-        if ($lat === null || $lng === null) {
-            return [
-                'success' => false,
-                'code' => 'GEOFENCE_REQUIRED',
-                'message' => 'Presensi ditolak. Lokasi GPS tidak terdeteksi. Harap aktifkan GPS dan izinkan akses lokasi pada peramban HP Bapak/Ibu Guru.',
-            ];
+        $rows = $sessions->getCollection();
+        if ($rows->isEmpty()) {
+            return [];
         }
 
-        $geofence = $this->checkGeofence($lat, $lng);
-        if (! $geofence['is_within_geofence']) {
-            $distance = $geofence['distance'] ?? 0;
-            $radius = $geofence['radius'] ?? 75;
+        $dates = $rows->map(fn ($ses) => $ses->created_at->toDateString())->unique()->values();
 
-            return [
-                'success' => false,
-                'code' => 'OUTSIDE_GEOFENCE',
-                'distance' => $distance,
-                'radius' => $radius,
-                'message' => "Presensi ditolak. Anda berada di luar area madrasah (Jarak: {$distance} meter, Batas Maksimal: {$radius} meter).",
-            ];
-        }
-
-        if (! $this->kioskService->validateToken($qrToken)) {
-            return [
-                'success' => false,
-                'code' => 'INVALID_QR_TOKEN',
-                'message' => 'Kode QR telah berganti atau kedaluwarsa. Silakan arahkan kamera ke Layar Presensi Madrasah untuk memindai kode QR terbaru.',
-            ];
-        }
-
-        $daily = $this->getTodayDailyAttendance($teacher);
-
-        // Scan pertama hari itu -> otomatis Masuk
-        if (! $daily || ! $daily->check_in_time) {
-            return $this->checkIn($teacher, $qrToken, $lat, $lng);
-        }
-
-        // Sudah pulang -> tolak
-        if (! empty($daily->check_out_time)) {
-            return [
-                'success' => false,
-                'code' => 'ALREADY_CHECKED_OUT',
-                'check_out_time' => $daily->check_out_time,
-                'message' => 'Bapak/Ibu Guru sudah menyelesaikan presensi pulang hari ini pada pukul '.substr($daily->check_out_time, 0, 5).' WIB.',
-            ];
-        }
-
-        // Sudah masuk tapi masih ada kelas belum LOCKED -> kunci pulang
-        $pendingSchedules = $this->getPendingSchedulesToday($teacher, Carbon::today());
-        if ($pendingSchedules->isNotEmpty()) {
-            $scheduleNames = $pendingSchedules->map(fn ($s) => ($s->subject->name ?? 'Mapel').' ('.($s->classroom->name ?? 'Kelas').')')->values()->all();
-
-            return [
-                'success' => false,
-                'code' => 'TEACHING_COMPLETION_LOCKED',
-                'pending_schedules' => $scheduleNames,
-                'message' => 'Presensi Pulang Terkunci: Masih ada '.count($scheduleNames).' jadwal kelas yang belum tuntas dikonfirmasi keterangannya: '.implode(', ', $scheduleNames).'. Silakan selesaikan sesi dan konfirmasi keterangan kehadiran siswa terlebih dahulu.',
-            ];
-        }
-
-        return $this->checkOut($teacher, $qrToken, $lat, $lng);
+        return TeacherSessionAttendance::where('teacher_id', $rows->first()->teacher_id)
+            ->whereIn('schedule_id', $rows->pluck('schedule_id')->unique()->values())
+            ->whereIn('attendance_date', $dates)
+            ->get()
+            ->keyBy(fn ($att) => $att->schedule_id.'|'.$att->attendance_date->toDateString())
+            ->all();
     }
 
     /**
@@ -391,36 +250,40 @@ class TeacherAttendanceService
         $carbonDate = Carbon::parse($date);
         $todayDay = self::getIndonesianDayName($carbonDate);
 
-        $teacherQuery = User::where('role', 'guru')
-            ->where('is_active', true);
+        $teacherQuery = Teacher::query()
+            ->select('teachers.*')
+            ->join('users', 'users.id', '=', 'teachers.user_id')
+            ->with('user')
+            ->where('users.role', 'guru')
+            ->where('users.is_active', true);
 
         if (! empty($search)) {
             $teacherQuery->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('identity_number', 'like', "%{$search}%");
+                $q->where('users.name', 'like', "%{$search}%")
+                    ->orWhere('teachers.nip', 'like', "%{$search}%");
             });
         }
 
-        $teachers = $teacherQuery->orderBy('name')->get();
+        $teachers = $teacherQuery->orderBy('users.name')->get();
 
         $dailyAttendances = DailyAttendance::whereDate('attendance_date', $date)
-            ->whereIn('user_id', $teachers->pluck('id'))
+            ->whereIn('user_id', $teachers->pluck('user_id'))
             ->get()
             ->keyBy('user_id');
 
         // Batch-load schedules for all teachers to avoid N+1
-        $allSchedules = ClassSchedule::with(['classroom', 'subject', 'sessions' => function ($q) use ($carbonDate) {
-            $q->whereDate('created_at', $carbonDate);
+        $allSchedules = ClassSchedule::with(['classroom', 'subject', 'teacherAttendances' => function ($q) use ($carbonDate) {
+            $q->whereDate('attendance_date', $carbonDate);
         }])
             ->whereIn('teacher_id', $teachers->pluck('id'))
             ->where('day_of_week', $todayDay)
             ->get()
             ->groupBy('teacher_id');
 
-        $results = $teachers->map(function (User $teacher) use ($dailyAttendances, $allSchedules) {
-            $attendance = $dailyAttendances->get($teacher->id);
+        $results = $teachers->map(function (Teacher $teacher) use ($dailyAttendances, $allSchedules) {
+            $attendance = $dailyAttendances->get($teacher->user_id);
 
-            // Compute status
+            // Compute kedatangan status
             if ($attendance && $attendance->check_in_time) {
                 $computedStatus = $attendance->check_in_status ?: 'HADIR';
             } elseif ($attendance && in_array($attendance->check_in_status, ['IZIN', 'SAKIT', 'ALPA'])) {
@@ -431,21 +294,28 @@ class TeacherAttendanceService
 
             $schedules = $allSchedules->get($teacher->id, collect());
 
-            $pendingCount = $schedules->filter(function ($sch) {
-                $ses = $sch->sessions->first();
+            $sessionRows = $schedules->map(fn ($sch) => [
+                'schedule' => $sch,
+                'attendance' => $sch->teacherAttendances->first(),
+                'status' => $sch->teacherAttendances->first()?->status,
+                'attended_at' => $sch->teacherAttendances->first()?->attended_at?->format('H:i'),
+            ]);
+            $sessionStatuses = $sessionRows->pluck('status');
 
-                return ! $ses || $ses->status !== 'LOCKED';
-            })->count();
+            $sessionsHadir = $sessionStatuses->filter(fn ($s) => $s === 'HADIR')->count();
+            $sessionsTerlambat = $sessionRows->filter(fn ($row) => $row['attendance']?->isLate())->count();
+            $sessionsBelum = $sessionStatuses->filter(fn ($s) => $s === null)->count();
 
             return [
                 'teacher' => $teacher,
                 'attendance' => $attendance,
                 'status' => $computedStatus,
                 'check_in_time' => $attendance?->check_in_time ? substr($attendance->check_in_time, 0, 5) : null,
-                'check_out_time' => $attendance?->check_out_time ? substr($attendance->check_out_time, 0, 5) : null,
-                'is_completed' => ! empty($attendance?->check_out_time),
                 'total_schedules_today' => $schedules->count(),
-                'pending_schedules_count' => $pendingCount,
+                'schedules' => $sessionRows,
+                'sessions_hadir' => $sessionsHadir,
+                'sessions_terlambat' => $sessionsTerlambat,
+                'sessions_belum' => $sessionsBelum,
             ];
         });
 
@@ -460,11 +330,14 @@ class TeacherAttendanceService
     /**
      * Compute daily summary KPI for teacher attendance on a specific date
      *
-     * @return array{total_guru: int, hadir: int, terlambat: int, izin_sakit: int, belum_hadir: int, checkout_tuntas: int}
+     * @return array{total_guru: int, hadir: int, terlambat: int, izin_sakit: int, belum_hadir: int, total_sesi: int, sesi_hadir: int, sesi_terlambat: int, sesi_belum: int}
      */
     public function getTeacherAttendanceDailySummary(string $date): array
     {
-        $totalGuru = User::where('role', 'guru')->where('is_active', true)->count();
+        $carbonDate = Carbon::parse($date);
+        $totalGuru = Teacher::whereHas('user', function ($q) {
+            $q->where('role', 'guru')->where('is_active', true);
+        })->count();
 
         $dailyQuery = DailyAttendance::whereDate('attendance_date', $date)
             ->whereHas('user', function ($q) {
@@ -474,22 +347,47 @@ class TeacherAttendanceService
         $hadir = (clone $dailyQuery)->where('check_in_status', 'HADIR')->count();
         $terlambat = (clone $dailyQuery)->where('check_in_status', 'TERLAMBAT')->count();
         $izinSakit = (clone $dailyQuery)->whereIn('check_in_status', ['IZIN', 'SAKIT'])->count();
-        $checkoutTuntas = (clone $dailyQuery)->whereNotNull('check_out_time')->count();
 
         $belumHadir = max(0, $totalGuru - ($hadir + $terlambat + $izinSakit));
 
-        return compact('totalGuru', 'hadir', 'terlambat', 'izinSakit', 'belumHadir', 'checkoutTuntas');
+        // Per-session teaching stats for that day of week
+        $todayDay = self::getIndonesianDayName($carbonDate);
+        $totalSesi = ClassSchedule::where('day_of_week', $todayDay)
+            ->whereHas('teacher.user', function ($q) {
+                $q->where('role', 'guru')->where('is_active', true);
+            })->count();
+
+        $sessionAttendances = TeacherSessionAttendance::with('schedule')
+            ->whereDate('attendance_date', $date)
+            ->whereHas('teacher.user', function ($q) {
+                $q->where('role', 'guru')->where('is_active', true);
+            })->get();
+
+        $sesiHadir = $sessionAttendances->where('status', 'HADIR')->count();
+        $sesiTerlambat = $sessionAttendances->filter(fn ($att) => $att->isLate())->count();
+        $sesiBelum = max(0, $totalSesi - ($sesiHadir + $sesiTerlambat));
+
+        return compact(
+            'totalGuru',
+            'hadir',
+            'terlambat',
+            'izinSakit',
+            'belumHadir',
+            'totalSesi',
+            'sesiHadir',
+            'sesiTerlambat',
+            'sesiBelum'
+        );
     }
 
     /**
-     * Update or create manual teacher attendance recorded by TU staff
+     * Update or create manual teacher arrival (kiosk check-in) recorded by TU staff
      */
     public function updateManualTeacherAttendance(
         User $teacher,
         string $date,
         string $status,
-        ?string $checkInTime = null,
-        ?string $checkOutTime = null
+        ?string $checkInTime = null
     ): DailyAttendance {
         $daily = DailyAttendance::firstOrNew([
             'user_id' => $teacher->id,
@@ -509,18 +407,59 @@ class TeacherAttendanceService
             $daily->check_in_time = strlen($checkInTime) === 5 ? $checkInTime.':00' : $checkInTime;
         }
 
-        if (! empty($checkOutTime)) {
-            $daily->check_out_time = strlen($checkOutTime) === 5 ? $checkOutTime.':00' : $checkOutTime;
-            $daily->check_out_status = 'TEPAT_WAKTU';
-        }
-
         $daily->save();
 
         return $daily;
     }
 
     /**
-     * Get comprehensive individual attendance history and teaching stats for a teacher
+     * Update or create manual teacher session attendance (per teaching schedule) recorded by TU staff
+     */
+    public function updateManualTeacherSessionAttendance(
+        Teacher $teacher,
+        ClassSchedule $schedule,
+        string $date,
+        string $status,
+        ?string $attendedAt = null,
+        ?string $notes = null,
+        ?User $recordedBy = null
+    ): TeacherSessionAttendance {
+        $allowed = [
+            TeacherSessionAttendance::STATUS_HADIR,
+            TeacherSessionAttendance::STATUS_IZIN,
+            TeacherSessionAttendance::STATUS_SAKIT,
+            TeacherSessionAttendance::STATUS_DINAS_LUAR,
+            TeacherSessionAttendance::STATUS_ALPA,
+        ];
+
+        $status = strtoupper($status);
+        if (! in_array($status, $allowed, true)) {
+            $status = TeacherSessionAttendance::STATUS_ALPA;
+        }
+
+        $carbonDate = Carbon::parse($date)->startOfDay();
+
+        return TeacherSessionAttendance::updateOrCreate(
+            [
+                'schedule_id' => $schedule->id,
+                'teacher_id' => $teacher->id,
+                'attendance_date' => $carbonDate,
+            ],
+            [
+                'status' => $status,
+                'attended_at' => $attendedAt
+                    ? $carbonDate->copy()->setTimeFromTimeString($attendedAt)
+                    : ($status === TeacherSessionAttendance::STATUS_HADIR
+                        ? $carbonDate->copy()->setTimeFromTimeString($schedule->start_time)
+                        : null),
+                'notes' => $notes,
+                'recorded_by' => $recordedBy?->id,
+            ]
+        );
+    }
+
+    /**
+     * Get comprehensive individual attendance history (arrival + teaching sessions) for a teacher
      *
      * @return array<string, mixed>
      */
@@ -530,6 +469,12 @@ class TeacherAttendanceService
         $endDate = $endDate ?: Carbon::today()->format('Y-m-d');
 
         $attendances = DailyAttendance::where('user_id', $teacher->id)
+            ->whereBetween('attendance_date', [$startDate, $endDate])
+            ->orderBy('attendance_date', 'desc')
+            ->get();
+
+        $sessionAttendances = TeacherSessionAttendance::with(['schedule.subject', 'schedule.classroom'])
+            ->where('teacher_id', $teacher->teacher?->id)
             ->whereBetween('attendance_date', [$startDate, $endDate])
             ->orderBy('attendance_date', 'desc')
             ->get();
@@ -546,6 +491,7 @@ class TeacherAttendanceService
             'startDate',
             'endDate',
             'attendances',
+            'sessionAttendances',
             'totalHadir',
             'totalTerlambat',
             'totalIzinSakit',

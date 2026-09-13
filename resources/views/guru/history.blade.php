@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Riwayat Kelas Mengajar — MA Ma\'arif Cilageni')
+@section('title', 'Riwayat Kelas Mengajar — SIMADMA')
 @section('page-title', 'Riwayat Kelas Mengajar')
 
 @section('content')
@@ -128,21 +128,21 @@
                         $chipUrl  = route('guru.history', array_merge(request()->except('page'), ['status' => $val ?: null]));
                     @endphp
                     @if($chip['icon'] === 'all')
-                        <a href="{{ $chipUrl }}" class="px-4 py-2 rounded-xl text-xs flex items-center space-x-1.5 shrink-0 shadow-sm transition-colors {{ $isActive ? 'bg-slate-900 text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold' }}">
+                        <a href="{{ $chipUrl }}" class="px-4 py-2 rounded-xl text-xs flex items-center space-x-1.5 shrink-0 shadow-sm transition-colors {{ $isActive ? 'bg-maarif-700 text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold' }}">
                             <svg class="w-3.5 h-3.5 {{ $isActive ? 'text-white' : 'text-slate-500' }}" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                             <span>{{ $chip['label'] }} ({{ $chip['count'] }})</span>
                         </a>
                     @elseif($chip['icon'] === 'done')
-                        <a href="{{ $chipUrl }}" class="px-4 py-2 rounded-xl text-xs flex items-center space-x-1.5 shrink-0 transition-colors {{ $isActive ? 'bg-slate-900 text-white font-bold shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold' }}">
+                        <a href="{{ $chipUrl }}" class="px-4 py-2 rounded-xl text-xs flex items-center space-x-1.5 shrink-0 transition-colors {{ $isActive ? 'bg-maarif-700 text-white font-bold shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold' }}">
                             <svg class="w-3.5 h-3.5 {{ $isActive ? 'text-emerald-400' : 'text-emerald-600' }}" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                             <span>{{ $chip['label'] }} ({{ $chip['count'] }})</span>
                         </a>
                     @else
-                        <a href="{{ $chipUrl }}" class="px-4 py-2 rounded-xl text-xs flex items-center space-x-1.5 shrink-0 transition-colors {{ $isActive ? 'bg-slate-900 text-white font-bold shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold' }}">
+                        <a href="{{ $chipUrl }}" class="px-4 py-2 rounded-xl text-xs flex items-center space-x-1.5 shrink-0 transition-colors {{ $isActive ? 'bg-maarif-700 text-white font-bold shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold' }}">
                             <span class="w-2 h-2 rounded-full bg-amber-400"></span>
                             <span>{{ $chip['label'] }} ({{ $chip['count'] }})</span>
                         </a>
@@ -171,47 +171,54 @@
             </div>
 
             <!-- Date Inputs (5 cols on md:) -->
+            <style>
+                input[type="date"] {
+                    -webkit-appearance: none;
+                    appearance: none;
+                }
+                input[type="date"]::-webkit-calendar-picker-indicator {
+                    display: none !important;
+                }
+            </style>
             <div class="md:col-span-5 grid grid-cols-2 gap-3">
                 <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">DARI TANGGAL</label>
-                    <div class="relative w-full pl-3.5 pr-9 py-2.5 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-700 flex items-center min-h-[38px] cursor-pointer" data-date-wrap>
-                        <span data-date-label class="mono-font font-medium {{ $startDate ? 'text-slate-700' : 'text-slate-400' }}">
-                            {{ $startDate ? \Carbon\Carbon::parse($startDate)->format('d/m/Y') : 'dd/mm/yyyy' }}
-                        </span>
-                        <span class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                    <div class="relative">
+                        <input type="date" name="start_date" value="{{ $startDate }}" aria-label="Dari Tanggal"
+                            class="w-full pl-3.5 pr-10 py-2.5 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-700 mono-font font-medium min-h-[38px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-300 focus:border-slate-300 transition">
+                        <span onclick="try { this.parentElement.querySelector('input').showPicker(); } catch (e) { this.parentElement.querySelector('input').focus(); }"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                         </span>
-                        <input type="date" name="start_date" value="{{ $startDate }}" aria-label="Dari Tanggal" onchange="updateDateLabel(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                     </div>
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">SAMPAI TANGGAL</label>
-                    <div class="relative w-full pl-3.5 pr-9 py-2.5 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-700 flex items-center min-h-[38px] cursor-pointer" data-date-wrap>
-                        <span data-date-label class="mono-font font-medium {{ $endDate ? 'text-slate-700' : 'text-slate-400' }}">
-                            {{ $endDate ? \Carbon\Carbon::parse($endDate)->format('d/m/Y') : 'dd/mm/yyyy' }}
-                        </span>
-                        <span class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                    <div class="relative">
+                        <input type="date" name="end_date" value="{{ $endDate }}" aria-label="Sampai Tanggal"
+                            class="w-full pl-3.5 pr-10 py-2.5 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-700 mono-font font-medium min-h-[38px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-300 focus:border-slate-300 transition">
+                        <span onclick="try { this.parentElement.querySelector('input').showPicker(); } catch (e) { this.parentElement.querySelector('input').focus(); }"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                         </span>
-                        <input type="date" name="end_date" value="{{ $endDate }}" aria-label="Sampai Tanggal" onchange="updateDateLabel(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                     </div>
                 </div>
             </div>
 
             <!-- Submit Button & Reset Button (2 cols on md:) -->
             <div class="md:col-span-2 flex items-center gap-2">
-                <button class="w-full py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-2 active:scale-[0.99] transition-all shadow-sm cursor-pointer" type="submit">
+                <button class="w-full py-2.5 px-4 bg-maarif-700 hover:bg-maarif-800 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-2 active:scale-[0.99] transition-all shadow-sm cursor-pointer" type="submit">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" stroke-linecap="round" stroke-linejoin="round"></path>
                     </svg>
                     <span>Terapkan</span>
                 </button>
                 @if(!empty($search) || !empty($startDate) || !empty($endDate) || !empty($selectedStatus))
-                    <a href="{{ route('guru.history') }}" title="Reset Filter" class="py-2.5 px-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-xl text-xs font-semibold flex items-center justify-center transition cursor-pointer shrink-0">
+                    <a href="{{ route('guru.history') }}" title="Reset Filter" class="py-2.5 px-3 bg-white border border-maarif-200 hover:bg-maarif-50 text-maarif-700 rounded-xl text-xs font-semibold flex items-center justify-center transition cursor-pointer shrink-0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
                         </svg>
@@ -258,6 +265,16 @@
                                     <span class="text-slate-300">•</span>
                                     <span class="text-slate-400 font-medium mono-font">Kode: {{ $ses->schedule->subject->code }}</span>
                                 @endif
+                                @php
+                                    $sesAtt = $sessionAttendanceMap[$ses->schedule_id.'|'.$ses->created_at->toDateString()] ?? null;
+                                    $sesAttLabels = ['HADIR' => 'Hadir', 'IZIN' => 'Izin', 'SAKIT' => 'Sakit', 'DINAS_LUAR' => 'Dinas Luar', 'ALPA' => 'Alpa'];
+                                @endphp
+                                @if($sesAtt)
+                                    <span class="text-slate-300">•</span>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold {{ $sesAtt->status === 'HADIR' ? ($sesAtt->isLate() ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200') : 'bg-rose-100 text-rose-700 border border-rose-200' }}">
+                                        Absen: {{ ($sesAttLabels[$sesAtt->status] ?? $sesAtt->status).($sesAtt->isLate() ? ' (Terlambat)' : '') }} @if($sesAtt->attended_at){{ $sesAtt->attended_at->format('H:i') }}@endif
+                                    </span>
+                                @endif
                             </div>
                         </div>
                         <!-- Col 3: PIN & Durasi -->
@@ -293,7 +310,7 @@
                                     <span>Perlu Konfirmasi</span>
                                 </span>
                             @endif
-                            <a href="{{ route('guru.session.reconcile', $ses) }}" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold inline-flex items-center space-x-1.5 shadow-sm active:scale-95 transition-all cursor-pointer">
+                            <a href="{{ route('guru.session.reconcile', $ses) }}" class="px-4 py-2 rounded-xl bg-maarif-700 hover:bg-maarif-800 text-white text-xs font-bold inline-flex items-center space-x-1.5 shadow-sm active:scale-95 transition-all cursor-pointer">
                                 <span>Lihat Kehadiran</span>
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                     <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -311,7 +328,7 @@
                         <div class="space-y-2">
                             <h4 class="text-sm font-bold text-slate-800 heading-font">Tidak Ada Sesi yang Cocok</h4>
                             <p class="text-xs text-slate-500">Tidak ditemukan data yang sesuai dengan filter yang diterapkan.</p>
-                            <a href="{{ route('guru.history') }}" class="mt-1 inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl text-xs transition-all shadow-sm cursor-pointer">
+                            <a href="{{ route('guru.history') }}" class="mt-1 inline-flex items-center gap-1.5 px-4 py-2 bg-maarif-700 hover:bg-maarif-800 text-white font-semibold rounded-xl text-xs transition-all shadow-sm cursor-pointer">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
                                 </svg>
@@ -339,22 +356,5 @@
 </div>
 
 @push('scripts')
-<script>
-    function updateDateLabel(input) {
-        var wrap = input.closest('div.relative');
-        var label = wrap ? wrap.querySelector('[data-date-label]') : null;
-        if (!label) return;
-        if (input.value) {
-            var parts = input.value.split('-');
-            label.textContent = parts[2] + '/' + parts[1] + '/' + parts[0];
-            label.classList.remove('text-slate-400');
-            label.classList.add('text-slate-700');
-        } else {
-            label.textContent = 'dd/mm/yyyy';
-            label.classList.remove('text-slate-700');
-            label.classList.add('text-slate-400');
-        }
-    }
-</script>
 @endpush
 @endsection

@@ -277,7 +277,7 @@
     </div>
 
     {{-- ── MODAL KOREKSI PRESENSI SISWA ─────────────────────────────── --}}
-    <div id="correctionModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 hidden transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalKoreksiSiswaTitle">
+    <div id="correctionModal" class="fixed inset-0 z-[60] bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 hidden transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalKoreksiSiswaTitle">
         <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200/80 max-h-[92vh] flex flex-col overflow-hidden transform transition-all">
             {{-- Header --}}
             <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/60 shrink-0">

@@ -5,7 +5,9 @@ namespace App\Services;
 use App\Models\ClassSession;
 use App\Models\DailyAttendance;
 use App\Models\LessonAttendance;
-use App\Models\User;
+use App\Models\Student;
+use App\Models\Teacher;
+use App\Models\TeacherSessionAttendance;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -31,8 +33,12 @@ class AdminDashboardService
     {
         $today = Carbon::today();
 
-        $totalSiswa = User::where('role', 'siswa')->where('is_active', true)->count();
-        $totalGuru = User::where('role', 'guru')->where('is_active', true)->count();
+        $totalSiswa = Student::whereHas('user', function ($q) {
+            $q->where('is_active', true);
+        })->count();
+        $totalGuru = Teacher::whereHas('user', function ($q) {
+            $q->where('role', 'guru')->where('is_active', true);
+        })->count();
 
         // Student attendances today (unique students per status)
         $siswaHadir = LessonAttendance::whereDate('attendance_date', $today)
@@ -62,15 +68,25 @@ class AdminDashboardService
                 $q->where('role', 'guru');
             })->count();
 
+        // Teacher session attendances today (per teaching schedule)
+        $guruSessionAttendances = TeacherSessionAttendance::with('schedule')
+            ->whereDate('attendance_date', $today)
+            ->whereHas('teacher.user', function ($q) {
+                $q->where('role', 'guru');
+            })->get();
+
+        $guruSesiHadir = $guruSessionAttendances->where('status', 'HADIR')->count();
+        $guruSesiTerlambat = $guruSessionAttendances->filter(fn ($att) => $att->isLate())->count();
+
         // Active or recently opened class sessions today
-        $activeSessions = ClassSession::with(['schedule.classroom', 'schedule.subject', 'teacher'])
+        $activeSessions = ClassSession::with(['schedule.classroom', 'schedule.subject', 'teacher.user'])
             ->whereDate('created_at', $today)
             ->latest()
             ->take(10)
             ->get();
 
         // 10 recent student lesson attendances today
-        $recentSiswaAttendances = LessonAttendance::with(['student.classroom', 'schedule.subject', 'schedule.classroom', 'session.teacher'])
+        $recentSiswaAttendances = LessonAttendance::with(['student.user', 'student.classroom', 'schedule.subject', 'schedule.classroom', 'session.teacher.user'])
             ->whereDate('attendance_date', $today)
             ->latest('verified_at')
             ->latest('created_at')
@@ -95,6 +111,8 @@ class AdminDashboardService
             'siswaSakit',
             'siswaAlpa',
             'guruHadir',
+            'guruSesiHadir',
+            'guruSesiTerlambat',
             'activeSessions',
             'recentSiswaAttendances',
             'recentGuruAttendances'

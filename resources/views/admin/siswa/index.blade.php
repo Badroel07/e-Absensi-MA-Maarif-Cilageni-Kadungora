@@ -132,14 +132,6 @@
                             {{-- Aksi --}}
                             <td class="py-3.5 px-5 text-right whitespace-nowrap">
                                 <div class="inline-flex items-center justify-end gap-1.5">
-                                    {{-- Riwayat — primary action, labeled --}}
-                                    <a href="{{ route('admin.siswa.riwayat', $st) }}"
-                                       title="Lihat Riwayat Presensi"
-                                       class="inline-flex items-center gap-1.5 py-1.5 px-3 bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white rounded-lg text-xs font-semibold transition-all duration-150 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
-                                        <i data-lucide="history" class="w-3.5 h-3.5 shrink-0"></i>
-                                        <span>Riwayat</span>
-                                    </a>
-
                                     {{-- Edit — icon only --}}
                                     <button type="button"
                                         onclick="openEditModal({{ json_encode([
@@ -227,7 +219,7 @@
     </div>
 
     {{-- ── MODAL TAMBAH SISWA ───────────────────────────────────────── --}}
-    <div id="modalAddSiswa" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 hidden transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalAddTitle">
+    <div id="modalAddSiswa" class="fixed inset-0 z-[60] bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 hidden transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalAddTitle">
         <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200/80 max-h-[92vh] flex flex-col overflow-hidden transform transition-all">
             {{-- Header --}}
             <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/60 shrink-0">
@@ -264,7 +256,7 @@
                                 NISN <span class="text-rose-500">*</span>
                                 <span class="text-[10px] font-normal text-slate-400 font-sans ml-1">(10 digit unik)</span>
                             </label>
-                            <input type="text" name="identity_number" required maxlength="10" placeholder="0091234501"
+                            <input type="text" name="nisn" required maxlength="10" placeholder="0091234501"
                                 class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none mono-font text-xs bg-slate-50/70 focus:bg-white transition placeholder:text-slate-400">
                         </div>
 
@@ -367,7 +359,7 @@
     </div>
 
     {{-- ── MODAL EDIT SISWA ─────────────────────────────────────────── --}}
-    <div id="modalEditSiswa" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 hidden transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalEditTitle">
+    <div id="modalEditSiswa" class="fixed inset-0 z-[60] bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 hidden transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalEditTitle">
         <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200/80 max-h-[92vh] flex flex-col overflow-hidden transform transition-all">
             {{-- Header --}}
             <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/60 shrink-0">
@@ -380,7 +372,7 @@
                         <p class="text-xs text-slate-400 font-medium">Ubah biodata, rombel, status aktif, atau foto siswa</p>
                     </div>
                 </div>
-                <button type="button" onclick="closeEditModal()"
+                <button type="button" onclick="requestCloseEditModal()"
                     class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-all duration-150 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                     aria-label="Tutup modal">
                     <i data-lucide="x" class="w-5 h-5"></i>
@@ -388,7 +380,12 @@
             </div>
 
             {{-- Form Body (Scrollable) --}}
-            <form id="formEditSiswa" method="POST" enctype="multipart/form-data" data-loading-form class="flex-1 overflow-y-auto p-6 space-y-6 text-xs">
+            <form id="formEditSiswa" method="POST" enctype="multipart/form-data" data-loading-form class="flex-1 overflow-y-auto p-6 space-y-6 text-xs"
+                data-confirm="Perbarui data siswa dengan perubahan yang telah diisi? Pastikan data sudah benar."
+                data-confirm-title="Perbarui Data Siswa"
+                data-confirm-type="primary"
+                data-confirm-btn="Ya, Perbarui Siswa"
+                data-confirm-icon="check">
                 @csrf
                 @method('PUT')
 
@@ -426,7 +423,7 @@
                                 NISN <span class="text-rose-500">*</span>
                                 <span class="text-[10px] font-normal text-slate-400 font-sans ml-1">(10 digit)</span>
                             </label>
-                            <input type="text" id="editSiswaNisn" name="identity_number" required maxlength="10"
+                            <input type="text" id="editSiswaNisn" name="nisn" required maxlength="10"
                                 class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-600 focus:border-sky-600 focus:outline-none mono-font text-xs bg-slate-50/70 focus:bg-white transition">
                         </div>
 
@@ -510,10 +507,10 @@
 
                 {{-- Sticky Footer Inside Form --}}
                 <div class="pt-4 flex items-center justify-end gap-2.5 border-t border-slate-100">
-                    <button type="button" onclick="closeEditModal()"
-                        class="py-2.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs border border-slate-200 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
-                        Batal
-                    </button>
+                <button type="button" onclick="requestCloseEditModal()"
+                    class="py-2.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs border border-slate-200 transition-all duration-150 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+                    Batal
+                </button>
                     <button type="submit"
                         class="py-2.5 px-6 rounded-xl bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white font-semibold text-xs shadow-xs transition-all duration-150 active:scale-[0.98] inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
                         <i data-lucide="check" class="w-4 h-4"></i>
@@ -571,7 +568,7 @@
         const modal = document.getElementById('modalAddSiswa');
         if (!modal) return;
         modal.classList.remove('hidden');
-        const input = modal.querySelector('input[name="identity_number"]');
+        const input = modal.querySelector('input[name="nisn"]');
         if (input) input.focus();
     }
     function closeAddModal() {
@@ -648,13 +645,36 @@
         if (modal) modal.classList.add('hidden');
     }
 
+    function requestCloseEditModal() {
+        const modal = document.getElementById('modalEditSiswa');
+        if (!modal || modal.classList.contains('hidden')) return;
+        if (typeof window.confirmAction !== 'function') {
+            closeEditModal();
+            return;
+        }
+        window.confirmAction({
+            title: 'Buang Perubahan?',
+            message: 'Perubahan data siswa yang belum disimpan akan hilang.',
+            type: 'warning',
+            confirmText: 'Ya, Buang Perubahan',
+            cancelText: 'Lanjut Edit',
+            icon: 'alert-triangle'
+        }).then(function(confirmed) {
+            if (confirmed) closeEditModal();
+        });
+    }
+
     // Close modal on backdrop click & ESC key
     ['modalAddSiswa', 'modalEditSiswa'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.addEventListener('click', function (e) {
                 if (e.target === el) {
-                    el.classList.add('hidden');
+                    if (id === 'modalEditSiswa') {
+                        requestCloseEditModal();
+                    } else {
+                        el.classList.add('hidden');
+                    }
                 }
             });
         }
@@ -663,7 +683,7 @@
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeAddModal();
-            closeEditModal();
+            requestCloseEditModal();
         }
     });
 </script>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ClassSchedule;
 use App\Models\ClassSession;
+use App\Models\Teacher;
 use App\Services\ClassroomSessionService;
 use App\Services\ScheduleService;
 use App\Services\TeacherAttendanceService;
@@ -49,9 +50,8 @@ class TeacherController extends Controller
         $teacher = Auth::user();
         $hasCheckedIn = $this->attendanceService->hasCheckedInToday($teacher);
         $dailyAttendance = $this->attendanceService->getTodayDailyAttendance($teacher);
-        $pendingSchedules = $this->attendanceService->getPendingSchedulesToday($teacher);
 
-        return view('guru.scan', compact('teacher', 'hasCheckedIn', 'dailyAttendance', 'pendingSchedules'));
+        return view('guru.scan', compact('teacher', 'hasCheckedIn', 'dailyAttendance'));
     }
 
     public function processCheckIn(Request $request): JsonResponse|RedirectResponse
@@ -81,75 +81,29 @@ class TeacherController extends Controller
         return redirect()->route('guru.dashboard')->with('success', $result['message']);
     }
 
-    public function processCheckOut(Request $request): JsonResponse|RedirectResponse
-    {
-        $request->validate([
-            'qr_token' => ['required', 'string'],
-            'latitude' => ['nullable', 'numeric'],
-            'longitude' => ['nullable', 'numeric'],
-        ]);
-
-        $teacher = Auth::user();
-        $result = $this->attendanceService->checkOut(
-            $teacher,
-            $request->qr_token,
-            $request->latitude ? (float) $request->latitude : null,
-            $request->longitude ? (float) $request->longitude : null
-        );
-
-        if ($request->wantsJson() || $request->ajax()) {
-            return response()->json($result, $result['success'] ? 200 : 422);
-        }
-
-        if (! $result['success']) {
-            return back()->with('error', $result['message']);
-        }
-
-        return redirect()->route('guru.dashboard')->with('success', $result['message']);
-    }
-
-    public function autoAttend(Request $request): JsonResponse|RedirectResponse
-    {
-        $request->validate([
-            'qr_token' => ['required', 'string'],
-            'latitude' => ['nullable', 'numeric'],
-            'longitude' => ['nullable', 'numeric'],
-        ]);
-
-        $teacher = Auth::user();
-        $result = $this->attendanceService->autoAttend(
-            $teacher,
-            $request->qr_token,
-            $request->latitude ? (float) $request->latitude : null,
-            $request->longitude ? (float) $request->longitude : null
-        );
-
-        if ($request->wantsJson() || $request->ajax()) {
-            return response()->json($result, $result['success'] ? 200 : 422);
-        }
-
-        if (! $result['success']) {
-            return back()->with('error', $result['message']);
-        }
-
-        return redirect()->route('guru.dashboard')->with('success', $result['message']);
-    }
-
     public function openSession(Request $request, ClassSchedule $schedule): RedirectResponse
     {
         $request->validate([
             'duration' => ['nullable', 'integer', 'min:2', 'max:5'],
+            'latitude' => ['nullable', 'numeric'],
+            'longitude' => ['nullable', 'numeric'],
         ]);
 
-        $teacher = Auth::user();
+        $teacher = Auth::user()->teacher;
 
-        if ($schedule->teacher_id !== $teacher->id) {
+        if (! $teacher || $schedule->teacher_id !== $teacher->id) {
             abort(403, 'Bapak/Ibu Guru bukan pengampu jadwal pelajaran ini.');
         }
 
         try {
             $duration = (int) $request->input('duration', 3);
-            $session = $this->sessionService->openSession($schedule, $teacher, $duration);
+            $session = $this->sessionService->openSession(
+                $schedule,
+                $teacher,
+                $duration,
+                $request->latitude !== null ? (float) $request->latitude : null,
+                $request->longitude !== null ? (float) $request->longitude : null
+            );
 
             return redirect()->route('guru.session.show', $session)
                 ->with('success', "Sesi presensi kelas berhasil dibuka! Berikan kode PIN 4 angka ini kepada siswa: {$session->pin_code}");
@@ -165,13 +119,15 @@ class TeacherController extends Controller
 
     public function showSession(ClassSession $session): View
     {
-        $teacher = Auth::user();
-        if ($session->teacher_id !== $teacher->id) {
+        $teacher = Auth::user()->teacher;
+        if (! $teacher || $session->teacher_id !== $teacher->id) {
             abort(403);
         }
 
         $session->load(['schedule.classroom', 'schedule.subject', 'attendances.student']);
-        $totalStudents = $session->schedule->classroom->students()->where('is_active', true)->count();
+        $totalStudents = $session->schedule->classroom->students()
+            ->whereHas('user', fn ($q) => $q->where('is_active', true))
+            ->count();
         $verifiedCount = $session->attendances()->where('status', 'HADIR')->count();
 
         return view('guru.session-live', compact('session', 'totalStudents', 'verifiedCount'));
@@ -179,8 +135,8 @@ class TeacherController extends Controller
 
     public function sessionStatus(ClassSession $session): JsonResponse
     {
-        $teacher = Auth::user();
-        if ($session->teacher_id !== $teacher->id) {
+        $teacher = Auth::user()->teacher;
+        if (! $teacher || $session->teacher_id !== $teacher->id) {
             abort(403);
         }
 
@@ -191,8 +147,8 @@ class TeacherController extends Controller
 
     public function reconcileView(ClassSession $session): View
     {
-        $teacher = Auth::user();
-        if ($session->teacher_id !== $teacher->id) {
+        $teacher = Auth::user()->teacher;
+        if (! $teacher || $session->teacher_id !== $teacher->id) {
             abort(403);
         }
 
@@ -203,8 +159,8 @@ class TeacherController extends Controller
 
     public function processReconcile(Request $request, ClassSession $session): RedirectResponse
     {
-        $teacher = Auth::user();
-        if ($session->teacher_id !== $teacher->id) {
+        $teacher = Auth::user()->teacher;
+        if (! $teacher || $session->teacher_id !== $teacher->id) {
             abort(403);
         }
 
@@ -216,7 +172,7 @@ class TeacherController extends Controller
         $statuses = $request->input('statuses', []);
         $notes = $request->input('notes', []);
 
-        $this->sessionService->reconcileSession($session, $teacher, $statuses, $notes);
+        $this->sessionService->reconcileSession($session, Auth::user(), $statuses, $notes);
 
         return redirect()->route('guru.dashboard')
             ->with('success', 'Data konfirmasi kehadiran siswa berhasil disimpan dan ditutup permanen.');
@@ -227,7 +183,8 @@ class TeacherController extends Controller
         $teacher = Auth::user();
 
         // Lifetime stats — unfiltered, all sessions by this teacher
-        $baseQuery = ClassSession::where('teacher_id', $teacher->id);
+        $teacherProfile = $teacher->teacher;
+        $baseQuery = ClassSession::where('teacher_id', $teacherProfile?->id);
         $totalSessions = (clone $baseQuery)->count();
         $totalLocked = (clone $baseQuery)->where('status', 'LOCKED')->count();
         $totalActive = (clone $baseQuery)->where('status', 'ACTIVE')->count();
@@ -236,7 +193,7 @@ class TeacherController extends Controller
 
         // Filtered query
         $query = ClassSession::with(['schedule.classroom', 'schedule.subject'])
-            ->where('teacher_id', $teacher->id);
+            ->where('teacher_id', $teacherProfile?->id);
 
         $selectedStatus = $request->query('status', '');
         if ($selectedStatus && in_array(strtoupper($selectedStatus), ['LOCKED', 'ACTIVE'])) {
@@ -267,8 +224,12 @@ class TeacherController extends Controller
             ->paginate(15)
             ->withQueryString();
 
+        // Keyed session attendance map: "schedule_id|Y-m-d" => TeacherSessionAttendance
+        $sessionAttendanceMap = $this->attendanceService->getSessionAttendanceMapForSessions($sessions);
+
         return view('guru.history', compact(
             'sessions',
+            'sessionAttendanceMap',
             'totalSessions',
             'totalLocked',
             'totalActive',
@@ -283,7 +244,7 @@ class TeacherController extends Controller
 
     public function schedule(): View
     {
-        $teacher = Auth::user();
+        $teacher = Auth::user()->teacher;
         $schedules = $this->scheduleService->getTeacherWeeklySchedule($teacher);
         $totalSessions = $schedules->flatten()->count();
         $activeDaysCount = $schedules->count();

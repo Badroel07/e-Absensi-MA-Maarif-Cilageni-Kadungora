@@ -19,7 +19,7 @@ class Classroom extends Model
 
     public function students(): HasMany
     {
-        return $this->hasMany(User::class, 'classroom_id')->where('role', 'siswa');
+        return $this->hasMany(Student::class);
     }
 
     public function schedules(): HasMany

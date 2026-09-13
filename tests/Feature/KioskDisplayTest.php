@@ -1,10 +1,8 @@
 <?php
 
 use App\Models\SchoolLocation;
-use App\Models\User;
 use App\Services\KioskService;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Hash;
 
 beforeEach(function () {
     $this->location = SchoolLocation::create([
@@ -15,14 +13,12 @@ beforeEach(function () {
         'is_active' => true,
     ]);
 
-    $this->guru = User::create([
-        'identity_number' => '198012012010011001',
+    $this->guru = createGuru([
+        'nip' => '198012012010011001',
         'name' => 'Ust. H. Ahmad Dahlan',
         'email' => 'ahmad@maarif.sch.id',
         'birth_date' => '1980-12-01',
-        'password' => Hash::make('01121980'),
-        'role' => 'guru',
-        'is_active' => true,
+        'password' => '01121980',
     ]);
 
     $this->kioskService = new KioskService;

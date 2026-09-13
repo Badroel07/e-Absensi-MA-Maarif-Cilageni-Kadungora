@@ -345,7 +345,7 @@
 
     <!-- Footer Catatan Otentikasi -->
     <div class="footer-note">
-        Dokumen ini dihasilkan secara otomatis oleh Sistem Absensi & Kehadiran Digital MA Ma'arif Cilageni pada {{ \Carbon\Carbon::now()->translatedFormat('d F Y, H:i') }} WIB.
+        Dokumen ini dihasilkan secara otomatis oleh SIMADMA — Sistem Informasi Madrasah MA Ma'arif Cilageni pada {{ \Carbon\Carbon::now()->translatedFormat('d F Y, H:i') }} WIB.
     </div>
 
 </body>

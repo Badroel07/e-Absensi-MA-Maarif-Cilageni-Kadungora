@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\LessonAttendance;
-use App\Models\User;
 use App\Services\ClassroomSessionService;
 use App\Services\ScheduleService;
 use Illuminate\Http\JsonResponse;
@@ -20,7 +19,7 @@ class StudentController extends Controller
 
     public function dashboard(): View
     {
-        $data = $this->sessionService->getStudentDashboardData(Auth::user());
+        $data = $this->sessionService->getStudentDashboardData(Auth::user()->student);
 
         return view('siswa.dashboard', $data);
     }
@@ -32,7 +31,7 @@ class StudentController extends Controller
             'longitude' => ['nullable', 'numeric'],
         ]);
 
-        $student = Auth::user();
+        $student = Auth::user()->student;
         $lat = $request->latitude ? (float) $request->latitude : null;
         $lng = $request->longitude ? (float) $request->longitude : null;
 
@@ -66,7 +65,7 @@ class StudentController extends Controller
             'longitude' => ['required', 'numeric'],
         ]);
 
-        $student = Auth::user();
+        $student = Auth::user()->student;
         $pin = $request->pin;
         $lat = (float) $request->latitude;
         $lng = (float) $request->longitude;
@@ -78,10 +77,7 @@ class StudentController extends Controller
 
     public function history(Request $request): View
     {
-        $student = Auth::user();
-        if ($student instanceof User) {
-            $student->loadMissing('classroom');
-        }
+        $student = Auth::user()->student->loadMissing('classroom');
 
         // 1. Overall Student Statistics (Real lifetime / recorded data)
         $totalSessions = LessonAttendance::where('student_id', $student->id)->count();
@@ -106,7 +102,7 @@ class StudentController extends Controller
                 $q->whereHas('schedule.subject', function ($sq) use ($search) {
                     $sq->where('name', 'like', "%{$search}%")
                         ->orWhere('code', 'like', "%{$search}%");
-                })->orWhereHas('schedule.teacher', function ($tq) use ($search) {
+                })->orWhereHas('schedule.teacher.user', function ($tq) use ($search) {
                     $tq->where('name', 'like', "%{$search}%");
                 })->orWhere('notes', 'like', "%{$search}%");
             });
@@ -144,7 +140,7 @@ class StudentController extends Controller
 
     public function schedule(): View
     {
-        $student = Auth::user()->load('classroom');
+        $student = Auth::user()->student->load('classroom');
         $schedules = $this->scheduleService->getStudentWeeklySchedule($student);
 
         return view('siswa.schedule', compact('student', 'schedules'));

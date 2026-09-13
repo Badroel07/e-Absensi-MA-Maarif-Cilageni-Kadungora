@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Student;
+use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -13,7 +15,8 @@ use Illuminate\Validation\ValidationException;
 class AuthService
 {
     /**
-     * Attempt to authenticate a user using identity number or email
+     * Attempt to authenticate a user using email, NISN, or NIP.
+     * Nomor induk hidup di profil domain (students/teachers), akun tetap di users.
      *
      * @return array{success: bool, user?: User, error?: string}
      */
@@ -21,18 +24,16 @@ class AuthService
     {
         $loginInput = trim($login);
 
-        $user = User::where(function ($query) use ($loginInput) {
-            $query->where('identity_number', $loginInput)
-                ->orWhere('email', $loginInput);
-            $query->whereRaw('LOWER(email) = ?', [strtolower($loginInput)])
-                ->orWhere('identity_number', $loginInput);
-        })->first();
+        $userId = User::whereRaw('LOWER(email) = ?', [strtolower($loginInput)])->value('id')
+            ?? Student::where('nisn', $loginInput)->value('user_id')
+            ?? Teacher::where('nip', $loginInput)->value('user_id');
+
+        $user = $userId !== null ? User::find($userId) : null;
 
         if (! $user || ! Hash::check($password, $user->password)) {
             return [
                 'success' => false,
-                'error' => 'Nomor identitas (NISN / NIP / Email) atau kata sandi tidak cocok.',
-                'error' => 'Alamat email atau kata sandi tidak cocok.',
+                'error' => 'NISN / NIP / Email atau kata sandi tidak cocok.',
             ];
         }
 

@@ -4,12 +4,8 @@
         <a href="{{ Auth::check() ? (Auth::user()->role === 'admin' ? route('admin.dashboard') : (Auth::user()->role === 'guru' ? route('guru.dashboard') : route('siswa.dashboard'))) : url('/') }}" class="flex items-center space-x-3.5 group min-w-0 w-full">
             <img src="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" alt="Logo MA Ma'arif Cilageni" class="w-12 h-12 object-contain shrink-0 group-hover:scale-105 transition-transform drop-shadow-md" width="48" height="48" fetchpriority="high">
             <div class="min-w-0 flex-1">
-                <h1 class="text-sm font-bold text-white heading-font tracking-tight truncate leading-snug">MA Ma'arif Cilageni</h1>
-                @if(Auth::check() && Auth::user()->role === 'admin')
-                    <p class="text-[11px] text-emerald-200/90 font-semibold uppercase tracking-wider truncate leading-tight">Panel Admin</p>
-                @else
-                    <p class="text-[11px] text-emerald-200/90 font-semibold uppercase tracking-wider truncate leading-tight">Sistem Presensi</p>
-                @endif
+                <h1 class="text-sm font-bold text-white heading-font tracking-tight truncate leading-snug">SIMADMA</h1>
+                <p class="text-[11px] text-emerald-200/90 font-semibold uppercase tracking-wider truncate leading-tight">MA Ma'arif Cilageni</p>
             </div>
         </a>
     </div>
@@ -183,8 +179,8 @@
 
             <form action="{{ route('logout') }}" method="POST"
                 data-confirm="Apakah Anda yakin ingin mengakhiri sesi dan keluar dari sistem absensi?"
-                data-confirm-title="Konfirmasi Keluar Akun"
-                data-confirm-type="warning"
+                data-confirm-title="Keluar dari Sesi Akun?"
+                data-confirm-type="logout"
                 data-confirm-btn="Ya, Keluar"
                 data-confirm-icon="log-out"
                 class="shrink-0 m-0">

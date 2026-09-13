@@ -176,11 +176,10 @@
     }
 
     /* ─── SCOPED SPA CONTENT CROSSFADE ──────────────────────────────── */
-    /* Confined strictly to #main-content. Stacking context stays z-10 below */
-    /* sticky header (z-20/z-40) and fixed bottom nav (z-50). */
+    /* Tidak memakai z-index di sini: nilai apa pun akan membentuk stacking */
+    /* context yang memenjarakan modal (fixed, z-50+) di bawah sidebar/header. */
     #main-content {
         position: relative;
-        z-index: 10;
     }
 
     @keyframes spaContentFadeIn {

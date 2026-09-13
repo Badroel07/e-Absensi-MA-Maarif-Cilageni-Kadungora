@@ -61,8 +61,6 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(f
     Route::post('/check-status', [TeacherController::class, 'checkStatus'])->name('check-status');
     Route::get('/scan', [TeacherController::class, 'scan'])->name('scan');
     Route::post('/scan/check-in', [TeacherController::class, 'processCheckIn'])->name('checkin');
-    Route::post('/scan/check-out', [TeacherController::class, 'processCheckOut'])->name('checkout');
-    Route::post('/scan/auto', [TeacherController::class, 'autoAttend'])->name('auto');
     Route::post('/sessions/{schedule}/open', [TeacherController::class, 'openSession'])->name('session.open');
     Route::get('/sessions/{session}', [TeacherController::class, 'showSession'])->name('session.show');
     Route::get('/sessions/{session}/status', [TeacherController::class, 'sessionStatus'])->name('session.status');
@@ -89,7 +87,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/guru', [AdminController::class, 'guruStore'])->name('guru.store');
     Route::put('/guru/{user}', [AdminController::class, 'guruUpdate'])->name('guru.update');
     Route::delete('/guru/{user}', [AdminController::class, 'guruDestroy'])->name('guru.destroy');
-    Route::get('/guru/{user}/riwayat', [AdminController::class, 'guruRiwayat'])->name('guru.riwayat');
 
     // Master Kelas
     Route::get('/kelas', [AdminController::class, 'kelasIndex'])->name('kelas.index');
@@ -120,7 +117,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Presensi Dewan Guru (Monitoring Kiosk & Koreksi Admin)
     Route::get('/presensi-guru', [AdminController::class, 'presensiGuruIndex'])->name('presensi-guru.index');
+    Route::get('/presensi-guru/{user}/riwayat', [AdminController::class, 'guruRiwayat'])->name('presensi-guru.riwayat');
     Route::put('/presensi-guru/{user}', [AdminController::class, 'presensiGuruUpdate'])->name('presensi-guru.update');
+    Route::put('/presensi-guru/{user}/sesi/{schedule}', [AdminController::class, 'presensiGuruSessionUpdate'])->name('presensi-guru.session-update');
 
     // Koreksi Kehadiran Siswa
     Route::get('/presensi-siswa', [AdminController::class, 'presensiSiswaIndex'])->name('presensi-siswa.index');

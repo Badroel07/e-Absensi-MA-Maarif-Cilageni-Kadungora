@@ -6,6 +6,7 @@ use App\Models\Classroom;
 use App\Models\ClassSchedule;
 use App\Models\LessonAttendance;
 use App\Models\Subject;
+use App\Models\Teacher;
 use App\Models\User;
 use App\Services\AcademicMasterService;
 use App\Services\AdminDashboardService;
@@ -56,7 +57,7 @@ class AdminController extends Controller
     public function siswaStore(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'identity_number' => ['required', 'string', 'digits:10', 'unique:users,identity_number'],
+            'nisn' => ['required', 'string', 'digits:10', 'unique:students,nisn'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255', 'unique:users,email'],
             'birth_date' => ['required', 'date'],
@@ -66,7 +67,7 @@ class AdminController extends Controller
         ]);
 
         if (empty($validated['email'])) {
-            $validated['email'] = $validated['identity_number'].'@siswa.maarif.sch.id';
+            $validated['email'] = $validated['nisn'].'@siswa.maarif.sch.id';
         }
 
         if ($request->hasFile('photo')) {
@@ -81,7 +82,7 @@ class AdminController extends Controller
     public function siswaUpdate(Request $request, User $user): RedirectResponse
     {
         $validated = $request->validate([
-            'identity_number' => ['required', 'string', 'digits:10', 'unique:users,identity_number,'.$user->id],
+            'nisn' => ['required', 'string', 'digits:10', 'unique:students,nisn,'.($user->student?->id ?? '')],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255', 'unique:users,email,'.$user->id],
             'birth_date' => ['required', 'date'],
@@ -93,7 +94,7 @@ class AdminController extends Controller
         ]);
 
         if (empty($validated['email'])) {
-            $validated['email'] = $user->email ?? ($validated['identity_number'].'@siswa.maarif.sch.id');
+            $validated['email'] = $user->email ?? ($validated['nisn'].'@siswa.maarif.sch.id');
         }
 
         if ($request->hasFile('photo')) {
@@ -134,11 +135,11 @@ class AdminController extends Controller
     public function guruStore(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'identity_number' => ['required', 'string', 'unique:users,identity_number'],
+            'nip' => ['required', 'string', 'max:30', 'unique:teachers,nip'],
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['nullable', 'email', 'unique:users,email'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'birth_date' => ['required', 'date'],
+            'jabatan' => ['nullable', 'string', 'max:100'],
             'phone_number' => ['nullable', 'string', 'max:20'],
             'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
         ]);
@@ -155,11 +156,11 @@ class AdminController extends Controller
     public function guruUpdate(Request $request, User $user): RedirectResponse
     {
         $validated = $request->validate([
-            'identity_number' => ['required', 'string', 'unique:users,identity_number,'.$user->id],
+            'nip' => ['required', 'string', 'max:30', 'unique:teachers,nip,'.($user->teacher?->id ?? '')],
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['nullable', 'email', 'unique:users,email,'.$user->id],
             'email' => ['nullable', 'email', 'max:255', 'unique:users,email,'.$user->id],
             'birth_date' => ['required', 'date'],
+            'jabatan' => ['nullable', 'string', 'max:100'],
             'phone_number' => ['nullable', 'string', 'max:20'],
             'is_active' => ['nullable', 'boolean'],
             'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
@@ -275,7 +276,14 @@ class AdminController extends Controller
         );
         $classrooms = $this->academicService->getAllClassrooms();
         $subjects = $this->academicService->getAllSubjects();
-        $teachers = User::where('role', 'guru')->where('is_active', true)->orderBy('name')->get();
+        $teachers = Teacher::query()
+            ->select('teachers.*')
+            ->join('users', 'users.id', '=', 'teachers.user_id')
+            ->with('user')
+            ->where('users.role', 'guru')
+            ->where('users.is_active', true)
+            ->orderBy('users.name')
+            ->get();
 
         return view('admin.jadwal.index', compact('schedules', 'classrooms', 'subjects', 'teachers'));
     }
@@ -285,11 +293,13 @@ class AdminController extends Controller
         $validated = $request->validate([
             'classroom_id' => ['required', 'exists:classrooms,id'],
             'subject_id' => ['required', 'exists:subjects,id'],
-            'teacher_id' => ['required', 'exists:users,id'],
+            'teacher_id' => ['required', 'exists:teachers,id'],
             'day_of_week' => ['required', 'string', 'in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu'],
             'start_time' => ['required', 'date_format:H:i'],
             'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
+            'late_tolerance_minutes' => ['nullable', 'integer', 'min:0', 'max:180'],
         ]);
+        $validated['late_tolerance_minutes'] = (int) ($validated['late_tolerance_minutes'] ?? 0);
 
         $this->scheduleService->createSchedule($validated);
 
@@ -301,11 +311,13 @@ class AdminController extends Controller
         $validated = $request->validate([
             'classroom_id' => ['required', 'exists:classrooms,id'],
             'subject_id' => ['required', 'exists:subjects,id'],
-            'teacher_id' => ['required', 'exists:users,id'],
+            'teacher_id' => ['required', 'exists:teachers,id'],
             'day_of_week' => ['required', 'string', 'in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu'],
             'start_time' => ['required', 'date_format:H:i'],
             'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
+            'late_tolerance_minutes' => ['nullable', 'integer', 'min:0', 'max:180'],
         ]);
+        $validated['late_tolerance_minutes'] = (int) ($validated['late_tolerance_minutes'] ?? 0);
 
         $this->scheduleService->updateSchedule($schedule, $validated);
 
@@ -505,18 +517,38 @@ class AdminController extends Controller
             'date' => ['required', 'date'],
             'status' => ['required', 'string', 'in:HADIR,TERLAMBAT,IZIN,SAKIT,ALPA'],
             'check_in_time' => ['nullable', 'date_format:H:i'],
-            'check_out_time' => ['nullable', 'date_format:H:i'],
         ]);
 
         $this->teacherAttendanceService->updateManualTeacherAttendance(
             $user,
             $request->input('date'),
             $request->input('status'),
-            $request->input('check_in_time'),
-            $request->input('check_out_time')
+            $request->input('check_in_time')
         );
 
-        return back()->with('success', "Catatan kehadiran Bapak/Ibu Guru {$user->name} berhasil diperbarui.");
+        return back()->with('success', "Catatan kedatangan Bapak/Ibu Guru {$user->name} berhasil diperbarui.");
+    }
+
+    public function presensiGuruSessionUpdate(Request $request, User $user, ClassSchedule $schedule): RedirectResponse
+    {
+        $request->validate([
+            'date' => ['required', 'date'],
+            'status' => ['required', 'string', 'in:HADIR,IZIN,SAKIT,DINAS_LUAR,ALPA'],
+            'attended_at' => ['nullable', 'date_format:H:i'],
+            'notes' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $this->teacherAttendanceService->updateManualTeacherSessionAttendance(
+            $user->teacher,
+            $schedule,
+            $request->input('date'),
+            $request->input('status'),
+            $request->input('attended_at'),
+            $request->input('notes'),
+            Auth::user()
+        );
+
+        return back()->with('success', "Absen sesi mengajar Bapak/Ibu Guru {$user->name} berhasil diperbarui.");
     }
 
     // --- RIWAYAT PRESENSI PERORANGAN ---
@@ -525,7 +557,7 @@ class AdminController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        $data = $this->attendanceCorrectionService->getStudentIndividualHistory($user, $startDate, $endDate);
+        $data = $this->attendanceCorrectionService->getStudentIndividualHistory($user->student, $startDate, $endDate);
 
         return view('admin.siswa.riwayat', $data);
     }

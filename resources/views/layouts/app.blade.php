@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'Sistem Absensi MA Ma\'arif Cilageni')</title>
+    <title>@yield('title', 'SIMADMA — Sistem Informasi Madrasah MA Ma\'arif Cilageni')</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}">
@@ -136,7 +136,7 @@
                         @elseif(Auth::check() && Auth::user()->role === 'admin')
                             Panel Administrator
                         @else
-                            Sistem Presensi
+                            SIMADMA
                         @endif
                     </span>
                     <h2 class="text-base sm:text-lg font-semibold text-white heading-font tracking-tight leading-none">
@@ -182,7 +182,7 @@
                     <div class="flex items-center space-x-3">
                         <img src="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" alt="Logo MA Ma'arif Cilageni" class="w-11 h-11 object-contain shrink-0 drop-shadow-md" width="44" height="44" fetchpriority="high">
                         <div id="mobile-header-title">
-                            <h1 class="text-[10px] font-semibold tracking-wider text-emerald-200 uppercase">MA Ma'arif Cilageni</h1>
+                            <h1 class="text-[10px] font-semibold tracking-wider text-emerald-200 uppercase">SIMADMA · MA Ma'arif Cilageni</h1>
                             <p class="text-sm font-semibold text-white heading-font leading-tight">
                                 @hasSection('page-title')
                                     @yield('page-title')

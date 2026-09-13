@@ -5,7 +5,8 @@ namespace App\Services;
 use App\Models\Classroom;
 use App\Models\DailyAttendance;
 use App\Models\LessonAttendance;
-use App\Models\User;
+use App\Models\Student;
+use App\Models\TeacherSessionAttendance;
 use Illuminate\Database\Eloquent\Builder;
 
 class ReportService
@@ -40,6 +41,16 @@ class ReportService
         $totalTeacherCheckins = (clone $teacherQuery)->count();
         $totalTeacherLate = (clone $teacherQuery)->where('check_in_status', 'TERLAMBAT')->count();
 
+        // Teacher session attendances (per teaching schedule)
+        $sessionAttendances = TeacherSessionAttendance::with('schedule')
+            ->whereBetween('attendance_date', [$startDate, $endDate])
+            ->whereHas('teacher.user', function (Builder $q) {
+                $q->where('role', 'guru');
+            })->get();
+
+        $teacherSessionsHadir = $sessionAttendances->where('status', 'HADIR')->count();
+        $teacherSessionsTerlambat = $sessionAttendances->filter(fn ($att) => $att->isLate())->count();
+
         return [
             'total_records' => $totalRecords,
             'total_hadir' => $totalHadir,
@@ -49,6 +60,8 @@ class ReportService
             'percentage_hadir' => $percentageHadir,
             'teacher_checkins' => $totalTeacherCheckins,
             'teacher_late' => $totalTeacherLate,
+            'teacher_sessions_hadir' => $teacherSessionsHadir,
+            'teacher_sessions_terlambat' => $teacherSessionsTerlambat,
         ];
     }
 
@@ -57,15 +70,16 @@ class ReportService
      */
     public function getStudentAttendanceRows(string $startDate, string $endDate, ?string $classroomId = null): array
     {
-        $studentsQuery = User::with(['classroom'])
-            ->where('role', 'siswa')
-            ->where('is_active', true);
+        $studentsQuery = Student::with(['user', 'classroom'])
+            ->whereHas('user', function (Builder $q) {
+                $q->where('is_active', true);
+            });
 
         if ($classroomId) {
             $studentsQuery->where('classroom_id', $classroomId);
         }
 
-        $students = $studentsQuery->orderBy('name')->get();
+        $students = $studentsQuery->get()->sortBy('user.name')->values();
 
         if ($students->isEmpty()) {
             return [];
@@ -89,8 +103,8 @@ class ReportService
             $persen = $total > 0 ? round(($hadir / $total) * 100, 1) : 0.0;
 
             $rows[] = [
-                'nisn' => $student->identity_number,
-                'name' => $student->name,
+                'nisn' => $student->nisn,
+                'name' => $student->user->name,
                 'class_name' => $student->classroom->name ?? '-',
                 'hadir' => $hadir,
                 'izin' => $izin,

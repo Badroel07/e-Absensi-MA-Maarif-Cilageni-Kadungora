@@ -7,11 +7,10 @@ use App\Models\DailyAttendance;
 use App\Models\LessonAttendance;
 use App\Models\SchoolLocation;
 use App\Models\Subject;
-use App\Models\User;
+use App\Models\TeacherSessionAttendance;
 use App\Services\KioskService;
 use App\Services\TeacherAttendanceService;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Hash;
 
 beforeEach(function () {
     $this->location = SchoolLocation::create([
@@ -33,51 +32,43 @@ beforeEach(function () {
         'name' => 'Fikih',
     ]);
 
-    $this->guru = User::create([
-        'identity_number' => '198012012010011001',
+    $this->guru = createGuru([
+        'nip' => '198012012010011001',
         'name' => 'Ust. H. Ahmad Dahlan',
         'email' => 'ahmad@maarif.sch.id',
         'birth_date' => '1980-12-01',
-        'password' => Hash::make('01121980'),
-        'role' => 'guru',
-        'is_active' => true,
+        'password' => '01121980',
     ]);
 
-    $this->guruLain = User::create([
-        'identity_number' => '198502022010011002',
+    $this->guruLain = createGuru([
+        'nip' => '198502022010011002',
         'name' => 'Ust. Mahmudin, M.Pd.I',
         'email' => 'mahmudin@maarif.sch.id',
         'birth_date' => '1985-02-02',
-        'password' => Hash::make('02021985'),
-        'role' => 'guru',
-        'is_active' => true,
+        'password' => '02021985',
     ]);
 
-    $this->student1 = User::create([
-        'identity_number' => '1010101010',
+    $this->student1 = createSiswa([
+        'nisn' => '1010101010',
         'name' => 'Ahmad Fauzi',
         'birth_date' => '2012-05-15',
-        'password' => Hash::make('15052012'),
-        'role' => 'siswa',
+        'password' => '15052012',
         'classroom_id' => $this->classroom->id,
-        'is_active' => true,
     ]);
 
-    $this->student2 = User::create([
-        'identity_number' => '1010101011',
+    $this->student2 = createSiswa([
+        'nisn' => '1010101011',
         'name' => 'Budi Santoso',
         'birth_date' => '2012-08-20',
-        'password' => Hash::make('20082012'),
-        'role' => 'siswa',
+        'password' => '20082012',
         'classroom_id' => $this->classroom->id,
-        'is_active' => true,
     ]);
 
     $todayDay = TeacherAttendanceService::getIndonesianDayName(Carbon::today());
     $this->schedule = ClassSchedule::create([
         'classroom_id' => $this->classroom->id,
         'subject_id' => $this->subject->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'day_of_week' => $todayDay,
         'start_time' => Carbon::now()->subMinutes(15)->format('H:i:s'),
         'end_time' => Carbon::now()->addHours(2)->format('H:i:s'),
@@ -260,6 +251,8 @@ test('TC-GUR-OPEN-001: Open Session — sukses ACTIVE jika check-in selesai dan 
     $this->actingAs($this->guru);
     $response = $this->post('/guru/sessions/'.$this->schedule->id.'/open', [
         'duration' => 3,
+        'latitude' => -7.010000,
+        'longitude' => 107.900000,
     ]);
 
     $session = ClassSession::where('schedule_id', $this->schedule->id)->first();
@@ -268,6 +261,204 @@ test('TC-GUR-OPEN-001: Open Session — sukses ACTIVE jika check-in selesai dan 
     expect($session->pin_code)->toHaveLength(4);
 
     $response->assertRedirect(route('guru.session.show', $session));
+});
+
+test('TC-GUR-ABS-001: Absen sesi — buka sesi sebelum jam mulai mapel tercatat HADIR dengan GPS', function () {
+    DailyAttendance::create([
+        'user_id' => $this->guru->id,
+        'attendance_date' => Carbon::today(),
+        'check_in_time' => '07:05:00',
+        'check_in_status' => 'HADIR',
+    ]);
+
+    $startSchedule = ClassSchedule::create([
+        'classroom_id' => $this->classroom->id,
+        'subject_id' => $this->subject->id,
+        'teacher_id' => $this->guru->teacher->id,
+        'day_of_week' => TeacherAttendanceService::getIndonesianDayName(Carbon::today()),
+        'start_time' => Carbon::now()->addMinutes(3)->format('H:i:s'),
+        'end_time' => Carbon::now()->addHours(2)->format('H:i:s'),
+    ]);
+
+    $this->actingAs($this->guru);
+    $response = $this->post('/guru/sessions/'.$startSchedule->id.'/open', [
+        'duration' => 3,
+        'latitude' => -7.010000,
+        'longitude' => 107.900000,
+    ]);
+
+    $session = ClassSession::where('schedule_id', $startSchedule->id)->first();
+    expect($session)->not->toBeNull();
+
+    $attendance = TeacherSessionAttendance::where('schedule_id', $startSchedule->id)
+        ->where('teacher_id', $this->guru->teacher->id)
+        ->first();
+    expect($attendance)->not->toBeNull();
+    expect($attendance->status)->toBe('HADIR');
+    expect($attendance->class_session_id)->toBe($session->id);
+    expect($attendance->latitude)->not->toBeNull();
+});
+
+test('TC-GUR-ABS-002: Absen sesi — buka sesi melewati jam mulai mapel tetap HADIR dengan penanda terlambat (tanpa toleransi)', function () {
+    DailyAttendance::create([
+        'user_id' => $this->guru->id,
+        'attendance_date' => Carbon::today(),
+        'check_in_time' => '07:05:00',
+        'check_in_status' => 'HADIR',
+    ]);
+
+    $this->actingAs($this->guru);
+    $this->post('/guru/sessions/'.$this->schedule->id.'/open', [
+        'duration' => 3,
+        'latitude' => -7.010000,
+        'longitude' => 107.900000,
+    ]);
+
+    $attendance = TeacherSessionAttendance::where('schedule_id', $this->schedule->id)
+        ->where('teacher_id', $this->guru->teacher->id)
+        ->first();
+    expect($attendance)->not->toBeNull();
+    expect($attendance->status)->toBe('HADIR');
+    expect($attendance->isLate())->toBeTrue();
+    expect($attendance->attended_at->greaterThan(Carbon::parse($this->schedule->start_time)))->toBeTrue();
+});
+
+test('TC-GUR-ABS-003: Absen sesi — buka ulang sesi tidak mengubah jam absen dan status pertama', function () {
+    DailyAttendance::create([
+        'user_id' => $this->guru->id,
+        'attendance_date' => Carbon::today(),
+        'check_in_time' => '07:05:00',
+        'check_in_status' => 'HADIR',
+    ]);
+
+    $this->actingAs($this->guru);
+    $this->post('/guru/sessions/'.$this->schedule->id.'/open', [
+        'duration' => 3,
+        'latitude' => -7.010000,
+        'longitude' => 107.900000,
+    ]);
+
+    $first = TeacherSessionAttendance::where('schedule_id', $this->schedule->id)->first();
+    expect($first->status)->toBe('HADIR');
+    expect($first->isLate())->toBeTrue();
+    $firstAttendedAt = $first->attended_at->copy();
+
+    // Re-open the session (previous one expires naturally in service flow)
+    $this->post('/guru/sessions/'.$this->schedule->id.'/open', [
+        'duration' => 3,
+        'latitude' => -7.010000,
+        'longitude' => 107.900000,
+    ]);
+
+    $attendance = TeacherSessionAttendance::where('schedule_id', $this->schedule->id)->get();
+    expect($attendance)->toHaveCount(1);
+    expect($attendance->first()->attended_at->equalTo($firstAttendedAt))->toBeTrue();
+    expect($attendance->first()->status)->toBe('HADIR');
+    expect($attendance->first()->isLate())->toBeTrue();
+});
+
+test('TC-GUR-ABS-004: Absen sesi — ditolak jika koordinat GPS tidak disertakan', function () {
+    DailyAttendance::create([
+        'user_id' => $this->guru->id,
+        'attendance_date' => Carbon::today(),
+        'check_in_time' => '07:05:00',
+        'check_in_status' => 'HADIR',
+    ]);
+
+    $this->actingAs($this->guru);
+    $response = $this->post('/guru/sessions/'.$this->schedule->id.'/open', [
+        'duration' => 3,
+    ]);
+
+    $response->assertSessionHas('error');
+    expect(session('error'))->toContain('Lokasi GPS tidak terdeteksi');
+    expect(TeacherSessionAttendance::where('schedule_id', $this->schedule->id)->count())->toBe(0);
+});
+
+test('TC-GUR-ABS-005: Absen sesi — ditolak jika posisi di luar area madrasah (geofence server-side)', function () {
+    DailyAttendance::create([
+        'user_id' => $this->guru->id,
+        'attendance_date' => Carbon::today(),
+        'check_in_time' => '07:05:00',
+        'check_in_status' => 'HADIR',
+    ]);
+
+    $this->actingAs($this->guru);
+    $response = $this->post('/guru/sessions/'.$this->schedule->id.'/open', [
+        'duration' => 3,
+        'latitude' => -7.050000,
+        'longitude' => 107.950000,
+    ]);
+
+    $response->assertSessionHas('error');
+    expect(session('error'))->toContain('di luar area madrasah');
+    expect(TeacherSessionAttendance::where('schedule_id', $this->schedule->id)->count())->toBe(0);
+    expect(ClassSession::where('schedule_id', $this->schedule->id)->count())->toBe(0);
+});
+
+test('TC-GUR-ABS-006: Absen sesi — toleransi per jadwal membuat buka sesi dalam batas tetap Hadir tanpa penanda terlambat', function () {
+    DailyAttendance::create([
+        'user_id' => $this->guru->id,
+        'attendance_date' => Carbon::today(),
+        'check_in_time' => '07:05:00',
+        'check_in_status' => 'HADIR',
+    ]);
+
+    // Sesi pertama hari Senin setelah upacara: toleransi 60 menit, sudah 30 menit lewat jam mulai
+    $tolerantSchedule = ClassSchedule::create([
+        'classroom_id' => $this->classroom->id,
+        'subject_id' => $this->subject->id,
+        'teacher_id' => $this->guru->teacher->id,
+        'day_of_week' => TeacherAttendanceService::getIndonesianDayName(Carbon::today()),
+        'start_time' => Carbon::now()->subMinutes(30)->format('H:i:s'),
+        'end_time' => Carbon::now()->addHours(2)->format('H:i:s'),
+        'late_tolerance_minutes' => 60,
+    ]);
+
+    $this->actingAs($this->guru);
+    $this->post('/guru/sessions/'.$tolerantSchedule->id.'/open', [
+        'duration' => 3,
+        'latitude' => -7.010000,
+        'longitude' => 107.900000,
+    ]);
+
+    $attendance = TeacherSessionAttendance::where('schedule_id', $tolerantSchedule->id)
+        ->where('teacher_id', $this->guru->teacher->id)
+        ->first();
+    expect($attendance)->not->toBeNull();
+    expect($attendance->status)->toBe('HADIR');
+    expect($attendance->isLate())->toBeFalse();
+
+    // Sesi lain tanpa toleransi pada jam yang sama tetap ditandai terlambat
+    $strictSchedule = ClassSchedule::create([
+        'classroom_id' => $this->classroom->id,
+        'subject_id' => $this->subject->id,
+        'teacher_id' => $this->guruLain->teacher->id,
+        'day_of_week' => TeacherAttendanceService::getIndonesianDayName(Carbon::today()),
+        'start_time' => Carbon::now()->subMinutes(30)->format('H:i:s'),
+        'end_time' => Carbon::now()->addHours(2)->format('H:i:s'),
+        'late_tolerance_minutes' => 0,
+    ]);
+
+    DailyAttendance::create([
+        'user_id' => $this->guruLain->id,
+        'attendance_date' => Carbon::today(),
+        'check_in_time' => '07:05:00',
+        'check_in_status' => 'HADIR',
+    ]);
+
+    $this->actingAs($this->guruLain);
+    $this->post('/guru/sessions/'.$strictSchedule->id.'/open', [
+        'duration' => 3,
+        'latitude' => -7.010000,
+        'longitude' => 107.900000,
+    ]);
+
+    $strictAttendance = TeacherSessionAttendance::where('schedule_id', $strictSchedule->id)
+        ->where('teacher_id', $this->guruLain->teacher->id)
+        ->first();
+    expect($strictAttendance)->not->toBeNull();
+    expect($strictAttendance->isLate())->toBeTrue();
 });
 
 test('TC-GUR-OPEN-002: Open Session — Check-in Gating memblokir pembukaan sesi sebelum check-in', function () {
@@ -294,7 +485,7 @@ test('TC-GUR-OPEN-003: Open Session — ditolak jika hari tidak sesuai jadwal (S
     $scheduleOtherDay = ClassSchedule::create([
         'classroom_id' => $this->classroom->id,
         'subject_id' => $this->subject->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'day_of_week' => $otherDay,
         'start_time' => '07:30:00',
         'end_time' => '09:00:00',
@@ -319,7 +510,7 @@ test('TC-GUR-OPEN-004: Open Session — ditolak jika jam di luar slot jadwal (ST
     $scheduleSlot = ClassSchedule::create([
         'classroom_id' => $this->classroom->id,
         'subject_id' => $this->subject->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'day_of_week' => TeacherAttendanceService::getIndonesianDayName(Carbon::today()),
         'start_time' => Carbon::now()->addHours(5)->format('H:i:s'),
         'end_time' => Carbon::now()->addHours(7)->format('H:i:s'),
@@ -361,14 +552,14 @@ test('TC-GUR-OPEN-006: Open Session — validasi durasi (2-5 menit) dan service 
     $resOutOfBound->assertSessionHasErrors('duration');
 
     // Service clamps duration internally
-    $sessionClamped = app(ClassroomSessionService::class)->openSession($this->schedule, $this->guru, 10);
+    $sessionClamped = app(ClassroomSessionService::class)->openSession($this->schedule, $this->guru->teacher, 10, -7.010000, 107.900000);
     expect($sessionClamped->duration_minutes)->toBe(5);
 });
 
 test('TC-GUR-SESS-001: Session Live — halaman live view dan polling status realtime', function () {
     $session = ClassSession::create([
         'schedule_id' => $this->schedule->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'pin_code' => '8492',
         'duration_minutes' => 3,
         'started_at' => Carbon::now(),
@@ -396,7 +587,7 @@ test('TC-GUR-SESS-001: Session Live — halaman live view dan polling status rea
 test('TC-GUR-SESS-002: Session Live — 403 jika guru lain mengakses live session', function () {
     $session = ClassSession::create([
         'schedule_id' => $this->schedule->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'pin_code' => '8492',
         'duration_minutes' => 3,
         'started_at' => Carbon::now(),
@@ -412,7 +603,7 @@ test('TC-GUR-SESS-002: Session Live — 403 jika guru lain mengakses live sessio
 test('TC-GUR-RECON-001: Reconcile — halaman daftar siswa belum hadir', function () {
     $session = ClassSession::create([
         'schedule_id' => $this->schedule->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'pin_code' => '8492',
         'duration_minutes' => 3,
         'started_at' => Carbon::now()->subMinutes(5),
@@ -432,7 +623,7 @@ test('TC-GUR-RECON-001: Reconcile — halaman daftar siswa belum hadir', functio
 test('TC-GUR-RECON-002: Reconcile — simpan kehadiran, status LOCKED, dan sinkronisasi DailyAttendance', function () {
     $session = ClassSession::create([
         'schedule_id' => $this->schedule->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'pin_code' => '8492',
         'duration_minutes' => 3,
         'started_at' => Carbon::now()->subMinutes(5),
@@ -443,12 +634,12 @@ test('TC-GUR-RECON-002: Reconcile — simpan kehadiran, status LOCKED, dan sinkr
     $this->actingAs($this->guru);
     $response = $this->post('/guru/sessions/'.$session->id.'/reconcile', [
         'statuses' => [
-            $this->student1->id => 'IZIN',
-            $this->student2->id => 'SAKIT',
+            $this->student1->student->id => 'IZIN',
+            $this->student2->student->id => 'SAKIT',
         ],
         'notes' => [
-            $this->student1->id => 'Acara keluarga',
-            $this->student2->id => 'Demam',
+            $this->student1->student->id => 'Acara keluarga',
+            $this->student2->student->id => 'Demam',
         ],
     ]);
 
@@ -456,14 +647,14 @@ test('TC-GUR-RECON-002: Reconcile — simpan kehadiran, status LOCKED, dan sinkr
     expect($session->fresh()->status)->toBe('LOCKED');
 
     // Verify Lesson Attendance
-    expect(LessonAttendance::where('student_id', $this->student1->id)->first()->status)->toBe('IZIN');
-    expect(LessonAttendance::where('student_id', $this->student2->id)->first()->status)->toBe('SAKIT');
+    expect(LessonAttendance::where('student_id', $this->student1->student->id)->first()->status)->toBe('IZIN');
+    expect(LessonAttendance::where('student_id', $this->student2->student->id)->first()->status)->toBe('SAKIT');
 });
 
 test('TC-GUR-RECON-003: Reconcile — default ALPA untuk siswa yang tidak diisi statusnya', function () {
     $session = ClassSession::create([
         'schedule_id' => $this->schedule->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'pin_code' => '8492',
         'duration_minutes' => 3,
         'started_at' => Carbon::now()->subMinutes(5),
@@ -474,19 +665,19 @@ test('TC-GUR-RECON-003: Reconcile — default ALPA untuk siswa yang tidak diisi 
     $this->actingAs($this->guru);
     $response = $this->post('/guru/sessions/'.$session->id.'/reconcile', [
         'statuses' => [
-            $this->student1->id => 'IZIN',
+            $this->student1->student->id => 'IZIN',
             // student2 is not submitted in statuses
         ],
     ]);
 
     $response->assertRedirect(route('guru.dashboard'));
-    expect(LessonAttendance::where('student_id', $this->student2->id)->first()->status)->toBe('ALPA');
+    expect(LessonAttendance::where('student_id', $this->student2->student->id)->first()->status)->toBe('ALPA');
 });
 
 test('TC-GUR-RECON-004: Reconcile — formulir rekonsiliasi diblokir jika sesi sudah LOCKED', function () {
     $session = ClassSession::create([
         'schedule_id' => $this->schedule->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'pin_code' => '8492',
         'duration_minutes' => 3,
         'started_at' => Carbon::now()->subMinutes(10),
@@ -496,7 +687,7 @@ test('TC-GUR-RECON-004: Reconcile — formulir rekonsiliasi diblokir jika sesi s
 
     $this->actingAs($this->guru);
     $response = $this->post('/guru/sessions/'.$session->id.'/reconcile', [
-        'statuses' => [$this->student1->id => 'HADIR'],
+        'statuses' => [$this->student1->student->id => 'HADIR'],
     ]);
 
     $response->assertRedirect(route('guru.dashboard'));
@@ -506,7 +697,7 @@ test('TC-GUR-RECON-004: Reconcile — formulir rekonsiliasi diblokir jika sesi s
 test('TC-GUR-RECON-005: Reconcile — siswa yang sudah HADIR via PIN tidak tertimpa', function () {
     $session = ClassSession::create([
         'schedule_id' => $this->schedule->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'pin_code' => '8492',
         'duration_minutes' => 3,
         'started_at' => Carbon::now()->subMinutes(5),
@@ -517,7 +708,7 @@ test('TC-GUR-RECON-005: Reconcile — siswa yang sudah HADIR via PIN tidak terti
     LessonAttendance::create([
         'session_id' => $session->id,
         'schedule_id' => $this->schedule->id,
-        'student_id' => $this->student1->id,
+        'student_id' => $this->student1->student->id,
         'attendance_date' => Carbon::today(),
         'status' => 'HADIR',
         'verified_at' => Carbon::now()->subMinutes(4),
@@ -532,125 +723,7 @@ test('TC-GUR-RECON-005: Reconcile — siswa yang sudah HADIR via PIN tidak terti
     ]);
 
     // Student 1 remains HADIR
-    expect(LessonAttendance::where('student_id', $this->student1->id)->first()->status)->toBe('HADIR');
-});
-
-test('TC-GUR-CHKOUT-001: Check-out — sukses saat semua jadwal hari ini berstatus LOCKED', function () {
-    // 1. Check in
-    DailyAttendance::create([
-        'user_id' => $this->guru->id,
-        'attendance_date' => Carbon::today(),
-        'check_in_time' => '07:05:00',
-        'check_in_status' => 'HADIR',
-    ]);
-
-    // 2. Lock class session
-    ClassSession::create([
-        'schedule_id' => $this->schedule->id,
-        'teacher_id' => $this->guru->id,
-        'pin_code' => '8492',
-        'duration_minutes' => 3,
-        'started_at' => Carbon::now()->subMinutes(40),
-        'expires_at' => Carbon::now()->subMinutes(37),
-        'status' => 'LOCKED',
-    ]);
-
-    $tokenPayload = $this->kioskService->generateTokenPayload();
-
-    $this->actingAs($this->guru);
-    $response = $this->postJson('/guru/scan/check-out', [
-        'qr_token' => $tokenPayload['token'],
-        'latitude' => -7.010000,
-        'longitude' => 107.900000,
-    ]);
-
-    $response->assertStatus(200);
-    $response->assertJson(['success' => true]);
-
-    $daily = DailyAttendance::where('user_id', $this->guru->id)->whereDate('attendance_date', Carbon::today())->first();
-    expect($daily->check_out_time)->not->toBeNull();
-});
-
-test('TC-GUR-CHKOUT-002: Check-out — ditolak (TEACHING_COMPLETION_LOCKED) jika ada jadwal belum LOCKED', function () {
-    DailyAttendance::create([
-        'user_id' => $this->guru->id,
-        'attendance_date' => Carbon::today(),
-        'check_in_time' => '07:05:00',
-        'check_in_status' => 'HADIR',
-    ]);
-
-    // Session is still ACTIVE
-    ClassSession::create([
-        'schedule_id' => $this->schedule->id,
-        'teacher_id' => $this->guru->id,
-        'pin_code' => '8492',
-        'duration_minutes' => 3,
-        'started_at' => Carbon::now(),
-        'expires_at' => Carbon::now()->addMinutes(3),
-        'status' => 'ACTIVE',
-    ]);
-
-    $tokenPayload = $this->kioskService->generateTokenPayload();
-
-    $this->actingAs($this->guru);
-    $response = $this->postJson('/guru/scan/check-out', [
-        'qr_token' => $tokenPayload['token'],
-        'latitude' => -7.010000,
-        'longitude' => 107.900000,
-    ]);
-
-    $response->assertStatus(422);
-    $response->assertJson([
-        'success' => false,
-        'code' => 'TEACHING_COMPLETION_LOCKED',
-    ]);
-});
-
-test('TC-GUR-CHKOUT-003: Check-out — ditolak (NOT_CHECKED_IN) jika belum presensi masuk', function () {
-    $tokenPayload = $this->kioskService->generateTokenPayload();
-
-    $this->actingAs($this->guru);
-    $response = $this->postJson('/guru/scan/check-out', [
-        'qr_token' => $tokenPayload['token'],
-        'latitude' => -7.010000,
-        'longitude' => 107.900000,
-    ]);
-
-    $response->assertStatus(422);
-    $response->assertJson([
-        'success' => false,
-        'code' => 'NOT_CHECKED_IN',
-    ]);
-});
-
-test('TC-GUR-CHKOUT-004: Check-out — validasi QR token dan geofence', function () {
-    DailyAttendance::create([
-        'user_id' => $this->guru->id,
-        'attendance_date' => Carbon::today(),
-        'check_in_time' => '07:05:00',
-        'check_in_status' => 'HADIR',
-    ]);
-
-    $this->actingAs($this->guru);
-
-    // Invalid token
-    $resToken = $this->postJson('/guru/scan/check-out', [
-        'qr_token' => 'invalid-token',
-        'latitude' => -7.010000,
-        'longitude' => 107.900000,
-    ]);
-    $resToken->assertStatus(422);
-    $resToken->assertJson(['code' => 'INVALID_QR_TOKEN']);
-
-    // Outside geofence
-    $tokenPayload = $this->kioskService->generateTokenPayload();
-    $resGeo = $this->postJson('/guru/scan/check-out', [
-        'qr_token' => $tokenPayload['token'],
-        'latitude' => -7.050000,
-        'longitude' => 107.950000,
-    ]);
-    $resGeo->assertStatus(422);
-    $resGeo->assertJson(['code' => 'OUTSIDE_GEOFENCE']);
+    expect(LessonAttendance::where('student_id', $this->student1->student->id)->first()->status)->toBe('HADIR');
 });
 
 test('TC-GUR-HIST-001: Riwayat mengajar guru ter-paginate', function () {

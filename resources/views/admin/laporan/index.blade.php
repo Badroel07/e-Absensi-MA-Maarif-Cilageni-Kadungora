@@ -192,7 +192,7 @@
 </div>
 
 {{-- ── MODAL LEMBAR PENGESAHAN CETAK PDF ────────────────────────── --}}
-<div id="pdfSignatoryModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalPdfTitle">
+<div id="pdfSignatoryModal" class="fixed inset-0 z-[60] hidden bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalPdfTitle">
     <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl border border-slate-200/80 transform transition-all">
         {{-- Header --}}
         <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/60 shrink-0">

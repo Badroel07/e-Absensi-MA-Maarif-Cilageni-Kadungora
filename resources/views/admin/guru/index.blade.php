@@ -114,14 +114,6 @@
                             {{-- Aksi --}}
                             <td class="py-3.5 px-5 text-right whitespace-nowrap">
                                 <div class="inline-flex items-center justify-end gap-1.5">
-                                    {{-- Riwayat — primary action, labeled --}}
-                                    <a href="{{ route('admin.guru.riwayat', $g) }}"
-                                       title="Lihat Riwayat Presensi Guru"
-                                       class="inline-flex items-center gap-1.5 py-1.5 px-3 bg-maarif-700 hover:bg-maarif-800 active:bg-maarif-900 text-white rounded-lg text-xs font-semibold transition-all duration-150 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-maarif-600">
-                                        <i data-lucide="history" class="w-3.5 h-3.5 shrink-0"></i>
-                                        <span>Riwayat</span>
-                                    </a>
-
                                     {{-- Edit — icon only --}}
                                     <button type="button"
                                         onclick="openEditModal({{ json_encode([
@@ -208,7 +200,7 @@
     </div>
 
     {{-- ── MODAL TAMBAH GURU ────────────────────────────────────────── --}}
-    <div id="modalAddGuru" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 hidden transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalAddTitle">
+    <div id="modalAddGuru" class="fixed inset-0 z-[60] bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 hidden transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalAddTitle">
         <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200/80 max-h-[92vh] flex flex-col overflow-hidden transform transition-all">
             {{-- Header --}}
             <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/60 shrink-0">
@@ -244,7 +236,7 @@
                             <label class="block font-semibold text-slate-700 mb-1.5">
                                 NIP / NUPTK / No. Pegawai <span class="text-rose-500">*</span>
                             </label>
-                            <input type="text" name="identity_number" required placeholder="198001012005011001"
+                            <input type="text" name="nip" required placeholder="198001012005011001"
                                 class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none mono-font text-xs bg-slate-50/70 focus:bg-white transition placeholder:text-slate-400">
                         </div>
 
@@ -332,7 +324,7 @@
     </div>
 
     {{-- ── MODAL EDIT GURU ─────────────────────────────────────────── --}}
-    <div id="modalEditGuru" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 hidden transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalEditTitle">
+    <div id="modalEditGuru" class="fixed inset-0 z-[60] bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 hidden transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalEditTitle">
         <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200/80 max-h-[92vh] flex flex-col overflow-hidden transform transition-all">
             {{-- Header --}}
             <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/60 shrink-0">
@@ -390,7 +382,7 @@
                             <label class="block font-semibold text-slate-700 mb-1.5">
                                 NIP / NUPTK / No. Pegawai <span class="text-rose-500">*</span>
                             </label>
-                            <input type="text" id="editGuruNip" name="identity_number" required
+                            <input type="text" id="editGuruNip" name="nip" required
                                 class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-600 focus:border-sky-600 focus:outline-none mono-font text-xs bg-slate-50/70 focus:bg-white transition">
                         </div>
 
@@ -522,7 +514,7 @@
         const modal = document.getElementById('modalAddGuru');
         if (!modal) return;
         modal.classList.remove('hidden');
-        const input = modal.querySelector('input[name="identity_number"]');
+        const input = modal.querySelector('input[name="nip"]');
         if (input) input.focus();
     }
     function closeAddModal() {

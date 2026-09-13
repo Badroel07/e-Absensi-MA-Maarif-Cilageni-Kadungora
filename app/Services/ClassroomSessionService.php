@@ -7,6 +7,9 @@ use App\Models\ClassSession;
 use App\Models\DailyAttendance;
 use App\Models\LessonAttendance;
 use App\Models\SchoolLocation;
+use App\Models\Student;
+use App\Models\Teacher;
+use App\Models\TeacherSessionAttendance;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -22,10 +25,10 @@ class ClassroomSessionService
     /**
      * Open a new attendance session for a class schedule
      */
-    public function openSession(ClassSchedule $schedule, User $teacher, int $durationMinutes = 3): ClassSession
+    public function openSession(ClassSchedule $schedule, Teacher $teacher, int $durationMinutes = 3, ?float $lat = null, ?float $lng = null): ClassSession
     {
-        // Check-in Gating: Teacher must have checked in at Kiosk today
-        if (! $this->teacherAttendanceService->hasCheckedInToday($teacher)) {
+        // Check-in Gating: Teacher must have checked in at Kiosk today (account-level record)
+        if (! $this->teacherAttendanceService->hasCheckedInToday($teacher->user)) {
             throw ValidationException::withMessages([
                 'check_in' => 'Akses Belum Tersedia: Bapak/Ibu Guru belum melakukan presensi masuk di Layar Presensi Madrasah hari ini. Silakan pindai presensi masuk terlebih dahulu.',
             ]);
@@ -43,8 +46,25 @@ class ClassroomSessionService
         if ($end->lte($start)) {
             $end->addDay();
         }
-        if ($now->lt($start) || $now->gt($end)) {
-            throw ValidationException::withMessages(['schedule' => "Sesi presensi hanya dapat dibuka sesuai jadwal pelajaran: pukul {$schedule->start_time}–{$schedule->end_time} WIB. Waktu saat ini: pukul {$now->format('H:i')} WIB."]);
+        // Guru boleh membuka sesi paling cepat 5 menit sebelum jam mapel mulai
+        $openWindowStart = $start->copy()->subMinutes(5);
+        if ($now->lt($openWindowStart) || $now->gt($end)) {
+            throw ValidationException::withMessages(['schedule' => "Sesi presensi hanya dapat dibuka sesuai jadwal pelajaran: maksimal 5 menit sebelum hingga pukul {$schedule->end_time} WIB. Waktu saat ini: pukul {$now->format('H:i')} WIB."]);
+        }
+
+        // Geofence Gating: buka sesi hanya valid dari dalam area madrasah
+        $location = SchoolLocation::getActiveLocation();
+        $distance = 0.0;
+        if ($location) {
+            if ($lat === null || $lng === null) {
+                throw ValidationException::withMessages(['geofence' => 'Buka sesi ditolak. Lokasi GPS tidak terdeteksi. Harap aktifkan GPS dan izinkan akses lokasi pada peramban HP Bapak/Ibu Guru.']);
+            }
+
+            $distance = $location->calculateDistance($lat, $lng);
+            $maxRadius = $location->radius_meters + 25; // 25m soft tolerance for GPS drift
+            if ($distance > $maxRadius) {
+                throw ValidationException::withMessages(['geofence' => 'Buka sesi ditolak. Anda berada di luar area madrasah (terdeteksi '.round($distance).' meter dari madrasah, batas area '.$location->radius_meters.' meter).']);
+            }
         }
 
         // Clamp duration between 2 and 5 minutes
@@ -61,7 +81,7 @@ class ClassroomSessionService
             ->where('status', 'ACTIVE')
             ->update(['status' => 'EXPIRED']);
 
-        return ClassSession::create([
+        $session = ClassSession::create([
             'schedule_id' => $schedule->id,
             'teacher_id' => $teacher->id,
             'pin_code' => $pinCode,
@@ -70,12 +90,55 @@ class ClassroomSessionService
             'expires_at' => $expiresAt,
             'status' => 'ACTIVE',
         ]);
+
+        $this->recordTeacherSessionAttendance($schedule, $teacher, $session, $start, $startedAt, $lat, $lng, $distance);
+
+        return $session;
+    }
+
+    /**
+     * Record the teacher's attendance for this teaching session.
+     * The first open of the day fixes attended_at (lateness is derived from it
+     * against the schedule start time); re-opens only link the newest ClassSession.
+     */
+    protected function recordTeacherSessionAttendance(
+        ClassSchedule $schedule,
+        Teacher $teacher,
+        ClassSession $session,
+        Carbon $scheduleStart,
+        Carbon $attendedAt,
+        ?float $lat,
+        ?float $lng,
+        float $distance
+    ): TeacherSessionAttendance {
+        $existing = TeacherSessionAttendance::where('schedule_id', $schedule->id)
+            ->where('teacher_id', $teacher->id)
+            ->whereDate('attendance_date', Carbon::today())
+            ->first();
+
+        if ($existing) {
+            $existing->update(['class_session_id' => $session->id]);
+
+            return $existing;
+        }
+
+        return TeacherSessionAttendance::create([
+            'schedule_id' => $schedule->id,
+            'teacher_id' => $teacher->id,
+            'class_session_id' => $session->id,
+            'attendance_date' => Carbon::today(),
+            'status' => TeacherSessionAttendance::STATUS_HADIR,
+            'attended_at' => $attendedAt,
+            'latitude' => $lat,
+            'longitude' => $lng,
+            'distance_meters' => $distance,
+        ]);
     }
 
     /**
      * Get active session and geofence state for student's view
      */
-    public function getActiveSessionForStudent(User $student, ?float $lat = null, ?float $lng = null): array
+    public function getActiveSessionForStudent(Student $student, ?float $lat = null, ?float $lng = null): array
     {
         $location = SchoolLocation::getActiveLocation();
         $isWithinGeofence = false;
@@ -134,7 +197,7 @@ class ClassroomSessionService
     /**
      * Verify student's 4-digit PIN with Geofence and Rate Limiting
      */
-    public function verifyStudentPin(User $student, string $pin, float $lat, float $lng): array
+    public function verifyStudentPin(Student $student, string $pin, float $lat, float $lng): array
     {
         // 1. Geofence evaluation
         $location = SchoolLocation::getActiveLocation();
@@ -181,17 +244,24 @@ class ClassroomSessionService
             ];
         }
 
-        // 4. Brute-force rate limiting: Max 3 failed attempts per session
+        // 4. Brute-force rate limiting: 3 failed attempts triggers a 60s cooldown
         $rateLimitKey = "pin_fail:{$session->id}:{$student->id}";
-        $failedAttempts = (int) Cache::get($rateLimitKey, 0);
+        $state = Cache::get($rateLimitKey);
+        if (is_array($state) && isset($state['cooldown_until'])) {
+            if ($state['cooldown_until'] > Carbon::now()->getTimestamp()) {
+                return [
+                    'success' => false,
+                    'code' => 'RATE_LIMITED',
+                    'cooldown_seconds' => max(1, $state['cooldown_until'] - Carbon::now()->getTimestamp()),
+                    'message' => 'Percobaan PIN salah 3 kali. Masukkan PIN kembali dalam '.max(1, (int) ceil(($state['cooldown_until'] - Carbon::now()->getTimestamp()) / 60)).' menit.',
+                ];
+            }
 
-        if ($failedAttempts >= 3) {
-            return [
-                'success' => false,
-                'code' => 'RATE_LIMITED',
-                'message' => 'Batas 3 kali salah memasukkan PIN tercapai. Kesempatan memasukkan PIN dibekukan sementara selama 5 menit demi keamanan.',
-            ];
+            // Cooldown ended — grant a fresh set of attempts
+            Cache::forget($rateLimitKey);
+            $state = null;
         }
+        $failedAttempts = is_array($state) ? (int) ($state['attempts'] ?? 0) : (is_int($state) ? $state : 0);
 
         // 5. Check already verified
         $existing = LessonAttendance::where('schedule_id', $session->schedule_id)
@@ -210,13 +280,28 @@ class ClassroomSessionService
         // 6. Check PIN match
         if (trim($pin) !== $session->pin_code) {
             $failedAttempts++;
-            Cache::put($rateLimitKey, $failedAttempts, 300); // 5 minutes TTL
             $remaining = max(0, 3 - $failedAttempts);
+
+            if ($failedAttempts >= 3) {
+                // 3rd failure: cooldown starts immediately for 60 seconds
+                $cooldownUntil = Carbon::now()->addMinute()->getTimestamp();
+                Cache::put($rateLimitKey, ['attempts' => $failedAttempts, 'cooldown_until' => $cooldownUntil], 120);
+
+                return [
+                    'success' => false,
+                    'code' => 'INVALID_PIN',
+                    'is_locked' => true,
+                    'cooldown_seconds' => 60,
+                    'message' => 'PIN salah 3 kali. Kesempatan memasukkan PIN dibekukan sementara selama 1 menit demi keamanan.',
+                ];
+            }
+
+            Cache::put($rateLimitKey, ['attempts' => $failedAttempts], 300);
 
             return [
                 'success' => false,
                 'code' => 'INVALID_PIN',
-                'message' => 'Kode PIN presensi salah. Sisa kesempatan: '.$remaining.' kali percobaan.',
+                'message' => 'PIN SALAH! Sisa kesempatan: '.$remaining.' kali percobaan.',
             ];
         }
 
@@ -242,7 +327,7 @@ class ClassroomSessionService
 
         // Section 5.2 requirement: First-period attendance automatically records daily attendance
         $daily = DailyAttendance::firstOrNew([
-            'user_id' => $student->id,
+            'user_id' => $student->user_id,
             'attendance_date' => Carbon::today(),
         ]);
 
@@ -268,7 +353,9 @@ class ClassroomSessionService
     public function reconcileSession(ClassSession $session, User $teacher, array $statuses, array $notes = []): void
     {
         $classroom = $session->schedule->classroom;
-        $students = $classroom->students()->where('is_active', true)->get();
+        $students = $classroom->students()
+            ->whereHas('user', fn ($q) => $q->where('is_active', true))
+            ->get();
 
         foreach ($students as $student) {
             $existing = LessonAttendance::where('schedule_id', $session->schedule_id)
@@ -305,7 +392,7 @@ class ClassroomSessionService
             // If manual status is HADIR, ensure daily attendance is also recorded
             if ($status === 'HADIR') {
                 $daily = DailyAttendance::firstOrNew([
-                    'user_id' => $student->id,
+                    'user_id' => $student->user_id,
                     'attendance_date' => Carbon::today(),
                 ]);
 
@@ -326,7 +413,7 @@ class ClassroomSessionService
      *
      * @return array<string, mixed>
      */
-    public function getStudentDashboardData(User $student): array
+    public function getStudentDashboardData(Student $student): array
     {
         $student->load('classroom');
         $location = SchoolLocation::getActiveLocation();
@@ -403,8 +490,10 @@ class ClassroomSessionService
     {
         $session->load(['schedule.classroom', 'schedule.subject']);
         $students = $session->schedule->classroom->students()
-            ->where('is_active', true)
-            ->orderBy('name')
+            ->whereHas('user', fn ($q) => $q->where('is_active', true))
+            ->orderBy('users.name')
+            ->join('users', 'users.id', '=', 'students.user_id')
+            ->select('students.*')
             ->get();
 
         $existingAttendances = LessonAttendance::where('schedule_id', $session->schedule_id)

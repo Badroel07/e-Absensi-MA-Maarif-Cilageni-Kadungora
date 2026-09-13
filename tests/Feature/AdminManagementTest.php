@@ -5,7 +5,9 @@ use App\Models\ClassSchedule;
 use App\Models\DailyAttendance;
 use App\Models\LessonAttendance;
 use App\Models\SchoolLocation;
+use App\Models\Student;
 use App\Models\Subject;
+use App\Models\Teacher;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
@@ -23,14 +25,12 @@ beforeEach(function () {
         'is_active' => true,
     ]);
 
-    $this->admin = User::create([
-        'identity_number' => '198501012010011001',
+    $this->admin = createAdmin([
+        'nip' => '198501012010011001',
         'name' => 'Staf Tata Usaha',
         'email' => 'tu@maarif.sch.id',
         'birth_date' => '1985-01-01',
-        'password' => Hash::make('Admin123!'),
-        'role' => 'admin',
-        'is_active' => true,
+        'password' => 'Admin123!',
     ]);
 
     $this->classroom = Classroom::create([
@@ -50,35 +50,29 @@ beforeEach(function () {
         'name' => 'Fikih',
     ]);
 
-    $this->guru = User::create([
-        'identity_number' => '198012012010011001',
+    $this->guru = createGuru([
+        'nip' => '198012012010011001',
         'name' => 'Ust. H. Ahmad Dahlan',
         'email' => 'ahmad@maarif.sch.id',
         'birth_date' => '1980-12-01',
-        'password' => Hash::make('01121980'),
-        'role' => 'guru',
-        'is_active' => true,
+        'password' => '01121980',
     ]);
 
-    $this->guru2 = User::create([
-        'identity_number' => '198502022010011002',
+    $this->guru2 = createGuru([
+        'nip' => '198502022010011002',
         'name' => 'Ust. Mahmudin, M.Pd.I',
         'email' => 'mahmudin@maarif.sch.id',
         'birth_date' => '1985-02-02',
-        'password' => Hash::make('02021985'),
-        'role' => 'guru',
-        'is_active' => true,
+        'password' => '02021985',
     ]);
 
-    $this->siswa = User::create([
-        'identity_number' => '1010101010',
+    $this->siswa = createSiswa([
+        'nisn' => '1010101010',
         'name' => 'Ahmad Fauzi',
         'email' => 'fauzi@siswa.maarif.sch.id',
         'birth_date' => '2012-05-15',
-        'password' => Hash::make('akunsiswa@maarif'),
-        'role' => 'siswa',
+        'password' => 'akunsiswa@maarif',
         'classroom_id' => $this->classroom->id,
-        'is_active' => true,
     ]);
 });
 
@@ -87,13 +81,11 @@ test('TC-ADM-DASH-001: Dashboard admin memuat metrik KPI dan membatasi data pres
 
     // Create 12 teachers and daily attendances
     for ($i = 1; $i <= 12; $i++) {
-        $teacher = User::create([
-            'identity_number' => '1980000000000000'.str_pad((string) $i, 2, '0', STR_PAD_LEFT),
+        $teacher = createGuru([
+            'nip' => '1980000000000000'.str_pad((string) $i, 2, '0', STR_PAD_LEFT),
             'name' => "Guru {$i}",
             'birth_date' => '1980-01-01',
-            'password' => Hash::make('password'),
-            'role' => 'guru',
-            'is_active' => true,
+            'password' => 'password',
         ]);
 
         DailyAttendance::create([
@@ -122,7 +114,7 @@ test('TC-ADM-SIS-002: Siswa store — sukses membuat siswa baru dengan kata sand
     $this->actingAs($this->admin);
 
     $response = $this->post('/admin/siswa', [
-        'identity_number' => '2020202020',
+        'nisn' => '2020202020',
         'name' => 'Ahmad Fauzi Baru',
         'email' => 'fauzi.baru@siswa.maarif.sch.id',
         'birth_date' => '2013-06-10',
@@ -133,37 +125,37 @@ test('TC-ADM-SIS-002: Siswa store — sukses membuat siswa baru dengan kata sand
     $response->assertRedirect();
     $response->assertSessionHas('success');
 
-    $newStudent = User::where('identity_number', '2020202020')->first();
+    $newStudent = Student::where('nisn', '2020202020')->first();
     expect($newStudent)->not->toBeNull();
-    expect($newStudent->role)->toBe('siswa');
-    expect($newStudent->email)->toBe('fauzi.baru@siswa.maarif.sch.id');
-    expect(Hash::check('akunsiswa@maarif', $newStudent->password))->toBeTrue();
+    expect($newStudent->user->role)->toBe('siswa');
+    expect($newStudent->user->email)->toBe('fauzi.baru@siswa.maarif.sch.id');
+    expect(Hash::check('akunsiswa@maarif', $newStudent->user->password))->toBeTrue();
 });
 
 test('TC-ADM-SIS-003: Siswa store — validasi unique NISN', function () {
     $this->actingAs($this->admin);
 
     $response = $this->post('/admin/siswa', [
-        'identity_number' => '1010101010', // duplicate
+        'nisn' => '1010101010', // duplicate
         'name' => 'Duplikat Siswa',
         'birth_date' => '2013-06-10',
         'classroom_id' => $this->classroom->id,
     ]);
 
-    $response->assertSessionHasErrors('identity_number');
+    $response->assertSessionHasErrors('nisn');
 });
 
 test('TC-ADM-SIS-004: Siswa store — validasi NISN wajib 10 digit', function () {
     $this->actingAs($this->admin);
 
     $response = $this->post('/admin/siswa', [
-        'identity_number' => '12345', // not 10 digits
+        'nisn' => '12345', // not 10 digits
         'name' => 'Siswa Invalid Digit',
         'birth_date' => '2013-06-10',
         'classroom_id' => $this->classroom->id,
     ]);
 
-    $response->assertSessionHasErrors('identity_number');
+    $response->assertSessionHasErrors('nisn');
 });
 
 test('TC-ADM-SIS-005: Siswa store — upload foto profil tersimpan di storage public', function () {
@@ -171,7 +163,7 @@ test('TC-ADM-SIS-005: Siswa store — upload foto profil tersimpan di storage pu
 
     $this->actingAs($this->admin);
     $response = $this->post('/admin/siswa', [
-        'identity_number' => '3030303030',
+        'nisn' => '3030303030',
         'name' => 'Siswa Dengan Foto',
         'birth_date' => '2013-01-01',
         'classroom_id' => $this->classroom->id,
@@ -179,9 +171,9 @@ test('TC-ADM-SIS-005: Siswa store — upload foto profil tersimpan di storage pu
     ]);
 
     $response->assertSessionHas('success');
-    $student = User::where('identity_number', '3030303030')->first();
-    expect($student->profile_photo_path)->not->toBeNull();
-    Storage::disk('public')->assertExists($student->profile_photo_path);
+    $student = Student::where('nisn', '3030303030')->first();
+    expect($student->user->profile_photo_path)->not->toBeNull();
+    Storage::disk('public')->assertExists($student->user->profile_photo_path);
 });
 
 test('TC-ADM-SIS-006: Siswa update — memperbarui data dan mengganti foto profil', function () {
@@ -189,7 +181,7 @@ test('TC-ADM-SIS-006: Siswa update — memperbarui data dan mengganti foto profi
 
     $newPhoto = UploadedFile::fake()->image('siswa_updated.jpg');
     $response = $this->put(route('admin.siswa.update', $this->siswa), [
-        'identity_number' => $this->siswa->identity_number,
+        'nisn' => $this->siswa->student->nisn,
         'name' => 'Ahmad Fauzi Updated',
         'birth_date' => '2012-05-15',
         'classroom_id' => $this->classroom->id,
@@ -208,7 +200,7 @@ test('TC-ADM-SIS-007: Siswa update — opsi hapus foto (remove_photo)', function
 
     $this->actingAs($this->admin);
     $response = $this->put(route('admin.siswa.update', $this->siswa), [
-        'identity_number' => $this->siswa->identity_number,
+        'nisn' => $this->siswa->student->nisn,
         'name' => $this->siswa->name,
         'birth_date' => '2012-05-15',
         'classroom_id' => $this->classroom->id,
@@ -234,12 +226,12 @@ test('TC-ADM-SIS-009: Siswa riwayat individual — menampilkan statistik dan his
         'schedule_id' => ClassSchedule::create([
             'classroom_id' => $this->classroom->id,
             'subject_id' => $this->subject->id,
-            'teacher_id' => $this->guru->id,
+            'teacher_id' => $this->guru->teacher->id,
             'day_of_week' => 'Senin',
             'start_time' => '07:30',
             'end_time' => '09:00',
         ])->id,
-        'student_id' => $this->siswa->id,
+        'student_id' => $this->siswa->student->id,
         'attendance_date' => Carbon::today(),
         'status' => 'HADIR',
     ]);
@@ -264,7 +256,7 @@ test('TC-ADM-GUR-002: Guru store — sukses dengan kata sandi bawaan akunguru@ma
     $this->actingAs($this->admin);
 
     $response = $this->post('/admin/guru', [
-        'identity_number' => '198512022010011002',
+        'nip' => '198512022010011002',
         'name' => 'Siti Aisyah, S.Pd.I',
         'birth_date' => '1985-12-02',
         'email' => 'siti@maarif.sch.id',
@@ -273,22 +265,22 @@ test('TC-ADM-GUR-002: Guru store — sukses dengan kata sandi bawaan akunguru@ma
     $response->assertRedirect();
     $response->assertSessionHas('success');
 
-    $newTeacher = User::where('identity_number', '198512022010011002')->first();
+    $newTeacher = Teacher::where('nip', '198512022010011002')->first();
     expect($newTeacher)->not->toBeNull();
-    expect(Hash::check('akunguru@maarif', $newTeacher->password))->toBeTrue();
+    expect(Hash::check('akunguru@maarif', $newTeacher->user->password))->toBeTrue();
 });
 
 test('TC-ADM-GUR-003: Guru store — validasi unique NIP dan email', function () {
     $this->actingAs($this->admin);
 
     $response = $this->post('/admin/guru', [
-        'identity_number' => '198012012010011001', // duplicate
+        'nip' => '198012012010011001', // duplicate
         'name' => 'Guru Duplikat',
         'birth_date' => '1980-12-01',
         'email' => 'ahmad@maarif.sch.id', // duplicate
     ]);
 
-    $response->assertSessionHasErrors(['identity_number', 'email']);
+    $response->assertSessionHasErrors(['nip', 'email']);
 });
 
 test('TC-ADM-GUR-004: Guru update, destroy, dan riwayat individual', function () {
@@ -296,7 +288,7 @@ test('TC-ADM-GUR-004: Guru update, destroy, dan riwayat individual', function ()
 
     // 1. Update
     $resUpdate = $this->put(route('admin.guru.update', $this->guru), [
-        'identity_number' => $this->guru->identity_number,
+        'nip' => $this->guru->teacher->nip,
         'name' => 'Dr. H. Ahmad Dahlan, M.Pd.',
         'birth_date' => '1980-12-01',
         'email' => $this->guru->email,
@@ -312,7 +304,7 @@ test('TC-ADM-GUR-004: Guru update, destroy, dan riwayat individual', function ()
         'check_in_time' => '07:05:00',
         'check_in_status' => 'HADIR',
     ]);
-    $resRiwayat = $this->get(route('admin.guru.riwayat', $this->guru));
+    $resRiwayat = $this->get(route('admin.presensi-guru.riwayat', $this->guru));
     $resRiwayat->assertStatus(200);
     $resRiwayat->assertSee('Dr. H. Ahmad Dahlan, M.Pd.');
 
@@ -389,7 +381,7 @@ test('TC-ADM-JDW-001: Jadwal store — sukses jika tidak ada bentrok guru maupun
     $response = $this->post(route('admin.jadwal.store'), [
         'classroom_id' => $this->classroom->id,
         'subject_id' => $this->subject->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'day_of_week' => 'Senin',
         'start_time' => '07:30',
         'end_time' => '08:30',
@@ -407,7 +399,7 @@ test('TC-ADM-JDW-002: Jadwal — validasi format jam after dan tolak bentrok ove
     $resAfter = $this->post(route('admin.jadwal.store'), [
         'classroom_id' => $this->classroom->id,
         'subject_id' => $this->subject->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'day_of_week' => 'Senin',
         'start_time' => '09:00',
         'end_time' => '08:00',
@@ -418,7 +410,7 @@ test('TC-ADM-JDW-002: Jadwal — validasi format jam after dan tolak bentrok ove
     ClassSchedule::create([
         'classroom_id' => $this->classroom->id,
         'subject_id' => $this->subject->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'day_of_week' => 'Senin',
         'start_time' => '07:30',
         'end_time' => '09:00',
@@ -428,7 +420,7 @@ test('TC-ADM-JDW-002: Jadwal — validasi format jam after dan tolak bentrok ove
     $resOverlapTeacher = $this->post(route('admin.jadwal.store'), [
         'classroom_id' => $this->classroomB->id,
         'subject_id' => $this->subject->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'day_of_week' => 'Senin',
         'start_time' => '08:00',
         'end_time' => '09:30',
@@ -442,7 +434,7 @@ test('TC-ADM-JDW-003: Jadwal — filter berdasarkan kelas dan hari', function ()
     ClassSchedule::create([
         'classroom_id' => $this->classroom->id,
         'subject_id' => $this->subject->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'day_of_week' => 'Senin',
         'start_time' => '07:30',
         'end_time' => '09:00',
@@ -460,7 +452,7 @@ test('TC-ADM-JDW-004: Jadwal — update dan destroy dengan pengecekan double ove
     $schedule = ClassSchedule::create([
         'classroom_id' => $this->classroom->id,
         'subject_id' => $this->subject->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'day_of_week' => 'Senin',
         'start_time' => '07:30',
         'end_time' => '09:00',
@@ -470,7 +462,7 @@ test('TC-ADM-JDW-004: Jadwal — update dan destroy dengan pengecekan double ove
     $resUpdate = $this->put(route('admin.jadwal.update', $schedule), [
         'classroom_id' => $this->classroom->id,
         'subject_id' => $this->subject->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'day_of_week' => 'Senin',
         'start_time' => '08:00',
         'end_time' => '09:30',
@@ -491,7 +483,7 @@ test('TC-ADM-JDW-005: Jadwal — tolak bentrok overlap rombel kelas pada hari da
     ClassSchedule::create([
         'classroom_id' => $this->classroom->id,
         'subject_id' => $this->subject->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'day_of_week' => 'Senin',
         'start_time' => '07:30',
         'end_time' => '09:00',
@@ -501,7 +493,7 @@ test('TC-ADM-JDW-005: Jadwal — tolak bentrok overlap rombel kelas pada hari da
     $response = $this->post(route('admin.jadwal.store'), [
         'classroom_id' => $this->classroom->id,
         'subject_id' => $this->subject->id,
-        'teacher_id' => $this->guru2->id,
+        'teacher_id' => $this->guru2->teacher->id,
         'day_of_week' => 'Senin',
         'start_time' => '08:00',
         'end_time' => '09:30',

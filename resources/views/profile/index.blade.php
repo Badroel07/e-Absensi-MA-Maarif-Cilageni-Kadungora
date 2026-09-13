@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Profil Akun — MA Ma\'arif Cilageni')
+@section('title', 'Profil Akun — SIMADMA')
 
 @section('content')
 <div class="space-y-6">
@@ -47,7 +47,7 @@
                     <!-- Natural clean text info without overly boxy pills -->
                     <div class="mt-1 text-center text-xs text-slate-500 font-medium space-y-0.5">
                         <p>Peran: <span class="font-semibold text-slate-700">{{ $user->role === 'guru' ? 'Guru' : ($user->role === 'admin' ? 'Administrator' : 'Siswa') }}</span></p>
-                        <p>Nomor Identitas: <span class="font-semibold text-slate-800 mono-font">{{ $user->identity_number }}</span></p>
+                        <p>{{ $user->isSiswa() ? 'NISN' : 'NIP' }}: <span class="font-semibold text-slate-800 mono-font">{{ $user->isSiswa() ? ($user->student?->nisn ?? '-') : ($user->teacher?->nip ?? '-') }}</span></p>
                     </div>
 
                     <!-- Official Email Link -->
@@ -103,7 +103,7 @@
 
                 <!-- Detailed Teacher Metadata List -->
                 <div class="space-y-3.5 text-xs">
-                    @if($user->classroom)
+                    @if($user->student?->classroom)
                         <!-- Row: Rombel / Kelas -->
                         <div class="flex items-center justify-between py-0.5">
                             <div class="flex items-center gap-2.5 text-slate-500 font-medium">
@@ -112,7 +112,7 @@
                                 </svg>
                                 <span>Rombel / Kelas</span>
                             </div>
-                            <span class="font-semibold text-slate-800">Kelas {{ $user->classroom->name }}</span>
+                            <span class="font-semibold text-slate-800">Kelas {{ $user->student->classroom->name }}</span>
                         </div>
                     @endif
 
@@ -124,7 +124,8 @@
                             </svg>
                             <span>Tanggal Lahir</span>
                         </div>
-                        <span class="font-semibold text-slate-800 mono-font">{{ $user->birth_date ? $user->birth_date->format('d F Y') : '-' }}</span>
+                        @php $profileBirthDate = $user->student?->birth_date ?? $user->teacher?->birth_date; @endphp
+                        <span class="font-semibold text-slate-800 mono-font">{{ $profileBirthDate ? $profileBirthDate->format('d F Y') : '-' }}</span>
                     </div>
 
                     <!-- Row 2: Status Akun -->
@@ -148,7 +149,7 @@
                             </svg>
                             <span>No. Handphone</span>
                         </div>
-                        <span class="font-semibold {{ $user->phone_number ? 'text-slate-800' : 'text-slate-400' }} mono-font">{{ $user->phone_number ?? '-' }}</span>
+                        <span class="font-semibold {{ ($user->student?->phone_number ?? $user->teacher?->phone_number) ? 'text-slate-800' : 'text-slate-400' }} mono-font">{{ $user->student?->phone_number ?? $user->teacher?->phone_number ?? '-' }}</span>
                     </div>
                 </div>
             </section>
@@ -175,7 +176,12 @@
                 </div>
 
                 <!-- Form Elements -->
-                <form action="{{ route('profile.password') }}" method="POST" data-loading-form class="space-y-4">
+                <form action="{{ route('profile.password') }}" method="POST" data-loading-form class="space-y-4"
+                    data-confirm="Perbarui kata sandi akun Anda? Gunakan kata sandi baru pada login berikutnya."
+                    data-confirm-title="Perbarui Kata Sandi"
+                    data-confirm-type="key"
+                    data-confirm-btn="Ya, Perbarui Sandi"
+                    data-confirm-icon="key-round">
                     @csrf
                     <!-- Current Password -->
                     <div>
@@ -267,8 +273,8 @@
                 <!-- Action Button Logout -->
                 <form action="{{ route('logout') }}" method="POST"
                     data-confirm="Apakah Anda yakin ingin keluar dari sesi akun ini?"
-                    data-confirm-title="Keluar dari Akun"
-                    data-confirm-type="danger"
+                    data-confirm-title="Keluar dari Sesi Akun?"
+                    data-confirm-type="logout"
                     data-confirm-btn="Ya, Keluar">
                     @csrf
                     <button class="w-full py-3 px-4 rounded-xl bg-[#e11d48] hover:bg-[#be123c] active:scale-[0.99] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer heading-font" type="submit">

@@ -7,10 +7,8 @@ use App\Models\DailyAttendance;
 use App\Models\LessonAttendance;
 use App\Models\SchoolLocation;
 use App\Models\Subject;
-use App\Models\User;
 use App\Services\TeacherAttendanceService;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Hash;
 
 beforeEach(function () {
     $this->location = SchoolLocation::create([
@@ -27,14 +25,12 @@ beforeEach(function () {
         'academic_year' => '2026/2027',
     ]);
 
-    $this->student = User::create([
-        'identity_number' => '1010101010',
+    $this->student = createSiswa([
+        'nisn' => '1010101010',
         'name' => 'Ahmad Fauzi',
         'birth_date' => '2012-05-15',
-        'password' => Hash::make('15052012'),
-        'role' => 'siswa',
+        'password' => '15052012',
         'classroom_id' => $this->classroom->id,
-        'is_active' => true,
     ]);
 
     $this->subject = Subject::create([
@@ -42,21 +38,19 @@ beforeEach(function () {
         'name' => 'Fikih',
     ]);
 
-    $this->guru = User::create([
-        'identity_number' => '198012012010011001',
+    $this->guru = createGuru([
+        'nip' => '198012012010011001',
         'name' => 'Ust. H. Ahmad Dahlan',
         'email' => 'ahmad@maarif.sch.id',
         'birth_date' => '1980-12-01',
-        'password' => Hash::make('01121980'),
-        'role' => 'guru',
-        'is_active' => true,
+        'password' => '01121980',
     ]);
 
     $todayDay = TeacherAttendanceService::getIndonesianDayName(Carbon::today());
     $this->schedule = ClassSchedule::create([
         'classroom_id' => $this->classroom->id,
         'subject_id' => $this->subject->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'day_of_week' => $todayDay,
         'start_time' => '07:30:00',
         'end_time' => '09:00:00',
@@ -64,7 +58,7 @@ beforeEach(function () {
 
     $this->session = ClassSession::create([
         'schedule_id' => $this->schedule->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'pin_code' => '8492',
         'duration_minutes' => 3,
         'started_at' => Carbon::now(),
@@ -137,7 +131,7 @@ test('TC-SIS-GEO-003: checkStatus — tanpa koordinat GPS', function () {
 });
 
 test('TC-SIS-GEO-004: checkStatus — siswa tanpa classroom_id mengembalikan session null', function () {
-    $this->student->update(['classroom_id' => null]);
+    $this->student->student->update(['classroom_id' => null]);
     $this->actingAs($this->student);
 
     $response = $this->postJson('/siswa/check-status', [
@@ -186,7 +180,7 @@ test('TC-SIS-PIN-001: verifyPin — sukses HADIR dan mencatat DailyAttendance ja
 
     // LessonAttendance recorded
     $lesson = LessonAttendance::where('schedule_id', $this->schedule->id)
-        ->where('student_id', $this->student->id)
+        ->where('student_id', $this->student->student->id)
         ->first();
     expect($lesson)->not->toBeNull();
     expect($lesson->status)->toBe('HADIR');
@@ -285,17 +279,26 @@ test('TC-SIS-PIN-006: verifyPin — PIN salah mengembalikan INVALID_PIN dan meng
     ]);
 });
 
-test('TC-SIS-PIN-007: verifyPin — dibekukan sementara (RATE_LIMITED) setelah 3 kali salah berturut-turut', function () {
+test('TC-SIS-PIN-007: verifyPin — salah 3 kali memicu cooldown 1 menit (RATE_LIMITED)', function () {
     $this->actingAs($this->student);
 
-    // 1st wrong attempt
-    $this->postJson('/siswa/verify-pin', ['pin' => '1111', 'latitude' => -7.010000, 'longitude' => 107.900000])->assertStatus(422);
-    // 2nd wrong attempt
-    $this->postJson('/siswa/verify-pin', ['pin' => '2222', 'latitude' => -7.010000, 'longitude' => 107.900000])->assertStatus(422);
-    // 3rd wrong attempt
-    $this->postJson('/siswa/verify-pin', ['pin' => '3333', 'latitude' => -7.010000, 'longitude' => 107.900000])->assertStatus(422);
+    // 1st wrong attempt: INVALID_PIN with 2 attempts remaining
+    $res1 = $this->postJson('/siswa/verify-pin', ['pin' => '1111', 'latitude' => -7.010000, 'longitude' => 107.900000])->assertStatus(422);
+    $res1->assertJson(['code' => 'INVALID_PIN']);
 
-    // 4th attempt (even with correct PIN) is RATE_LIMITED
+    // 2nd wrong attempt: INVALID_PIN with 1 attempt remaining
+    $res2 = $this->postJson('/siswa/verify-pin', ['pin' => '2222', 'latitude' => -7.010000, 'longitude' => 107.900000])->assertStatus(422);
+    $res2->assertJson(['code' => 'INVALID_PIN']);
+
+    // 3rd wrong attempt: cooldown starts immediately (is_locked + 60s)
+    $res3 = $this->postJson('/siswa/verify-pin', ['pin' => '3333', 'latitude' => -7.010000, 'longitude' => 107.900000])->assertStatus(422);
+    $res3->assertJson([
+        'code' => 'INVALID_PIN',
+        'is_locked' => true,
+        'cooldown_seconds' => 60,
+    ]);
+
+    // 4th attempt (even with correct PIN) is RATE_LIMITED while cooldown runs
     $response = $this->postJson('/siswa/verify-pin', [
         'pin' => '8492',
         'latitude' => -7.010000,
@@ -307,6 +310,7 @@ test('TC-SIS-PIN-007: verifyPin — dibekukan sementara (RATE_LIMITED) setelah 3
         'success' => false,
         'code' => 'RATE_LIMITED',
     ]);
+    expect($response->json('cooldown_seconds'))->toBeInt()->toBeGreaterThan(0)->toBeLessThanOrEqual(60);
 });
 
 test('TC-SIS-PIN-008: verifyPin — idempoten jika sudah berhasil HADIR pada sesi yang sama', function () {
@@ -350,7 +354,7 @@ test('TC-SIS-PIN-009: verifyPin — presensi mapel kedua tidak menimpa check_in_
     $schedule2 = ClassSchedule::create([
         'classroom_id' => $this->classroom->id,
         'subject_id' => $this->subject->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'day_of_week' => TeacherAttendanceService::getIndonesianDayName(Carbon::today()),
         'start_time' => '10:00:00',
         'end_time' => '11:30:00',
@@ -358,7 +362,7 @@ test('TC-SIS-PIN-009: verifyPin — presensi mapel kedua tidak menimpa check_in_
 
     $session2 = ClassSession::create([
         'schedule_id' => $schedule2->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'pin_code' => '5555',
         'duration_minutes' => 3,
         'started_at' => Carbon::now(),
@@ -396,7 +400,7 @@ test('TC-SIS-PIN-010: verifyPin — validasi format PIN wajib 4 digit dan koordi
 test('TC-SIS-HIST-001: Riwayat presensi siswa ter-paginate', function () {
     LessonAttendance::create([
         'schedule_id' => $this->schedule->id,
-        'student_id' => $this->student->id,
+        'student_id' => $this->student->student->id,
         'attendance_date' => Carbon::today(),
         'status' => 'HADIR',
         'verified_at' => Carbon::now(),

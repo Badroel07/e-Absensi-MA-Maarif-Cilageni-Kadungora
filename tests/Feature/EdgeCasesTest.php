@@ -3,15 +3,12 @@
 use App\Models\Classroom;
 use App\Models\ClassSchedule;
 use App\Models\ClassSession;
-use App\Models\DailyAttendance;
 use App\Models\LessonAttendance;
 use App\Models\SchoolLocation;
 use App\Models\Subject;
-use App\Models\User;
 use App\Services\KioskService;
 use App\Services\TeacherAttendanceService;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Hash;
 
 beforeEach(function () {
     $this->location = SchoolLocation::create([
@@ -33,30 +30,26 @@ beforeEach(function () {
         'name' => 'Fikih',
     ]);
 
-    $this->guru = User::create([
-        'identity_number' => '198012012010011001',
+    $this->guru = createGuru([
+        'nip' => '198012012010011001',
         'name' => 'Ust. H. Ahmad Dahlan',
         'email' => 'ahmad@maarif.sch.id',
         'birth_date' => '1980-12-01',
-        'password' => Hash::make('01121980'),
-        'role' => 'guru',
-        'is_active' => true,
+        'password' => '01121980',
     ]);
 
-    $this->siswa = User::create([
-        'identity_number' => '1010101010',
+    $this->siswa = createSiswa([
+        'nisn' => '1010101010',
         'name' => 'Ahmad Fauzi',
         'birth_date' => '2012-05-15',
-        'password' => Hash::make('15052012'),
-        'role' => 'siswa',
+        'password' => '15052012',
         'classroom_id' => $this->classroom->id,
-        'is_active' => true,
     ]);
 
     $this->schedule = ClassSchedule::create([
         'classroom_id' => $this->classroom->id,
         'subject_id' => $this->subject->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'day_of_week' => TeacherAttendanceService::getIndonesianDayName(Carbon::today()),
         'start_time' => '07:30:00',
         'end_time' => '09:00:00',
@@ -64,7 +57,7 @@ beforeEach(function () {
 
     $this->session = ClassSession::create([
         'schedule_id' => $this->schedule->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'pin_code' => '8492',
         'duration_minutes' => 3,
         'started_at' => Carbon::now(),
@@ -95,7 +88,7 @@ test('TC-EDGE-001: Retry presensi saat koneksi terputus bersifat idempoten tanpa
     $res2->assertStatus(200);
     $res2->assertJson(['already_verified' => true]);
 
-    expect(LessonAttendance::where('schedule_id', $this->schedule->id)->where('student_id', $this->siswa->id)->count())->toBe(1);
+    expect(LessonAttendance::where('schedule_id', $this->schedule->id)->where('student_id', $this->siswa->student->id)->count())->toBe(1);
 });
 
 test('TC-EDGE-002: GPS drift akurasi rendah dalam batas toleransi soft radius + 25 meter tetap diterima', function () {
@@ -121,26 +114,26 @@ test('TC-EDGE-003: Check-in Gating memblokir guru membuka sesi sebelum presensi 
     expect(session('error'))->toContain('belum melakukan presensi masuk di Layar Presensi Madrasah');
 });
 
-test('TC-EDGE-004: Teaching Completion Lock memblokir guru check-out jika masih ada jadwal kelas belum LOCKED', function () {
-    DailyAttendance::create([
-        'user_id' => $this->guru->id,
-        'attendance_date' => Carbon::today(),
-        'check_in_time' => '07:05:00',
-        'check_in_status' => 'HADIR',
-    ]);
-
-    // Active session exists (not yet LOCKED)
+test('TC-EDGE-004: Presensi pulang tidak ada — route check-out dihapus dan check-in tetap bekerja', function () {
     $tokenPayload = $this->kioskService->generateTokenPayload();
 
     $this->actingAs($this->guru);
-    $response = $this->postJson('/guru/scan/check-out', [
+
+    // Route /guru/scan/check-out sudah tidak ada
+    $this->postJson('/guru/scan/check-out', [
+        'qr_token' => $tokenPayload['token'],
+        'latitude' => -7.010000,
+        'longitude' => 107.900000,
+    ])->assertStatus(404);
+
+    // Check-in tetap dapat dilakukan (absen kedatangan harian)
+    $resCheckIn = $this->postJson('/guru/scan/check-in', [
         'qr_token' => $tokenPayload['token'],
         'latitude' => -7.010000,
         'longitude' => 107.900000,
     ]);
-
-    $response->assertStatus(422);
-    $response->assertJson(['code' => 'TEACHING_COMPLETION_LOCKED']);
+    $resCheckIn->assertStatus(200);
+    $resCheckIn->assertJson(['success' => true]);
 });
 
 test('TC-EDGE-005: PIN expired boundary check — +3 detik grace masih lolos vs +6 detik ditolak', function () {
@@ -191,12 +184,6 @@ test('TC-EDGE-006: Akses luar madrasah (>100m) memicu penolakan geofence pada ch
 });
 
 test('TC-EDGE-007: QR Token expired saat scan — window-1 masih diterima, window-2 ditolak', function () {
-    DailyAttendance::create([
-        'user_id' => $this->guru->id,
-        'attendance_date' => Carbon::today(),
-        'check_in_time' => '07:05:00',
-        'check_in_status' => 'HADIR',
-    ]);
     $this->session->update(['status' => 'LOCKED']);
 
     $this->actingAs($this->guru);
@@ -207,7 +194,7 @@ test('TC-EDGE-007: QR Token expired saat scan — window-1 masih diterima, windo
     $secret = config('app.key') ?: (env('APP_KEY') ?: 'maarif-secret-kiosk-key-2026');
     $tokenPrev = hash_hmac('sha256', $prevWindow.':kiosk-ruang-guru-ma-maarif', $secret);
 
-    $resPrev = $this->postJson('/guru/scan/check-out', [
+    $resPrev = $this->postJson('/guru/scan/check-in', [
         'qr_token' => $tokenPrev,
         'latitude' => -7.010000,
         'longitude' => 107.900000,
@@ -218,7 +205,7 @@ test('TC-EDGE-007: QR Token expired saat scan — window-1 masih diterima, windo
     $expiredWindow = (int) floor($nowTs / 10) - 2;
     $tokenExpired = hash_hmac('sha256', $expiredWindow.':kiosk-ruang-guru-ma-maarif', $secret);
 
-    $resExpired = $this->postJson('/guru/scan/check-out', [
+    $resExpired = $this->postJson('/guru/scan/check-in', [
         'qr_token' => $tokenExpired,
         'latitude' => -7.010000,
         'longitude' => 107.900000,

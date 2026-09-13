@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard — MA Ma\'arif Cilageni')
+@section('title', 'Dashboard — SIMADMA')
 
 @push('styles')
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,6 +12,14 @@
     .mono-font, .font-num { font-feature-settings: 'tnum', 'zero'; }
     .radar-pulse { animation: radar-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite; }
     @keyframes radar-ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+    @keyframes pin-shake {
+        10%, 90% { transform: translateX(-2px); }
+        20%, 80% { transform: translateX(4px); }
+        30%, 50%, 70% { transform: translateX(-6px); }
+        40%, 60% { transform: translateX(6px); }
+    }
+    .pin-shake { animation: pin-shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+    .keypad-locked { opacity: 0.45; pointer-events: none; }
     .keypad-btn {
         height: 48px;
         font-size: 1.125rem;
@@ -158,17 +166,25 @@
                 <p class="text-[11px] text-slate-400 mt-0.5">Ketik kode PIN yang diinstruksikan oleh guru di kelas</p>
                 
                 <!-- 4-Digit Display Boxes -->
-                <div class="flex items-center justify-center gap-2.5 my-3">
+                <div id="digitRow" class="flex items-center justify-center gap-2.5 my-3">
                     <div id="digit0" class="w-12 h-14 sm:w-14 sm:h-16 rounded-xl border-2 border-emerald-600 bg-white shadow-xs flex items-center justify-center text-xl sm:text-2xl font-bold text-slate-800 mono-font shrink-0 ring-2 ring-emerald-500/20 transition-all"></div>
                     <div id="digit1" class="w-12 h-14 sm:w-14 sm:h-16 rounded-xl border-2 border-slate-200 bg-slate-50/50 shadow-xs flex items-center justify-center text-xl sm:text-2xl font-bold text-slate-800 mono-font shrink-0 transition-all"></div>
                     <div id="digit2" class="w-12 h-14 sm:w-14 sm:h-16 rounded-xl border-2 border-slate-200 bg-slate-50/50 shadow-xs flex items-center justify-center text-xl sm:text-2xl font-bold text-slate-800 mono-font shrink-0 transition-all"></div>
                     <div id="digit3" class="w-12 h-14 sm:w-14 sm:h-16 rounded-xl border-2 border-slate-200 bg-slate-50/50 shadow-xs flex items-center justify-center text-xl sm:text-2xl font-bold text-slate-800 mono-font shrink-0 transition-all"></div>
                 </div>
                 <p id="pinFeedback" class="text-xs font-semibold text-rose-600 h-5"></p>
+                <!-- Cooldown Panel -->
+                <div id="pinCooldown" class="hidden bg-rose-50 border-2 border-rose-300 rounded-xl px-4 py-3 mt-2 space-y-1">
+                    <p class="text-xs font-bold text-rose-700 heading-font flex items-center justify-center gap-1.5">
+                        <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                        PIN DIBEKUKAN — 3 KALI SALAH
+                    </p>
+                    <p class="text-[11px] text-rose-600 font-medium">Coba lagi dalam <span id="pinCooldownTimer" class="font-bold mono-font text-rose-700">01:00</span></p>
+                </div>
             </div>
 
             <!-- Ergonomic Touch Keypad (3x4 Grid) -->
-            <div class="grid grid-cols-3 gap-2 pt-0.5 max-w-[280px] mx-auto">
+            <div id="keypadGrid" class="grid grid-cols-3 gap-2 pt-0.5 max-w-[280px] mx-auto">
                 @foreach([1, 2, 3, 4, 5, 6, 7, 8, 9] as $n)
                     <button type="button" onclick="pressKey('{{ $n }}')" class="keypad-btn bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-slate-800 rounded-xl border border-slate-200 shadow-2xs transition-all duration-150 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
                         {{ $n }}
@@ -441,6 +457,9 @@
     let currentCoords = { lat: null, lng: null };
     let enteredPin = "";
     let activeSession = null;
+    let isPinLocked = false;
+    let pinCooldownTimerId = null;
+    let pinErrorTimeoutId = null;
     let countdownTimer = null;
     let remainingSec = 0;
     let liveClockInterval = null;
@@ -685,6 +704,9 @@
             if (outsideWarning) outsideWarning.classList.add('hidden');
 
             if (data.has_session && data.session) {
+                if (!activeSession || activeSession.id !== data.session.id) {
+                    resetPinLockState();
+                }
                 activeSession = data.session;
                 if (noSessionNotice) noSessionNotice.classList.add('hidden');
                 if (sessionCard) sessionCard.classList.remove('hidden');
@@ -756,6 +778,7 @@
     // Keypad Logic
     function pressKey(num) {
         const pinFeedback = document.getElementById('pinFeedback');
+        if (isPinLocked) return;
         if (!isGpsLocked || !isWithinGeofence || !currentCoords.lat) {
             if (pinFeedback) {
                 pinFeedback.textContent = "Presensi terkunci: Menunggu lokasi GPS madrasah terverifikasi.";
@@ -792,10 +815,89 @@
         if (pinFeedback) pinFeedback.textContent = "";
     }
 
-    function updatePinBoxes() {
+    // Visual failure feedback: red boxes + shake
+    function showPinError() {
+        const digitRow = document.getElementById('digitRow');
+        const pinFeedback = document.getElementById('pinFeedback');
+        if (digitRow) {
+            digitRow.classList.remove('pin-shake');
+            void digitRow.offsetWidth; // restart animation
+            digitRow.classList.add('pin-shake');
+        }
+        updatePinBoxes(true);
+        if (pinFeedback) pinFeedback.className = "text-xs font-bold text-rose-600 h-5";
+        if (pinErrorTimeoutId) clearTimeout(pinErrorTimeoutId);
+        pinErrorTimeoutId = setTimeout(() => {
+            updatePinBoxes();
+            if (digitRow) digitRow.classList.remove('pin-shake');
+        }, 1100);
+    }
+
+    // Cooldown: lock keypad and count down 60s
+    function startPinCooldown(seconds) {
+        isPinLocked = true;
+        const cooldownPanel = document.getElementById('pinCooldown');
+        const timerEl = document.getElementById('pinCooldownTimer');
+        const keypad = document.getElementById('keypadGrid');
+        const pinFeedback = document.getElementById('pinFeedback');
+        if (pinFeedback) pinFeedback.textContent = "";
+        if (keypad) keypad.classList.add('keypad-locked');
+        if (cooldownPanel) cooldownPanel.classList.remove('hidden');
+
+        let remaining = Math.max(1, Math.ceil(seconds));
+        const render = () => {
+            const m = Math.floor(remaining / 60);
+            const s = remaining % 60;
+            if (timerEl) timerEl.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+        };
+        render();
+        if (pinCooldownTimerId) clearInterval(pinCooldownTimerId);
+        pinCooldownTimerId = setInterval(() => {
+            remaining--;
+            if (remaining <= 0) {
+                clearInterval(pinCooldownTimerId);
+                pinCooldownTimerId = null;
+                isPinLocked = false;
+                if (cooldownPanel) cooldownPanel.classList.add('hidden');
+                if (keypad) keypad.classList.remove('keypad-locked');
+                enteredPin = "";
+                updatePinBoxes();
+                const fb = document.getElementById('pinFeedback');
+                if (fb) {
+                    fb.textContent = "Silakan masukkan PIN kembali.";
+                    fb.className = "text-xs font-semibold text-slate-500 h-5";
+                }
+            } else {
+                render();
+            }
+        }, 1000);
+    }
+
+    function resetPinLockState() {
+        isPinLocked = false;
+        if (pinCooldownTimerId) {
+            clearInterval(pinCooldownTimerId);
+            pinCooldownTimerId = null;
+        }
+        if (pinErrorTimeoutId) {
+            clearTimeout(pinErrorTimeoutId);
+            pinErrorTimeoutId = null;
+        }
+        const cooldownPanel = document.getElementById('pinCooldown');
+        const keypad = document.getElementById('keypadGrid');
+        if (cooldownPanel) cooldownPanel.classList.add('hidden');
+        if (keypad) keypad.classList.remove('keypad-locked');
+    }
+
+    function updatePinBoxes(isError = false) {
         for (let i = 0; i < 4; i++) {
             const el = document.getElementById('digit' + i);
             if (!el) continue;
+            if (isError) {
+                el.textContent = enteredPin[i] || "";
+                el.className = "w-12 h-14 sm:w-14 sm:h-16 rounded-xl border-2 border-rose-500 bg-rose-50 flex items-center justify-center text-xl sm:text-2xl font-bold text-rose-700 mono-font shrink-0 ring-2 ring-rose-400/30 transition-all";
+                continue;
+            }
             if (i < enteredPin.length) {
                 el.textContent = enteredPin[i];
                 el.className = "w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 border-maarif-600 bg-emerald-50/60 flex items-center justify-center text-2xl sm:text-3xl font-bold text-emerald-950 mono-font shadow-sm shrink-0 ring-2 ring-emerald-500/20 transition-all";
@@ -854,11 +956,22 @@
                 setTimeout(checkServerStatus, 2000);
             } else {
                 if (window.triggerHaptic) window.triggerHaptic([200]);
+                if (data.code === 'RATE_LIMITED' || data.is_locked) {
+                    // 3 kali salah — cooldown 1 menit dimulai
+                    showPinError();
+                    startPinCooldown(data.cooldown_seconds || 60);
+                    return;
+                }
+                // PIN salah biasa: kotak merah + getar + pesan
                 if (pinFeedback) {
-                    pinFeedback.textContent = data.message || "PIN salah. Silakan coba lagi.";
+                    pinFeedback.textContent = data.message || "PIN SALAH! Silakan coba lagi.";
                     pinFeedback.className = "text-xs font-bold text-rose-600 h-5";
                 }
-                clearPin();
+                showPinError();
+                setTimeout(() => {
+                    enteredPin = "";
+                    updatePinBoxes();
+                }, 1100);
             }
         } catch(e) {
             if (pinFeedback) {

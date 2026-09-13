@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Classroom;
-use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -15,35 +14,29 @@ beforeEach(function () {
         'academic_year' => '2026/2027',
     ]);
 
-    $this->siswa = User::create([
-        'identity_number' => '1010101010',
+    $this->siswa = createSiswa([
+        'nisn' => '1010101010',
         'name' => 'Ahmad Fauzi',
         'email' => 'fauzi@siswa.maarif.sch.id',
         'birth_date' => '2012-05-15',
-        'password' => Hash::make('akunsiswa@maarif'),
-        'role' => 'siswa',
+        'password' => 'akunsiswa@maarif',
         'classroom_id' => $this->classroom->id,
-        'is_active' => true,
     ]);
 
-    $this->guru = User::create([
-        'identity_number' => '198012012010011001',
+    $this->guru = createGuru([
+        'nip' => '198012012010011001',
         'name' => 'Ust. H. Ahmad Dahlan',
         'email' => 'ahmad@maarif.sch.id',
         'birth_date' => '1980-12-01',
-        'password' => Hash::make('akunguru@maarif'),
-        'role' => 'guru',
-        'is_active' => true,
+        'password' => 'akunguru@maarif',
     ]);
 
-    $this->admin = User::create([
-        'identity_number' => '198501012010011001',
+    $this->admin = createAdmin([
+        'nip' => '198501012010011001',
         'name' => 'Staf Tata Usaha',
         'email' => 'tu@maarif.sch.id',
         'birth_date' => '1985-01-01',
-        'password' => Hash::make('p@55w0rd'),
-        'role' => 'admin',
-        'is_active' => true,
+        'password' => 'p@55w0rd',
     ]);
 });
 
@@ -246,4 +239,24 @@ test('TC-COM-AUTH-016: Akses route terproteksi tanpa login dialihkan ke /login (
     $this->get('/guru')->assertRedirect(route('login'));
     $this->get('/admin')->assertRedirect(route('login'));
     $this->get('/profile')->assertRedirect(route('login'));
+});
+
+test('TC-COM-AUTH-015: Login — sukses menggunakan NISN (profil siswa) tanpa email', function () {
+    $response = $this->post('/login', [
+        'login' => '1010101010',
+        'password' => 'akunsiswa@maarif',
+    ]);
+
+    $response->assertRedirect(route('siswa.dashboard'));
+    $this->assertAuthenticatedAs($this->siswa);
+});
+
+test('TC-COM-AUTH-016: Login — sukses menggunakan NIP (profil guru) tanpa email', function () {
+    $response = $this->post('/login', [
+        'login' => '198012012010011001',
+        'password' => 'akunguru@maarif',
+    ]);
+
+    $response->assertRedirect(route('guru.dashboard'));
+    $this->assertAuthenticatedAs($this->guru);
 });

@@ -7,9 +7,7 @@ use App\Models\ClassSession;
 use App\Models\LessonAttendance;
 use App\Models\SchoolLocation;
 use App\Models\Subject;
-use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Hash;
 
 beforeEach(function () {
     $this->location = SchoolLocation::create([
@@ -31,50 +29,42 @@ beforeEach(function () {
         'name' => 'Fikih',
     ]);
 
-    $this->guruA = User::create([
-        'identity_number' => '198012012010011001',
+    $this->guruA = createGuru([
+        'nip' => '198012012010011001',
         'name' => 'Ust. Guru A',
         'email' => 'gurua@maarif.sch.id',
         'birth_date' => '1980-12-01',
-        'password' => Hash::make('01121980'),
-        'role' => 'guru',
-        'is_active' => true,
+        'password' => '01121980',
     ]);
 
-    $this->guruB = User::create([
-        'identity_number' => '198502022010011002',
+    $this->guruB = createGuru([
+        'nip' => '198502022010011002',
         'name' => 'Ust. Guru B',
         'email' => 'gurub@maarif.sch.id',
         'birth_date' => '1985-02-02',
-        'password' => Hash::make('02021985'),
-        'role' => 'guru',
-        'is_active' => true,
+        'password' => '02021985',
     ]);
 
-    $this->siswa = User::create([
-        'identity_number' => '1010101010',
+    $this->siswa = createSiswa([
+        'nisn' => '1010101010',
         'name' => 'Ahmad Siswa',
         'birth_date' => '2012-05-15',
-        'password' => Hash::make('15052012'),
-        'role' => 'siswa',
+        'password' => '15052012',
         'classroom_id' => $this->classroom->id,
-        'is_active' => true,
     ]);
 
-    $this->admin = User::create([
-        'identity_number' => '198501012010011001',
+    $this->admin = createAdmin([
+        'nip' => '198501012010011001',
         'name' => 'Staf TU Admin',
         'email' => 'tu@maarif.sch.id',
         'birth_date' => '1985-01-01',
-        'password' => Hash::make('Admin123!'),
-        'role' => 'admin',
-        'is_active' => true,
+        'password' => 'Admin123!',
     ]);
 
     $this->scheduleA = ClassSchedule::create([
         'classroom_id' => $this->classroom->id,
         'subject_id' => $this->subject->id,
-        'teacher_id' => $this->guruA->id,
+        'teacher_id' => $this->guruA->teacher->id,
         'day_of_week' => 'Senin',
         'start_time' => '07:30:00',
         'end_time' => '09:00:00',
@@ -82,7 +72,7 @@ beforeEach(function () {
 
     $this->sessionA = ClassSession::create([
         'schedule_id' => $this->scheduleA->id,
-        'teacher_id' => $this->guruA->id,
+        'teacher_id' => $this->guruA->teacher->id,
         'pin_code' => '8492',
         'duration_minutes' => 3,
         'started_at' => Carbon::now(),
@@ -171,7 +161,7 @@ test('TC-RBAC-011: Locked Session — Guru terkunci dari pengubahan, Admin tetap
     $attendance = LessonAttendance::create([
         'session_id' => $this->sessionA->id,
         'schedule_id' => $this->scheduleA->id,
-        'student_id' => $this->siswa->id,
+        'student_id' => $this->siswa->student->id,
         'attendance_date' => Carbon::today(),
         'status' => 'ALPA',
     ]);

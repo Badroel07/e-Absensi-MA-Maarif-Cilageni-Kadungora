@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\AttendanceAuditLog;
 use App\Models\DailyAttendance;
 use App\Models\LessonAttendance;
-use App\Models\User;
+use App\Models\Student;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
@@ -39,9 +39,12 @@ class AttendanceCorrectionService
         }
 
         if (! empty($search)) {
-            $query->whereHas('student', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('identity_number', 'like', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('student', function ($sq) use ($search) {
+                    $sq->where('nisn', 'like', "%{$search}%");
+                })->orWhereHas('student.user', function ($uq) use ($search) {
+                    $uq->where('name', 'like', "%{$search}%");
+                });
             });
         }
 
@@ -106,7 +109,7 @@ class AttendanceCorrectionService
         ]);
 
         // 3. Keep DailyAttendance in sync if exists
-        $daily = DailyAttendance::where('user_id', $lessonAttendance->student_id)
+        $daily = DailyAttendance::where('user_id', $lessonAttendance->student->user_id)
             ->whereDate('attendance_date', $lessonAttendance->attendance_date)
             ->first();
 
@@ -152,9 +155,9 @@ class AttendanceCorrectionService
      *
      * @return array<string, mixed>
      */
-    public function getStudentIndividualHistory(User $student, ?string $startDate = null, ?string $endDate = null): array
+    public function getStudentIndividualHistory(Student $student, ?string $startDate = null, ?string $endDate = null): array
     {
-        $student->load('classroom');
+        $student->load(['classroom', 'user']);
 
         $startDate = $startDate ?: Carbon::today()->subDays(30)->format('Y-m-d');
         $endDate = $endDate ?: Carbon::today()->format('Y-m-d');

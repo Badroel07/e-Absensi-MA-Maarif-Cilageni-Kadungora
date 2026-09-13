@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Layar Presensi Madrasah — MA Ma'arif Cilageni Kadungora</title>
+    <title>SIMADMA — Layar Presensi Madrasah</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}">
@@ -58,10 +58,10 @@
                     Terminal Presensi Mandiri
                 </p>
                 <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white heading-font mt-0.5">
-                    MA Ma'arif Cilageni
+                    SIMADMA
                 </h1>
                 <p class="text-xs text-slate-400">
-                    Kadungora — Garut &bull; Ruang Dewan Guru
+                    MA Ma'arif Cilageni &bull; Kadungora — Garut &bull; Ruang Dewan Guru
                 </p>
             </div>
         </div>
@@ -156,16 +156,15 @@
                 <div id="recentScansList" class="divide-y divide-slate-800/80 max-h-76 overflow-y-auto">
                     @forelse($recentAttendances as $att)
                         @php
-                            $isPulang = !empty($att->check_out_time);
                             $initial = substr($att->user->name ?? 'G', 0, 1);
                         @endphp
                         <div class="py-3 flex items-center justify-between gap-4">
                             <div class="flex items-center gap-3.5 min-w-0">
                                 @if($att->user && $att->user->profile_photo_url)
-                                    <img src="{{ $att->user->profile_photo_url }}" 
-                                         loading="lazy" 
-                                         decoding="async" 
-                                         alt="{{ $att->user->name }}" 
+                                    <img src="{{ $att->user->profile_photo_url }}"
+                                         loading="lazy"
+                                         decoding="async"
+                                         alt="{{ $att->user->name }}"
                                          class="w-9 h-9 rounded-xl object-cover shrink-0 border border-slate-700">
                                 @else
                                     <div class="w-9 h-9 rounded-xl bg-slate-800 text-slate-200 border border-slate-700 font-bold text-xs flex items-center justify-center shrink-0">
@@ -177,16 +176,12 @@
                                         {{ $att->user->name ?? 'Dewan Guru' }}
                                     </p>
                                     <p class="text-xs text-slate-400 font-mono mt-0.5">
-                                        @if($isPulang)
-                                            Pulang: {{ substr($att->check_out_time, 0, 5) }} WIB
-                                        @else
-                                            Masuk: {{ substr($att->check_in_time, 0, 5) }} WIB ({{ $att->check_in_status ?? 'HADIR' }})
-                                        @endif
+                                        Masuk: {{ substr($att->check_in_time, 0, 5) }} WIB ({{ $att->check_in_status ?? 'HADIR' }})
                                     </p>
                                 </div>
                             </div>
-                            <span class="text-xs font-semibold tracking-wide shrink-0 {{ $isPulang ? 'text-sky-400' : 'text-emerald-400' }}">
-                                {{ $isPulang ? 'Sudah Pulang' : 'Hadir' }}
+                            <span class="text-xs font-semibold tracking-wide shrink-0 text-emerald-400">
+                                Hadir
                             </span>
                         </div>
                     @empty
@@ -233,14 +228,14 @@
             Status Terminal: <strong class="text-emerald-400 font-semibold">Aktif &bull; Terhubung ke Server Presensi</strong>
         </div>
         <div>
-            MA Ma'arif Cilageni Kadungora — Garut &bull; Sistem Absensi Modern v2.0
+            SIMADMA — Sistem Informasi Madrasah &bull; MA Ma'arif Cilageni Kadungora — Garut
         </div>
     </footer>
 
     <!-- ============================================================== -->
     <!-- INTERACTIVE CELEBRATION GREETING MODAL (POP-UP SAMBUTAN GURU) -->
     <!-- ============================================================== -->
-    <div id="greetingModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm transition-opacity duration-200">
+    <div id="greetingModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/85 transition-opacity duration-200">
         
         <div id="greetingCard" class="relative w-full max-w-md bg-slate-900 border-2 rounded-3xl p-7 shadow-2xl text-center overflow-hidden flex flex-col items-center animate-scale-up">
             
@@ -626,11 +621,10 @@
             }
             let html = '';
             items.forEach(att => {
-                const isPulang = !!att.check_out_time;
                 const initial = att.name.charAt(0);
-                const statusColor = isPulang ? 'text-sky-400' : 'text-emerald-400';
-                const statusText = isPulang ? 'Sudah Pulang' : 'Hadir';
-                const timeText = isPulang ? `Pulang: ${att.check_out_time} WIB` : `Masuk: ${att.check_in_time} WIB (${att.check_in_status})`;
+                const statusColor = 'text-emerald-400';
+                const statusText = 'Hadir';
+                const timeText = `Masuk: ${att.check_in_time} WIB (${att.check_in_status})`;
 
                 html += `
                     <div class="py-3 flex items-center justify-between gap-4">

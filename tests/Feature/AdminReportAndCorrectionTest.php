@@ -8,9 +8,7 @@ use App\Models\DailyAttendance;
 use App\Models\LessonAttendance;
 use App\Models\SchoolLocation;
 use App\Models\Subject;
-use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Hash;
 
 beforeEach(function () {
     $this->location = SchoolLocation::create([
@@ -21,14 +19,12 @@ beforeEach(function () {
         'is_active' => true,
     ]);
 
-    $this->admin = User::create([
-        'identity_number' => '198501012010011001',
+    $this->admin = createAdmin([
+        'nip' => '198501012010011001',
         'name' => 'Staf Tata Usaha',
         'email' => 'tu@maarif.sch.id',
         'birth_date' => '1985-01-01',
-        'password' => Hash::make('Admin123!'),
-        'role' => 'admin',
-        'is_active' => true,
+        'password' => 'Admin123!',
     ]);
 
     $this->classroom = Classroom::create([
@@ -42,30 +38,26 @@ beforeEach(function () {
         'name' => 'Fikih',
     ]);
 
-    $this->guru = User::create([
-        'identity_number' => '198012012010011001',
+    $this->guru = createGuru([
+        'nip' => '198012012010011001',
         'name' => 'Ust. H. Ahmad Dahlan',
         'email' => 'ahmad@maarif.sch.id',
         'birth_date' => '1980-12-01',
-        'password' => Hash::make('01121980'),
-        'role' => 'guru',
-        'is_active' => true,
+        'password' => '01121980',
     ]);
 
-    $this->siswa = User::create([
-        'identity_number' => '1010101010',
+    $this->siswa = createSiswa([
+        'nisn' => '1010101010',
         'name' => 'Ahmad Fauzi',
         'birth_date' => '2012-05-15',
-        'password' => Hash::make('15052012'),
-        'role' => 'siswa',
+        'password' => '15052012',
         'classroom_id' => $this->classroom->id,
-        'is_active' => true,
     ]);
 
     $this->schedule = ClassSchedule::create([
         'classroom_id' => $this->classroom->id,
         'subject_id' => $this->subject->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'day_of_week' => 'Senin',
         'start_time' => '07:30',
         'end_time' => '09:00',
@@ -73,7 +65,7 @@ beforeEach(function () {
 
     $this->session = ClassSession::create([
         'schedule_id' => $this->schedule->id,
-        'teacher_id' => $this->guru->id,
+        'teacher_id' => $this->guru->teacher->id,
         'pin_code' => '8492',
         'duration_minutes' => 3,
         'started_at' => Carbon::now()->subMinutes(10),
@@ -86,7 +78,7 @@ test('TC-ADM-LAP-001: Laporan — index statistik dengan filter tanggal dan kela
     LessonAttendance::create([
         'session_id' => $this->session->id,
         'schedule_id' => $this->schedule->id,
-        'student_id' => $this->siswa->id,
+        'student_id' => $this->siswa->student->id,
         'attendance_date' => Carbon::today(),
         'status' => 'HADIR',
     ]);
@@ -133,7 +125,7 @@ test('TC-ADM-PSW-001: Presensi Siswa — index filter harian dan kelas', functio
     LessonAttendance::create([
         'session_id' => $this->session->id,
         'schedule_id' => $this->schedule->id,
-        'student_id' => $this->siswa->id,
+        'student_id' => $this->siswa->student->id,
         'attendance_date' => Carbon::today(),
         'status' => 'ALPA',
     ]);
@@ -157,7 +149,7 @@ test('TC-ADM-PSW-002: Presensi Siswa — koreksi status ALPA ke IZIN dan mencata
     $attendance = LessonAttendance::create([
         'session_id' => $this->session->id,
         'schedule_id' => $this->schedule->id,
-        'student_id' => $this->siswa->id,
+        'student_id' => $this->siswa->student->id,
         'attendance_date' => Carbon::today(),
         'status' => 'ALPA',
     ]);
@@ -190,7 +182,7 @@ test('TC-ADM-PSW-003: Presensi Siswa — koreksi ditolak jika alasan (reason) ko
     $attendance = LessonAttendance::create([
         'session_id' => $this->session->id,
         'schedule_id' => $this->schedule->id,
-        'student_id' => $this->siswa->id,
+        'student_id' => $this->siswa->student->id,
         'attendance_date' => Carbon::today(),
         'status' => 'ALPA',
     ]);
@@ -210,7 +202,7 @@ test('TC-ADM-PSW-004: Presensi Siswa — koreksi ditolak jika status di luar enu
     $attendance = LessonAttendance::create([
         'session_id' => $this->session->id,
         'schedule_id' => $this->schedule->id,
-        'student_id' => $this->siswa->id,
+        'student_id' => $this->siswa->student->id,
         'attendance_date' => Carbon::today(),
         'status' => 'ALPA',
     ]);
@@ -230,7 +222,7 @@ test('TC-ADM-PSW-005: Presensi Siswa — update idempoten jika status dan alasan
     $attendance = LessonAttendance::create([
         'session_id' => $this->session->id,
         'schedule_id' => $this->schedule->id,
-        'student_id' => $this->siswa->id,
+        'student_id' => $this->siswa->student->id,
         'attendance_date' => Carbon::today(),
         'status' => 'IZIN',
         'notes' => 'Surat dokter',
@@ -315,7 +307,7 @@ test('TC-ADM-AUD-001: Audit Trail — index log kronologis perubahan status pres
     $attendance = LessonAttendance::create([
         'session_id' => $this->session->id,
         'schedule_id' => $this->schedule->id,
-        'student_id' => $this->siswa->id,
+        'student_id' => $this->siswa->student->id,
         'attendance_date' => Carbon::today(),
         'status' => 'IZIN',
         'notes' => 'Alasan koreksi audit trail test',

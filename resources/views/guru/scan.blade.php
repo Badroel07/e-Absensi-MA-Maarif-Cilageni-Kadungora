@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Pindai QR Presensi — MA Ma\'arif Cilageni')
+@section('title', 'Pindai QR Presensi — SIMADMA')
 @section('page-title', 'Pindai QR Presensi')
 
 @push('styles')
@@ -53,7 +53,7 @@
 
     <!-- Header Intro -->
     <section class="space-y-1.5" data-purpose="header-intro">
-        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight heading-font">Pemindai QR Presensi</h2>
+        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight heading-font">Pemindai QR Presensi Masuk</h2>
         <p class="text-xs sm:text-sm text-slate-500 leading-relaxed">
             Arahkan kamera ke kode QR dinamis di Layar Presensi Madrasah
         </p>
@@ -64,30 +64,26 @@
                     <span class="text-slate-300">/</span>
                     <span class="text-slate-600 font-semibold mono-font">
                         {{ substr($dailyAttendance->check_in_time, 0, 5) }} WIB
-                        @if($dailyAttendance?->check_out_time)
-                            → {{ substr($dailyAttendance->check_out_time, 0, 5) }} WIB
-                        @endif
                     </span>
                 @endif
             </p>
         @endif
     </section>
 
-    {{-- Sudah Pulang State --}}
-    @if(isset($dailyAttendance) && $dailyAttendance?->check_out_time)
+    {{-- Sudah Presensi Masuk State --}}
+    @if(isset($dailyAttendance) && $dailyAttendance?->check_in_time)
         <div class="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/80 shadow-sm text-center space-y-5 max-w-2xl mx-auto">
             <svg class="w-12 h-12 text-emerald-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
             </svg>
             <div class="space-y-2">
-                <h2 class="text-lg sm:text-xl font-bold text-slate-900 heading-font">Anda Sudah Boleh Pulang</h2>
+                <h2 class="text-lg sm:text-xl font-bold text-slate-900 heading-font">Presensi Masuk Sudah Tercatat</h2>
                 <p class="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-lg mx-auto">
-                    Seluruh rangkaian tugas mengajar dan presensi harian telah selesai. Silakan beristirahat dan hati-hati di perjalanan.
+                    Kehadiran Bapak/Ibu hari ini sudah tercatat. Absen sesi mengajar tercatat otomatis saat membuka Sesi Presensi di kelas.
                 </p>
             </div>
-            <div class="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200/70 text-left text-xs">
+            <div class="grid grid-cols-1 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200/70 text-left text-xs">
                 <div><span class="text-slate-500 block text-[11px]">Presensi Masuk:</span><span class="mono-font font-bold text-emerald-700 text-sm block">{{ substr($dailyAttendance->check_in_time ?? '--:--', 0, 5) }} WIB</span></div>
-                <div><span class="text-slate-500 block text-[11px]">Presensi Pulang:</span><span class="mono-font font-bold text-emerald-700 text-sm block">{{ substr($dailyAttendance->check_out_time, 0, 5) }} WIB</span></div>
             </div>
             <div class="pt-3 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <a href="{{ route('guru.dashboard') }}" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold inline-flex items-center justify-center gap-2">
@@ -104,8 +100,8 @@
                 <section class="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-200/70 space-y-4" data-purpose="qr-scanner-card">
                     <!-- Header Info Mode Presensi -->
                     <div class="flex items-center justify-between text-xs sm:text-sm px-1">
-                        <span class="font-semibold text-slate-700 heading-font">Deteksi Mode Otomatis</span>
-                        <span class="font-bold text-emerald-700">{{ $hasCheckedIn ? 'Siap Pulang' : 'Siap Masuk' }}</span>
+                        <span class="font-semibold text-slate-700 heading-font">Mode Presensi</span>
+                        <span class="font-bold text-emerald-700">Presensi Masuk</span>
                     </div>
 
                     <!-- Viewfinder Viewport -->
@@ -245,28 +241,10 @@
                         <h4 class="text-xs sm:text-sm font-bold text-slate-800 heading-font">Informasi Presensi Guru</h4>
                     </div>
                     <ul class="text-[11px] sm:text-xs text-slate-600 space-y-1.5 pl-6 list-disc leading-relaxed marker:text-slate-400">
-                        <li>Scan pertama hari ini otomatis mencatat <strong class="text-slate-800 font-semibold">Presensi Masuk</strong>.</li>
-                        <li>Selesaikan semua kelas mengajar di jadwal harian sebelum melakukan <strong class="text-slate-800 font-semibold">Presensi Pulang</strong>.</li>
+                        <li>Scan hari ini mencatat <strong class="text-slate-800 font-semibold">Presensi Masuk</strong> — syarat untuk membuka sesi presensi kelas.</li>
+                        <li>Absen sesi mengajar tercatat <strong class="text-slate-800 font-semibold">otomatis</strong> saat membuka Sesi Presensi di dashboard.</li>
                     </ul>
                 </section>
-            </div>
-        </div>
-
-        <!-- Modal: Presensi Pulang Tertahan -->
-        <div id="modalLock" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 hidden">
-            <div class="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-rose-200">
-                <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-200/80">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-                </div>
-                <div class="text-center space-y-1">
-                    <h3 class="text-base font-bold text-slate-900 heading-font">Presensi Pulang Tertahan</h3>
-                    <p id="modalLockMessage" class="text-xs text-slate-500 leading-relaxed">Masih ada kelas yang belum disimpan.</p>
-                </div>
-                <div id="modalLockList" class="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 text-xs text-slate-700 space-y-1.5 max-h-36 overflow-y-auto"></div>
-                <div class="flex items-center gap-2.5 pt-1">
-                    <button type="button" onclick="closeLockModal()" class="flex-1 py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs min-h-[44px] cursor-pointer">Tutup</button>
-                    <a href="{{ route('guru.dashboard') }}" class="flex-1 py-3 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs inline-flex items-center justify-center gap-2 min-h-[44px]">Ke Dashboard</a>
-                </div>
             </div>
         </div>
     @endif
@@ -569,7 +547,7 @@
             startCamera();
             return;
         }
-        const endpoint="{{ route('guru.auto', [], false) }}";
+        const endpoint="{{ route('guru.checkin', [], false) }}";
         let _csrfRetry = false;
         const doFetch = async () => {
             const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content,'Accept':'application/json'},body:JSON.stringify({qr_token:token.trim(),latitude:userCoords.lat,longitude:userCoords.lng}), credentials:'same-origin'});
@@ -604,8 +582,7 @@
                     window.location.href="{{ route('guru.dashboard') }}";
                 }
             } else {
-                if(data.code==='TEACHING_COMPLETION_LOCKED') showLockModal(data);
-                else if(data.code==='ALREADY_CHECKED_IN' || data.code==='ALREADY_CHECKED_OUT'){
+                if(data.code==='ALREADY_CHECKED_IN'){
                     if(typeof window.showAlertDialog==='function'){
                         await window.showAlertDialog({title:'Sudah Tercatat',message:data.message,type:'warning',icon:'check-circle-2'});
                     } else alert(data.message);
@@ -655,24 +632,6 @@
         sendScanToken(token);
     }
 
-    function showLockModal(data){
-        document.getElementById('modalLockMessage').textContent=data.message;
-        const listEl=document.getElementById('modalLockList');
-        listEl.innerHTML='';
-        if(data.pending_schedules) data.pending_schedules.forEach(item=>{
-            const p=document.createElement('p');
-            p.className='font-semibold text-rose-700';
-            p.textContent='• '+item;
-            listEl.appendChild(p);
-        });
-        document.getElementById('modalLock').classList.remove('hidden');
-    }
-
-    function closeLockModal() {
-        const m = document.getElementById('modalLock');
-        if (m) m.classList.add('hidden');
-    }
-
     function initScanView() {
         const readerEl = document.getElementById('reader');
         if (!readerEl) return;
@@ -707,7 +666,6 @@
     window.initScanGeolocation = initScanGeolocation;
     window.startCamera = startCamera;
     window.submitManualToken = submitManualToken;
-    window.closeLockModal = closeLockModal;
 
     const cleanupScan = () => {
         stopScannerCleanly();

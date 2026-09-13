@@ -82,6 +82,9 @@
                             {{-- Jam Pelajaran --}}
                             <td class="py-3.5 px-5 font-mono font-medium text-slate-800 mono-font text-xs">
                                 {{ substr($sch->start_time, 0, 5) }} – {{ substr($sch->end_time, 0, 5) }} WIB
+                                @if($sch->late_tolerance_minutes > 0)
+                                    <span class="block mt-0.5 text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-1.5 py-0.5 inline-block not-italic">Toleransi +{{ $sch->late_tolerance_minutes }} mnt</span>
+                                @endif
                             </td>
 
                             {{-- Kelas --}}
@@ -114,6 +117,7 @@
                                             'day_of_week' => $sch->day_of_week,
                                             'start_time' => substr($sch->start_time, 0, 5),
                                             'end_time' => substr($sch->end_time, 0, 5),
+                                            'late_tolerance_minutes' => $sch->late_tolerance_minutes,
                                         ]) }})"
                                         title="Ubah Jadwal"
                                         class="inline-flex items-center justify-center w-8 h-8 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-700 rounded-lg text-xs transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500">
@@ -175,7 +179,7 @@
     </div>
 
     {{-- ── MODAL TAMBAH JADWAL ──────────────────────────────────────── --}}
-    <div id="modalAddJadwal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 hidden transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalAddTitle">
+    <div id="modalAddJadwal" class="fixed inset-0 z-[60] bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 hidden transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalAddTitle">
         <div class="w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-slate-200/80 max-h-[92vh] flex flex-col overflow-hidden transform transition-all">
             {{-- Header --}}
             <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/60 shrink-0">
@@ -252,6 +256,13 @@
                         <input type="time" name="end_time" required
                             class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none bg-slate-50/70 focus:bg-white mono-font font-medium text-xs transition">
                     </div>
+
+                    <div class="sm:col-span-2">
+                        <label class="block font-semibold text-slate-700 mb-1.5">Toleransi Terlambat (menit)</label>
+                        <input type="number" name="late_tolerance_minutes" min="0" max="180" value="0"
+                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-maarif-600 focus:border-maarif-600 focus:outline-none bg-slate-50/70 focus:bg-white mono-font font-medium text-xs transition">
+                        <p class="text-[11px] text-slate-400 mt-1">Buka sesi dalam batas ini tetap Hadir tanpa penanda terlambat. Isi 0 untuk tanpa toleransi (mis. 60 menit untuk sesi pertama hari Senin setelah upacara).</p>
+                    </div>
                 </div>
 
                 <div class="p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200/80 text-[11px] text-slate-500 flex items-start gap-2.5">
@@ -275,7 +286,7 @@
     </div>
 
     {{-- ── MODAL EDIT JADWAL ────────────────────────────────────────── --}}
-    <div id="modalEditJadwal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 hidden transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalEditTitle">
+    <div id="modalEditJadwal" class="fixed inset-0 z-[60] bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 hidden transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="modalEditTitle">
         <div class="w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-slate-200/80 max-h-[92vh] flex flex-col overflow-hidden transform transition-all">
             {{-- Header --}}
             <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/60 shrink-0">
@@ -353,6 +364,13 @@
                         <input type="time" id="editJadwalEndTime" name="end_time" required
                             class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-600 focus:border-sky-600 focus:outline-none bg-slate-50/70 focus:bg-white mono-font font-medium text-xs transition">
                     </div>
+
+                    <div class="sm:col-span-2">
+                        <label class="block font-semibold text-slate-700 mb-1.5">Toleransi Terlambat (menit)</label>
+                        <input type="number" id="editJadwalTolerance" name="late_tolerance_minutes" min="0" max="180"
+                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-600 focus:border-sky-600 focus:outline-none bg-slate-50/70 focus:bg-white mono-font font-medium text-xs transition">
+                        <p class="text-[11px] text-slate-400 mt-1">Buka sesi dalam batas ini tetap Hadir tanpa penanda terlambat. Isi 0 untuk tanpa toleransi (mis. 60 menit untuk sesi pertama hari Senin setelah upacara).</p>
+                    </div>
                 </div>
 
                 <div class="pt-4 flex items-center justify-end gap-2.5 border-t border-slate-100">
@@ -405,6 +423,9 @@
 
         const end = document.getElementById('editJadwalEndTime');
         if (end) end.value = schedule.end_time;
+
+        const tolerance = document.getElementById('editJadwalTolerance');
+        if (tolerance) tolerance.value = schedule.late_tolerance_minutes ?? 0;
 
         const modal = document.getElementById('modalEditJadwal');
         if (modal) modal.classList.remove('hidden');

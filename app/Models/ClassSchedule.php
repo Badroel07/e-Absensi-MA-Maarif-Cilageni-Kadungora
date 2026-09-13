@@ -14,6 +14,10 @@ class ClassSchedule extends Model
 {
     use HasFactory, HasUuids;
 
+    protected $casts = [
+        'late_tolerance_minutes' => 'integer',
+    ];
+
     protected $fillable = [
         'classroom_id',
         'subject_id',
@@ -21,6 +25,7 @@ class ClassSchedule extends Model
         'day_of_week',
         'start_time',
         'end_time',
+        'late_tolerance_minutes',
     ];
 
     public function classroom(): BelongsTo
@@ -35,7 +40,7 @@ class ClassSchedule extends Model
 
     public function teacher(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'teacher_id');
+        return $this->belongsTo(Teacher::class, 'teacher_id');
     }
 
     public function sessions(): HasMany
@@ -53,6 +58,17 @@ class ClassSchedule extends Model
         return $this->hasOne(ClassSession::class, 'schedule_id')
             ->whereDate('created_at', Carbon::today())
             ->latestOfMany();
+    }
+
+    public function teacherAttendances(): HasMany
+    {
+        return $this->hasMany(TeacherSessionAttendance::class, 'schedule_id');
+    }
+
+    public function todayTeacherAttendance(): HasOne
+    {
+        return $this->hasOne(TeacherSessionAttendance::class, 'schedule_id')
+            ->whereDate('attendance_date', Carbon::today());
     }
 
     public function isLockedToday(): bool

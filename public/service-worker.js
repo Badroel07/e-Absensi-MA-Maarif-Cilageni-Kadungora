@@ -1,4 +1,4 @@
-const CACHE_NAME = 'maarif-absensi-v2';
+const CACHE_NAME = 'simadma-v1';
 
 // Hanya asset statis yang di-cache lama (hashed build + manifest).
 // Halaman dinamis (guru/*, siswa/*, admin/*, /, /login) TIDAK pernah di-cache

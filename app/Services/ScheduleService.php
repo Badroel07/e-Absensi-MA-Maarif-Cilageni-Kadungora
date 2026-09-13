@@ -3,7 +3,8 @@
 namespace App\Services;
 
 use App\Models\ClassSchedule;
-use App\Models\User;
+use App\Models\Student;
+use App\Models\Teacher;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
@@ -130,7 +131,7 @@ class ScheduleService
     /**
      * Get weekly schedule grouped and ordered for a student
      */
-    public function getStudentWeeklySchedule(User $student): Collection
+    public function getStudentWeeklySchedule(Student $student): Collection
     {
         if (! $student->classroom_id) {
             return collect();
@@ -158,7 +159,7 @@ class ScheduleService
     /**
      * Get weekly schedule grouped and ordered for a teacher
      */
-    public function getTeacherWeeklySchedule(User $teacher): Collection
+    public function getTeacherWeeklySchedule(Teacher $teacher): Collection
     {
         $dayWeights = [
             'SENIN' => 1,

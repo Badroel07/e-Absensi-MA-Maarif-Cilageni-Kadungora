@@ -1,7 +1,7 @@
 {
-  "name": "Sistem Absensi MA Ma'arif Cilageni",
-  "short_name": "Absensi Ma'arif",
-  "description": "Sistem Absensi Kehadiran Siswa & Guru MA Ma'arif Cilageni Kadungora",
+  "name": "SIMADMA — Sistem Informasi Madrasah MA Ma'arif Cilageni",
+  "short_name": "SIMADMA",
+  "description": "SIMADMA — Sistem Informasi Madrasah: presensi, jadwal & data sekolah MA Ma'arif Cilageni Kadungora",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#15803D",

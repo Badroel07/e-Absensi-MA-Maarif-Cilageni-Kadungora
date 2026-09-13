@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'Panel Admin — Sistem Presensi MA Ma\'arif Cilageni')</title>
+    <title>@yield('title', 'Panel Admin — SIMADMA')</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}">
@@ -27,11 +27,11 @@
 
     <style>
         body {
-            font-family: 'Inter', system-ui, sans-serif;
+            font-family: 'DM Sans', system-ui, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
-        .heading-font { font-family: 'Inter', system-ui, sans-serif; }
-        .mono-font { font-family: 'Inter', system-ui, sans-serif; font-feature-settings: 'tnum', 'zero'; }
+        .heading-font { font-family: 'Lexend', 'DM Sans', system-ui, sans-serif; }
+        .mono-font { font-family: 'Lexend', 'DM Sans', system-ui, sans-serif; font-feature-settings: 'tnum', 'zero'; }
         
         /* Custom slim & elegant scrollbar for sidebar */
         .custom-sidebar-scroll {
@@ -84,12 +84,12 @@
         }
     </style>
 
-    <!-- Web Fonts -->
+    <!-- Google Fonts: Lexend (Heading & Tabular Numbers) & DM Sans (Body & UI) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <style>
             [x-cloak] { display: block !important; }
             [x-show*="!ready"], [x-show*="!shown"] { display: none !important; }
@@ -127,7 +127,7 @@
                     <div class="flex items-center space-x-3">
                         <img src="{{ asset('img/d41a7486-229a-4c8a-9dc7-549fa8b467b0.png') }}" alt="Logo MA Ma'arif Cilageni" class="w-11 h-11 object-contain shrink-0 drop-shadow-md" width="44" height="44" fetchpriority="high">
                         <div id="mobile-header-title">
-                            <h1 class="text-[10px] font-semibold tracking-wider text-emerald-200 uppercase">MA Ma'arif Cilageni</h1>
+                            <h1 class="text-[10px] font-semibold tracking-wider text-emerald-200 uppercase">SIMADMA · MA Ma'arif Cilageni</h1>
                             <p class="text-sm font-semibold text-white heading-font leading-tight">
                                 @yield('page-title', 'Dashboard')
                             </p>

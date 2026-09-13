@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Sesi Presensi Kelas Aktif — MA Ma\'arif Cilageni')
+@section('title', 'Sesi Presensi Kelas Aktif — SIMADMA')
 @section('page-title', 'Sesi Presensi Kelas')
 
 @section('content')
